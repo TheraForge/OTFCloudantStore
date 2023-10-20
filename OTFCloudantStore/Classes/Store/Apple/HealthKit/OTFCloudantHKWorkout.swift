@@ -34,6 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
+import OTFUtilities
 
 /**
  An object representing an important event during a workout.
@@ -214,7 +215,7 @@ public class OTFCloudantHKWorkoutRoute: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKSeriesSample.self, from: data)
             return sample
         } catch {
-            debugPrint("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error \(error)")
+            OTFError("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }

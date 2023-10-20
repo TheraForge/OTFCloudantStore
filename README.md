@@ -5,15 +5,34 @@ the control of the application. OTFCloudantStore manages and resolves the confli
 OTFCloudantStore is an interface between the OTFCarekit, HealthKit and OTFCDTDatastore frameworks.
 
 ## TheraForge Frameworks
-* [OTFToolBox](https://github.com/TheraForge/OTFToolBox)
-* [OTFTemplateBox](https://github.com/TheraForge/OTFTemplateBox)
-* [OTFCareKit](https://github.com/TheraForge/OTFCareKit)
-* [OTFCDTDatastore](https://github.com/TheraForge/OTFCDTDatastore)
-* [OTFCloudClientAPI](https://github.com/TheraForge/OTFCloudClientAPI)
+* [OTFToolBox](../../../OTFToolBox)
+* [OTFTemplateBox](../../../OTFTemplateBox)
+* [OTFCareKit](../../../OTFCareKit)
+* [OTFCDTDatastore](../../../OTFCDTDatastore)
+* [OTFCloudClientAPI](../../../OTFCloudClientAPI)
 
 ## Change Log
-* Release 1.0.0-beta: First beta release of the framework
-* Release 1.0.1-beta: Removed various warnings. Filter outcome result set based on the date interval.
+<details open>
+  <summary>Release 1.0.3-beta</summary>
+  <ul>
+    <li>Added Watch OS support</li>
+  </ul>
+</details>
+
+<details>
+<summary>Release 1.0.1-beta</summary>
+<ul>
+<li>Removed various warnings. Filter outcome result set based on the date interval.</li>
+</ul>
+</details>
+
+<details>
+<summary>Release 1.0.0-beta</summary>
+<ul>
+<li>First beta release of the framework</li>
+</ul>
+</details>
+
 
 ## Table of contents
 * [Requirements](#Requirements)
@@ -142,7 +161,7 @@ Example
     let firstCombinedQuery = OTFCloudantCombinationQueryComponent.combinedQueryComponent(leftComponent: leftComponentFirstQuery, combinationSelector: .and, rightComponent: rightComponentFirstQuery)
     let leftComponentSecondQuery = OTFCloudantQueryComponent.simpleComponent(field: “title”, comparisionOperator: .equal, value: “Test”)
     let rightComponentSecondQuery = OTFCloudantQueryComponent.simpleComponent(field: “age”, comparisionOperator: .lessThan, value: 30)
-    let secondCombinedQuery = OTFCloudantCombinationQueryComponent.combinedQueryComponent(leftComponent: leftComponentSecondQuery, combinationSelector: .and, rightComponent: rightComponentSecondQuery)
+    let secondCombinedQuery = OTFCloudantCombinationQueryComponent.combinedQueryComponent(leftComponent: leftComponentSecondQuery, combinationSelector: .or, rightComponent: rightComponentSecondQuery)
     let complexQuery = OTFCloudantComplexQueryComponent.complexQueryComponent(leftComponent: leftComponentSecondQuery, combinationSelector: .or, rightComponent: rightComponentSecondQuery)
 ```
 `leftComponent`: OTFCloudantCombinationQueryComponent which is created by combining 2 OTFCloudantQueryComponents.

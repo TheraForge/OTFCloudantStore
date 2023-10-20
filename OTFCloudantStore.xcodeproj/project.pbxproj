@@ -23,9 +23,8 @@
 		14CDA45C2668E39C0064B502 /* OTFCloudantSSETest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14CDA45B2668E39C0064B502 /* OTFCloudantSSETest.swift */; };
 		14D4C6012669DD7700AD1219 /* CloudantSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D4C6002669DD7700AD1219 /* CloudantSync.swift */; };
 		14D4C6092669DFA400AD1219 /* URLRequest+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D4C6082669DFA400AD1219 /* URLRequest+Extension.swift */; };
+		479ADF25A1C9F5ED12F471E6 /* Pods_OTFCloudantStore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1B857A8D0B09BDDC4E144CC /* Pods_OTFCloudantStore.framework */; };
 		5A425E842628587900B8F656 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 5A425E832628587900B8F656 /* README.md */; };
-		84DE983D438741FEEC0344BF /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81DBF7741879C1132402AE86 /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework */; };
-		CB022A8B4485350756CB0E04 /* Pods_OTFCloudantStore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F6C958543CDC68AC6323A36 /* Pods_OTFCloudantStore.framework */; };
 		CEE31DC22600C60E009168B4 /* Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE31D902600C60D009168B4 /* Decoder.swift */; };
 		CEE31DC32600C60E009168B4 /* TheraForgeISO8601Formatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE31D912600C60D009168B4 /* TheraForgeISO8601Formatter.swift */; };
 		CEE31DC42600C60E009168B4 /* DecodingError+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE31D922600C60D009168B4 /* DecodingError+Extension.swift */; };
@@ -70,6 +69,7 @@
 		CEE31DEB2600C60E009168B4 /* OTFCloudantQueryComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE31DBF2600C60E009168B4 /* OTFCloudantQueryComponent.swift */; };
 		CEE31DEC2600C60E009168B4 /* OTFCloudantQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE31DC02600C60E009168B4 /* OTFCloudantQuery.swift */; };
 		CEE31DED2600C60E009168B4 /* StoreService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE31DC12600C60E009168B4 /* StoreService.swift */; };
+		D6ECAEEFDFFE17B447DD5F22 /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327F6FA298C0208C0109A7C7 /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework */; };
 		FA23A01E2450B1FD008BEDD7 /* OCKCloudantStore.h in Headers */ = {isa = PBXBuildFile; fileRef = FA23A01C2450B1FD008BEDD7 /* OCKCloudantStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FA23A04D2450B28C008BEDD7 /* .gitkeep in Resources */ = {isa = PBXBuildFile; fileRef = FA23A03A2450B28C008BEDD7 /* .gitkeep */; };
 /* End PBXBuildFile section */
@@ -92,7 +92,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		11D6A8FEC06FF140E6855387 /* Pods-OTFCloudantStore.care.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.care.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.care.xcconfig"; sourceTree = "<group>"; };
+		081E5FF5075F3B51F05ECED8 /* Pods-OTFCloudantStore.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.debug.xcconfig"; sourceTree = "<group>"; };
 		143072A1264D24CA00E2AA75 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		1452D715267756F800DEEC14 /* Date+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extension.swift"; sourceTree = "<group>"; };
 		1452D729267768ED00DEEC14 /* OTFQuantityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTFQuantityTests.swift; sourceTree = "<group>"; };
@@ -113,22 +113,22 @@
 		14CDA45B2668E39C0064B502 /* OTFCloudantSSETest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTFCloudantSSETest.swift; sourceTree = "<group>"; };
 		14D4C6002669DD7700AD1219 /* CloudantSync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudantSync.swift; sourceTree = "<group>"; };
 		14D4C6082669DFA400AD1219 /* URLRequest+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URLRequest+Extension.swift"; sourceTree = "<group>"; };
-		19B3E628DBF0C2175010B527 /* Pods-OTFCloudantStore.carehealth.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.carehealth.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.carehealth.xcconfig"; sourceTree = "<group>"; };
-		2665246282F941EA9F4F0A68 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig"; sourceTree = "<group>"; };
-		289F6C2C2CBFD9F080ACF2D0 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig"; sourceTree = "<group>"; };
-		2A39BBDE96F68B52864E672F /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig"; sourceTree = "<group>"; };
-		4FD500C0451247ED2FE804BF /* Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig"; sourceTree = "<group>"; };
-		51A4322F3FFE539F1B44A8D0 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig"; sourceTree = "<group>"; };
+		15DC476841CDEE2E03DF6EE6 /* Pods-OTFCloudantStore.cloudant.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.cloudant.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.cloudant.xcconfig"; sourceTree = "<group>"; };
+		1872D6AD0C7A8DD0D9EC103A /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig"; sourceTree = "<group>"; };
+		2C2C3526AAC824BE71A4A920 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig"; sourceTree = "<group>"; };
+		2CD3377C9527819A97666E1F /* Pods-OTFCloudantStore.health_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.health_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.health_debug.xcconfig"; sourceTree = "<group>"; };
+		327F6FA298C0208C0109A7C7 /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTFCloudantStore_OTFCloudantStoreTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3447DD8FFA274EDD9D4CB332 /* Pods-OTFCloudantStore.care.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.care.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.care.xcconfig"; sourceTree = "<group>"; };
+		3B53718B8601BB587D4BB717 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig"; sourceTree = "<group>"; };
+		40DB6530A270D1FDCC51214F /* Pods-OTFCloudantStore.care_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.care_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.care_debug.xcconfig"; sourceTree = "<group>"; };
 		5A425E832628587900B8F656 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		7F6C958543CDC68AC6323A36 /* Pods_OTFCloudantStore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTFCloudantStore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		8073AD5C60C0830BEC24DDB9 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig"; sourceTree = "<group>"; };
-		81DBF7741879C1132402AE86 /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTFCloudantStore_OTFCloudantStoreTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		83E699716786F122C5FF8799 /* Pods-OTFCloudantStore.health_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.health_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.health_debug.xcconfig"; sourceTree = "<group>"; };
-		8695EE7434C7C6DB211005C4 /* Pods-OTFCloudantStore.health.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.health.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.health.xcconfig"; sourceTree = "<group>"; };
-		A0C8E501DA261860ECCCE1B9 /* Pods-OTFCloudantStore.cloudant_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.cloudant_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.cloudant_debug.xcconfig"; sourceTree = "<group>"; };
-		C601DC7E494497C8EFB969A0 /* Pods-OTFCloudantStore.carehealth_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.carehealth_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.carehealth_debug.xcconfig"; sourceTree = "<group>"; };
-		CB1C1AE6FEF1493CF03FD026 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig"; sourceTree = "<group>"; };
-		CE37BC602C85B631F4FE38FF /* Pods-OTFCloudantStore.cloudant.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.cloudant.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.cloudant.xcconfig"; sourceTree = "<group>"; };
+		6E1B2EF1A2C4BA52A98FC00E /* Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig"; sourceTree = "<group>"; };
+		7853E62977E7DC5572156BBB /* Pods-OTFCloudantStore.carehealth_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.carehealth_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.carehealth_debug.xcconfig"; sourceTree = "<group>"; };
+		855A953122A966DB708EB6D5 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig"; sourceTree = "<group>"; };
+		8ED62664A1FDD86E8234CD9B /* Pods-OTFCloudantStore.cloudant_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.cloudant_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.cloudant_debug.xcconfig"; sourceTree = "<group>"; };
+		A1B857A8D0B09BDDC4E144CC /* Pods_OTFCloudantStore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OTFCloudantStore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB97FCD4D6CFCE07F7D76266 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig"; sourceTree = "<group>"; };
+		B2047DD03E1EEFA0DBDC7061 /* Pods-OTFCloudantStore.health.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.health.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.health.xcconfig"; sourceTree = "<group>"; };
 		CE658383265B5F2F0092BCAE /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		CEE31D902600C60D009168B4 /* Decoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Decoder.swift; sourceTree = "<group>"; };
 		CEE31D912600C60D009168B4 /* TheraForgeISO8601Formatter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TheraForgeISO8601Formatter.swift; sourceTree = "<group>"; };
@@ -174,14 +174,14 @@
 		CEE31DBF2600C60E009168B4 /* OTFCloudantQueryComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OTFCloudantQueryComponent.swift; sourceTree = "<group>"; };
 		CEE31DC02600C60E009168B4 /* OTFCloudantQuery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OTFCloudantQuery.swift; sourceTree = "<group>"; };
 		CEE31DC12600C60E009168B4 /* StoreService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreService.swift; sourceTree = "<group>"; };
-		E9D4817DDB43963241FEBB36 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig"; sourceTree = "<group>"; };
-		EC92555F3AC82B63D1CDCBCD /* Pods-OTFCloudantStore.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.debug.xcconfig"; sourceTree = "<group>"; };
-		EE70A89DDCB225BA359A8CC3 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig"; sourceTree = "<group>"; };
-		F3F15C85203940C6AECB43C5 /* Pods-OTFCloudantStore.care_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.care_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.care_debug.xcconfig"; sourceTree = "<group>"; };
+		DEBF71A3BBCE419F66900AE2 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig"; sourceTree = "<group>"; };
+		EB7415CB46F1DE328A6CD447 /* Pods-OTFCloudantStore.carehealth.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.carehealth.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.carehealth.xcconfig"; sourceTree = "<group>"; };
+		F290A804C3007C196AF5A28F /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig"; sourceTree = "<group>"; };
 		FA23A0192450B1FD008BEDD7 /* OTFCloudantStore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OTFCloudantStore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA23A01C2450B1FD008BEDD7 /* OCKCloudantStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OCKCloudantStore.h; sourceTree = "<group>"; };
 		FA23A01D2450B1FD008BEDD7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FA23A03A2450B28C008BEDD7 /* .gitkeep */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitkeep; sourceTree = "<group>"; };
+		FD4D2CDD93C1FC508205CC03 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,7 +190,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				14AF8DE02657744E003513DF /* OTFCloudantStore.framework in Frameworks */,
-				84DE983D438741FEEC0344BF /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework in Frameworks */,
+				D6ECAEEFDFFE17B447DD5F22 /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -206,7 +206,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB022A8B4485350756CB0E04 /* Pods_OTFCloudantStore.framework in Frameworks */,
+				479ADF25A1C9F5ED12F471E6 /* Pods_OTFCloudantStore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,8 +249,8 @@
 			isa = PBXGroup;
 			children = (
 				143072A1264D24CA00E2AA75 /* HealthKit.framework */,
-				7F6C958543CDC68AC6323A36 /* Pods_OTFCloudantStore.framework */,
-				81DBF7741879C1132402AE86 /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework */,
+				A1B857A8D0B09BDDC4E144CC /* Pods_OTFCloudantStore.framework */,
+				327F6FA298C0208C0109A7C7 /* Pods_OTFCloudantStore_OTFCloudantStoreTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -258,24 +258,24 @@
 		CD276BDD8D8C49F750767DB3 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				EC92555F3AC82B63D1CDCBCD /* Pods-OTFCloudantStore.debug.xcconfig */,
-				A0C8E501DA261860ECCCE1B9 /* Pods-OTFCloudantStore.cloudant_debug.xcconfig */,
-				83E699716786F122C5FF8799 /* Pods-OTFCloudantStore.health_debug.xcconfig */,
-				C601DC7E494497C8EFB969A0 /* Pods-OTFCloudantStore.carehealth_debug.xcconfig */,
-				F3F15C85203940C6AECB43C5 /* Pods-OTFCloudantStore.care_debug.xcconfig */,
-				8695EE7434C7C6DB211005C4 /* Pods-OTFCloudantStore.health.xcconfig */,
-				CE37BC602C85B631F4FE38FF /* Pods-OTFCloudantStore.cloudant.xcconfig */,
-				19B3E628DBF0C2175010B527 /* Pods-OTFCloudantStore.carehealth.xcconfig */,
-				11D6A8FEC06FF140E6855387 /* Pods-OTFCloudantStore.care.xcconfig */,
-				4FD500C0451247ED2FE804BF /* Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig */,
-				2A39BBDE96F68B52864E672F /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig */,
-				EE70A89DDCB225BA359A8CC3 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig */,
-				51A4322F3FFE539F1B44A8D0 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig */,
-				8073AD5C60C0830BEC24DDB9 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig */,
-				CB1C1AE6FEF1493CF03FD026 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig */,
-				E9D4817DDB43963241FEBB36 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig */,
-				2665246282F941EA9F4F0A68 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig */,
-				289F6C2C2CBFD9F080ACF2D0 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig */,
+				081E5FF5075F3B51F05ECED8 /* Pods-OTFCloudantStore.debug.xcconfig */,
+				8ED62664A1FDD86E8234CD9B /* Pods-OTFCloudantStore.cloudant_debug.xcconfig */,
+				2CD3377C9527819A97666E1F /* Pods-OTFCloudantStore.health_debug.xcconfig */,
+				7853E62977E7DC5572156BBB /* Pods-OTFCloudantStore.carehealth_debug.xcconfig */,
+				40DB6530A270D1FDCC51214F /* Pods-OTFCloudantStore.care_debug.xcconfig */,
+				B2047DD03E1EEFA0DBDC7061 /* Pods-OTFCloudantStore.health.xcconfig */,
+				15DC476841CDEE2E03DF6EE6 /* Pods-OTFCloudantStore.cloudant.xcconfig */,
+				EB7415CB46F1DE328A6CD447 /* Pods-OTFCloudantStore.carehealth.xcconfig */,
+				3447DD8FFA274EDD9D4CB332 /* Pods-OTFCloudantStore.care.xcconfig */,
+				6E1B2EF1A2C4BA52A98FC00E /* Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig */,
+				855A953122A966DB708EB6D5 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig */,
+				FD4D2CDD93C1FC508205CC03 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig */,
+				2C2C3526AAC824BE71A4A920 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig */,
+				AB97FCD4D6CFCE07F7D76266 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig */,
+				F290A804C3007C196AF5A28F /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig */,
+				1872D6AD0C7A8DD0D9EC103A /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig */,
+				DEBF71A3BBCE419F66900AE2 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig */,
+				3B53718B8601BB587D4BB717 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -447,11 +447,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 14AF8DE32657744E003513DF /* Build configuration list for PBXNativeTarget "OTFCloudantStoreTests" */;
 			buildPhases = (
-				09BD372281677C8088EBBD11 /* [CP] Check Pods Manifest.lock */,
+				9CEA7F38AF06183442E84F43 /* [CP] Check Pods Manifest.lock */,
 				14AF8DD72657744E003513DF /* Sources */,
 				14AF8DD82657744E003513DF /* Frameworks */,
 				14AF8DD92657744E003513DF /* Resources */,
-				6C3B871F319D227C7217B3E2 /* [CP] Embed Pods Frameworks */,
+				B08FC1C8957346D2089D381B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -485,7 +485,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA23A0212450B1FD008BEDD7 /* Build configuration list for PBXNativeTarget "OTFCloudantStore" */;
 			buildPhases = (
-				A9CCB7B0720C4F494EED3868 /* [CP] Check Pods Manifest.lock */,
+				9C2A6DCB3963A7C5369F9E9E /* [CP] Check Pods Manifest.lock */,
 				FA23A0142450B1FD008BEDD7 /* Headers */,
 				FA23A0152450B1FD008BEDD7 /* Sources */,
 				FA23A0162450B1FD008BEDD7 /* Frameworks */,
@@ -573,7 +573,47 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		09BD372281677C8088EBBD11 /* [CP] Check Pods Manifest.lock */ = {
+		14A265A026A1640E00CE30AC /* Lint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Lint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+		9C2A6DCB3963A7C5369F9E9E /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-OTFCloudantStore-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9CEA7F38AF06183442E84F43 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -595,25 +635,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		14A265A026A1640E00CE30AC /* Lint */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = Lint;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
-		};
-		6C3B871F319D227C7217B3E2 /* [CP] Embed Pods Frameworks */ = {
+		B08FC1C8957346D2089D381B /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -628,28 +650,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A9CCB7B0720C4F494EED3868 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-OTFCloudantStore-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -768,7 +768,7 @@
 /* Begin XCBuildConfiguration section */
 		14AF8DE42657744E003513DF /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4FD500C0451247ED2FE804BF /* Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig */;
+			baseConfigurationReference = 6E1B2EF1A2C4BA52A98FC00E /* Pods-OTFCloudantStore-OTFCloudantStoreTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
@@ -792,7 +792,7 @@
 		};
 		14AF8DE52657744E003513DF /* Cloudant_Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2A39BBDE96F68B52864E672F /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig */;
+			baseConfigurationReference = 855A953122A966DB708EB6D5 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant_debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -864,7 +864,7 @@
 		};
 		14AF8DE62657744E003513DF /* Health_Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EE70A89DDCB225BA359A8CC3 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig */;
+			baseConfigurationReference = FD4D2CDD93C1FC508205CC03 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health_debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -935,7 +935,7 @@
 		};
 		14AF8DE72657744E003513DF /* CareHealth_Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 51A4322F3FFE539F1B44A8D0 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig */;
+			baseConfigurationReference = 2C2C3526AAC824BE71A4A920 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth_debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1007,7 +1007,7 @@
 		};
 		14AF8DE82657744E003513DF /* Care_Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8073AD5C60C0830BEC24DDB9 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig */;
+			baseConfigurationReference = AB97FCD4D6CFCE07F7D76266 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1079,7 +1079,7 @@
 		};
 		14AF8DE92657744E003513DF /* Health */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CB1C1AE6FEF1493CF03FD026 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig */;
+			baseConfigurationReference = F290A804C3007C196AF5A28F /* Pods-OTFCloudantStore-OTFCloudantStoreTests.health.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1151,7 +1151,7 @@
 		};
 		14AF8DEA2657744E003513DF /* Cloudant */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E9D4817DDB43963241FEBB36 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig */;
+			baseConfigurationReference = 1872D6AD0C7A8DD0D9EC103A /* Pods-OTFCloudantStore-OTFCloudantStoreTests.cloudant.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1224,7 +1224,7 @@
 		};
 		14AF8DEB2657744E003513DF /* CareHealth */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2665246282F941EA9F4F0A68 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig */;
+			baseConfigurationReference = DEBF71A3BBCE419F66900AE2 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.carehealth.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1296,7 +1296,7 @@
 		};
 		14AF8DEC2657744E003513DF /* Care */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 289F6C2C2CBFD9F080ACF2D0 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig */;
+			baseConfigurationReference = 3B53718B8601BB587D4BB717 /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -2009,7 +2009,7 @@
 		};
 		14C079FA262D9D1300B1F0FD /* Care */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 11D6A8FEC06FF140E6855387 /* Pods-OTFCloudantStore.care.xcconfig */;
+			baseConfigurationReference = 3447DD8FFA274EDD9D4CB332 /* Pods-OTFCloudantStore.care.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2031,10 +2031,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = CARE;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Care;
 		};
@@ -2104,7 +2108,7 @@
 		};
 		14C079FC262D9D2500B1F0FD /* Care_Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F3F15C85203940C6AECB43C5 /* Pods-OTFCloudantStore.care_debug.xcconfig */;
+			baseConfigurationReference = 40DB6530A270D1FDCC51214F /* Pods-OTFCloudantStore.care_debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2122,10 +2126,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG CARE";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Care_Debug;
 		};
@@ -2191,7 +2199,7 @@
 		};
 		14C079FE262D9D3400B1F0FD /* CareHealth */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 19B3E628DBF0C2175010B527 /* Pods-OTFCloudantStore.carehealth.xcconfig */;
+			baseConfigurationReference = EB7415CB46F1DE328A6CD447 /* Pods-OTFCloudantStore.carehealth.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2213,10 +2221,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "CARE HEALTH";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = CareHealth;
 		};
@@ -2286,7 +2298,7 @@
 		};
 		14C07A00262D9D3D00B1F0FD /* CareHealth_Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C601DC7E494497C8EFB969A0 /* Pods-OTFCloudantStore.carehealth_debug.xcconfig */;
+			baseConfigurationReference = 7853E62977E7DC5572156BBB /* Pods-OTFCloudantStore.carehealth_debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2304,10 +2316,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG CARE HEALTH";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = CareHealth_Debug;
 		};
@@ -2372,7 +2388,7 @@
 		};
 		14C07A02262D9D4700B1F0FD /* Health */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8695EE7434C7C6DB211005C4 /* Pods-OTFCloudantStore.health.xcconfig */;
+			baseConfigurationReference = B2047DD03E1EEFA0DBDC7061 /* Pods-OTFCloudantStore.health.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2394,10 +2410,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = HEALTH;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Health;
 		};
@@ -2467,7 +2487,7 @@
 		};
 		14C07A04262D9D4C00B1F0FD /* Health_Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 83E699716786F122C5FF8799 /* Pods-OTFCloudantStore.health_debug.xcconfig */;
+			baseConfigurationReference = 2CD3377C9527819A97666E1F /* Pods-OTFCloudantStore.health_debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2485,10 +2505,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG HEALTH";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Health_Debug;
 		};
@@ -2553,7 +2577,7 @@
 		};
 		14DF9CDE263F994D0055B14D /* Cloudant */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CE37BC602C85B631F4FE38FF /* Pods-OTFCloudantStore.cloudant.xcconfig */;
+			baseConfigurationReference = 15DC476841CDEE2E03DF6EE6 /* Pods-OTFCloudantStore.cloudant.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2575,10 +2599,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = CLOUDANT;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Cloudant;
 		};
@@ -2648,7 +2676,7 @@
 		};
 		14DF9CE0263F995E0055B14D /* Cloudant_Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A0C8E501DA261860ECCCE1B9 /* Pods-OTFCloudantStore.cloudant_debug.xcconfig */;
+			baseConfigurationReference = 8ED62664A1FDD86E8234CD9B /* Pods-OTFCloudantStore.cloudant_debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2666,10 +2694,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG CLOUDANT";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Cloudant_Debug;
 		};
@@ -2739,7 +2771,7 @@
 		};
 		FA23A0222450B1FD008BEDD7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EC92555F3AC82B63D1CDCBCD /* Pods-OTFCloudantStore.debug.xcconfig */;
+			baseConfigurationReference = 081E5FF5075F3B51F05ECED8 /* Pods-OTFCloudantStore.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -2757,10 +2789,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.HippocratesTech.OCKCloudantStore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator watchos watchsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
+				WATCHOS_DEPLOYMENT_TARGET = 8.0;
 			};
 			name = Debug;
 		};

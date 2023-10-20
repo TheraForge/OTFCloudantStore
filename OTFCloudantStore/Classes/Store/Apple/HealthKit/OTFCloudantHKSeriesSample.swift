@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
-
+import OTFUtilities
 /**
  An abstract class that defines samples that contain a series of items.
  */
@@ -90,7 +90,7 @@ public struct OTFCloudantHKSeriesSample: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKSeriesSample.self, from: data)
             return sample
         } catch {
-            debugPrint("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error \(error)")
+            OTFError("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }
@@ -151,7 +151,7 @@ public struct OTFCloudantHKHeartbeatSeriesSample: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKHeartbeatSeriesSample.self, from: data)
             return sample
         } catch {
-            debugPrint("Mapping from Cloudant's HeartbeatSeriesSample to HK's HeartbeatSeriesSample failed with error: \(error)")
+            OTFError("Mapping from Cloudant's HeartbeatSeriesSample to HK's HeartbeatSeriesSample failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }

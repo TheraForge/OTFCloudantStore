@@ -36,6 +36,7 @@ import Foundation
 import OTFCloudantStore
 import HealthKit
 import XCTest
+import OTFUtilities
 
 class OTFQuantityTests: OTFCloudantTests {
     #if HEALTH
@@ -56,7 +57,7 @@ class OTFQuantityTests: OTFCloudantTests {
 
         for identifier in quantityIdentifiers {
             guard let quantityType = HKQuantityType.quantityType(forIdentifier: identifier) else {
-                debugPrint("\(identifier) is no longer available in HealthKit")
+                OTFLog("This identifier no longer available in HealthKit: %{public}@", identifier)
                 break
             }
             if self.healthStore.authorizationStatus(for: quantityType) != .sharingAuthorized {
@@ -121,10 +122,10 @@ class OTFQuantityTests: OTFCloudantTests {
                     DispatchQueue.main.async {
                         self.findInCloudant(uuid: quantitySample.uuid, in: .quantity) { sample in
                             if let qSample = sample as? HKQuantitySample {
-                                print("Test succeded for - ", identifier.rawValue)
+                                OTFLog("Test succeded for - %{public}@", identifier.rawValue)
                                 XCTAssertEqual(qSample.quantity, quantity)
                             } else {
-                                print("Nil quantity type -", identifier.rawValue)
+                                OTFLog("Nil quantity type - %{public}@", identifier.rawValue)
                                 XCTFail("Can't find \(identifier.rawValue)")
                             }
                             expect.fulfill()

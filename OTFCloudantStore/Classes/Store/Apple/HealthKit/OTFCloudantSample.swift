@@ -34,6 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
+import OTFUtilities
 
 /// Types of data used in OTF health sample type.
 public enum OTFHealthSampleType: String, Codable {
@@ -163,7 +164,7 @@ public struct OTFCloudantSample: OTFCloudantHKSampleProtocol {
         switch type {
         case .category:
             guard let type = HKCategoryType.categoryType(forIdentifier: HKCategoryTypeIdentifier(rawValue: typeIdentifier)) else {
-                debugPrint("Unidentify category type's indentifier with identifier: \(typeIdentifier)")
+                OTFLog("Unidentify category type's indentifier with identifier: %{public}@", typeIdentifier)
                 return nil
             }
             if let originalMetadata = self.metadata {
@@ -172,11 +173,11 @@ public struct OTFCloudantSample: OTFCloudantHKSampleProtocol {
             return HKCategorySample(type: type, value: Int(value), start: startDate, end: endDate, metadata: metadata)
         case .quantity:
             guard let type = HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier(rawValue: typeIdentifier)) else {
-                debugPrint("Unidentify quantity type's indentifier with identifier: \(typeIdentifier)")
+                OTFLog("Unidentify category type's indentifier with identifier: %{public}@", typeIdentifier)
                 return nil
             }
             guard let unit = OTFParsingHelper.processUnitString(unit) else {
-                debugPrint("Unidentify quantity's unit with unit: \(self.unit)")
+                OTFLog("Unidentify quantity's unit with unit: %{public}@", self.unit)
                 return nil
             }
 
@@ -185,7 +186,7 @@ public struct OTFCloudantSample: OTFCloudantHKSampleProtocol {
             return HKQuantitySample(type: type, quantity: quantity, start: startDate, end: endDate, metadata: metadata)
         case .correlation:
             guard let type = HKCorrelationType.correlationType(forIdentifier: HKCorrelationTypeIdentifier(rawValue: typeIdentifier)) else {
-                debugPrint("Unidentify correlation type's indentifier with identifier: \(typeIdentifier)")
+                OTFLog("Unidentify correlation type's indentifier with identifier: %{public}@", typeIdentifier)
                 return nil
             }
             let objects = samples?.map { $0.toHKSample() }.compactMap { $0 } ?? []

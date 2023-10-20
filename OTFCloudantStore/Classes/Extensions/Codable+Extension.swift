@@ -54,7 +54,7 @@ extension Encodable {
 public extension CDTDocumentRevision {
     static func encodedDictionary<Entity: Encodable & Identifiable>(fromEntity item: Entity) -> [String: Any] where Entity.ID == String {
         var dic = item.toDictionary()
-        dic["entity_type"] = "\(Entity.self)"
+        dic["entityType"] = "\(Entity.self)"
         var additionalInfoDict = [String: Any]()
         let additionalInfo = OTFAdditionalInfo(id: item.id)
         additionalInfoDict = additionalInfo.toDictionary()

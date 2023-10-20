@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 import Foundation
 import OTFCDTDatastore
-
+import OTFUtilities
 #if CARE && HEALTH
 import OTFCareKitStore
 import HealthKit
@@ -130,7 +130,7 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
                 if let delegate = self.resetDelegate {
                     delegate.storeDidReset(self)
                 } else {
-                    debugPrint("Reset delegate is nil, Please assign value to reset delegate in order to get notified after reset finish.")
+                    OTFLog("Reset delegate is nil, Please assign value to reset delegate in order to get notified after reset finish.", "failure")
                 }
             case .failure: break
             }
@@ -159,7 +159,7 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
             case .success:
                 completion?(.success(samples))
             case .failure(let error):
-                debugPrint("Deleting samples failed with error: \(error)")
+                OTFError("Deleting samples failed with error: %{public}@", error.localizedDescription)
                 completion?(.failure(error.toOCKStoreError()))
             }
         }
@@ -173,10 +173,10 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
         where Entity.ID == String {
             var query = cloudantQuery.parameters
 
-            // "entity_type" is something that will not have any representation in the CareKit
+            // "entityType" is something that will not have any representation in the CareKit
             // It only serves the Cloudant serialization and deserialization purposes
             // Encoding and decoding
-            query["entity_type"] = "\(Entity.self)"
+            query["entityType"] = "\(Entity.self)"
 
             var errors = [Error]()
             var succeededItems = [Entity]()
@@ -232,7 +232,8 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
                     NSLog("Added document: \(document)")
                     return try revision.data(as: Entity.self)
                 } catch {
-                    debugPrint(error.localizedDescription)
+                    OTFError("Error: %{public}@", error.localizedDescription)
+                    
                     throw error
                 }
             }, failureError: { (items, errors) -> OTFCloudantError in
@@ -258,7 +259,7 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
                     try dataStore.updateDocument(from: revision)
                     return try revision.data(as: Entity.self)
                 } catch {
-                    debugPrint(error.localizedDescription)
+                    OTFError("Error: %{public}@", error.localizedDescription)
                     throw error
                 }
             }, failureError: { (items, errors) -> OTFCloudantError in

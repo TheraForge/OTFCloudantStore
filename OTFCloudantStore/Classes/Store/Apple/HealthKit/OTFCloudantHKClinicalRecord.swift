@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
-
+import OTFUtilities
 @available(iOS 14.0, *)
 
 /**
@@ -102,7 +102,7 @@ public struct OTFCloudantHKClinicalRecord: OTFCloudantHKSampleProtocol {
             let clinicalRecord = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKClinicalRecord.self, from: data)
             return clinicalRecord
         } catch {
-            debugPrint("Mapping from Cloudant's ClinicalRecord to HK's ClinicalRecord failed with error \(error)")
+            OTFError("Mapping from Cloudant's ClinicalRecord to HK's ClinicalRecord failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }

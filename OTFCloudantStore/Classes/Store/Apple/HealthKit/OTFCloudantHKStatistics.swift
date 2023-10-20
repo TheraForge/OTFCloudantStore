@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
-
+import OTFUtilities
 /**
  An object that represents the result of calculating the minimum, maximum, average, or sum over a set of samples from the HealthKit store.
  */
@@ -75,7 +75,7 @@ public struct OTFCloudantHKStatistics: Codable {
             let statistics = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKStatistics.self, from: data)
             return statistics
         } catch {
-            debugPrint("Mapping from Cloudant's Statistics to HK's Statistics failed with error \(error)")
+            OTFError("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }

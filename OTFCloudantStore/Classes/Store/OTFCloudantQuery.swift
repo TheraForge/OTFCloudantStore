@@ -59,20 +59,20 @@ public class OTFCloudantQuery {
     // Use this method to init query to get CareKit data
     public init(store: OTFCloudantStore, careKitClassName: String, fields: [String]? = nil) {
         cloudantStore = store
-        dictionary["entity_type"] = careKitClassName
+        dictionary["entityType"] = careKitClassName
         self.fields = fields
     }
 
     // Use this method to init query to get HealthKit data
     public init(store: OTFCloudantStore, healthKitSampleType: OTFHealthSampleType, fields: [String]? = nil) {
         cloudantStore = store
-        dictionary["entity_type"] = "\(OTFCloudantSample.self)"
+        dictionary["entityType"] = "\(OTFCloudantSample.self)"
         dictionary["type"] = healthKitSampleType.rawValue
     }
 
     public init(store: OTFCloudantStore, healthSampleType: OTFHealthSampleType, fields: [String]? = nil) {
         cloudantStore = store
-        dictionary["entity_type"] = "OTFCloudantSample"
+        dictionary["entityType"] = "OTFCloudantSample"
         dictionary["type"] = healthSampleType.rawValue
         self.fields = fields
     }

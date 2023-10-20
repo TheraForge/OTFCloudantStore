@@ -125,7 +125,6 @@ class ViewController: UIViewController {
         let readSamples = samples.union(healthKitTypesToRead)
 
         healthStore.requestAuthorization(toShare: healthKitTypesToWrite, read: readSamples) { (success: Bool, error: Error?) in
-            print("RequestAuthorization success: \(success)\nError: \(error?.localizedDescription ?? "no error")")
         }
     }
 

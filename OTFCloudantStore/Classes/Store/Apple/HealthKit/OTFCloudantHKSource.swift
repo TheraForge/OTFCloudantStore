@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
-
+import OTFUtilities
 /**
  An object indicating the app or device that created a HealthKit sample
  */
@@ -66,7 +66,7 @@ public struct OTFCloudantHKSource: Codable {
             let source = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKSource.self, from: data)
             return source
         } catch {
-            debugPrint("Mapping from ")
+            OTFError("Mapping from", "")
             return nil
         }
     }

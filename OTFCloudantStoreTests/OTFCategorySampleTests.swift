@@ -35,6 +35,7 @@ OF SUCH DAMAGE.
 import XCTest
 import OTFCloudantStore
 import HealthKit
+import OTFUtilities
 
 class OTFCategorySampleTests: OTFCloudantTests {
     #if HEALTH
@@ -55,7 +56,7 @@ class OTFCategorySampleTests: OTFCloudantTests {
 
         for identifier in identifiers {
             guard let categoryType = HKObjectType.categoryType(forIdentifier: identifier) else {
-                debugPrint("\(identifier) is no longer available in HealthKit")
+                OTFLog("This identifier no longer available in HealthKit", identifier)
                 break
             }
             if self.healthStore.authorizationStatus(for: categoryType) != .sharingAuthorized {
@@ -99,7 +100,7 @@ class OTFCategorySampleTests: OTFCloudantTests {
 
         if let categoryType = HKObjectType.categoryType(forIdentifier: identifier), let endDate = Date().addMinute(20) {
             let value = identifier.valueForIdentifier
-            print("Identifier ---- \n", identifier)
+            OTFLog("Identifier %{public}@", identifier)
             let metadata = identifier.metadata
             let categorySample = HKCategorySample(type: categoryType, value: value, start: Date(), end: endDate, metadata: metadata)
 
@@ -111,16 +112,16 @@ class OTFCategorySampleTests: OTFCloudantTests {
                 }
 
                 if success {
-                    print("My new data was saved in Healthkit")
+                    OTFLog("My new data was saved in Healthkit", success)
                     self.synchronizer.syncWithHealthKit(direction: .fromHKToCloudant, type: categoryType) {
-                        print("Sync done")
+                        OTFLog("Sync done", categoryType)
                         DispatchQueue.main.async {
                             self.findInCloudant(uuid: categorySample.uuid, in: .category) { sample in
                                 if let qSample = sample as? HKCategorySample {
-                                    print("Test succeded for - ", identifier.rawValue)
+                                    OTFLog("Test succeded for - %{public}@", identifier.rawValue)
                                     XCTAssertEqual(qSample.value, categorySample.value)
                                 } else {
-                                    print("Nil quantity type -", identifier.rawValue)
+                                    OTFLog("Nil quantity type - %{public}@", identifier.rawValue)
                                     XCTFail("Can't find \(identifier.rawValue)")
                                 }
                                 expect.fulfill()

@@ -35,6 +35,7 @@ OF SUCH DAMAGE.
 import OTFCloudantStore
 import OTFCDTDatastore
 import OTFCloudClientAPI
+import OTFUtilities
 
 // swiftlint:disable all
 class CloudantSync: NSObject {
@@ -42,7 +43,7 @@ class CloudantSync: NSObject {
     private override init() {}
 
     enum Environment: String {
-        case aws, bluemix, theraforge
+        case theraforge
     }
 
     struct Configuration {
@@ -63,45 +64,20 @@ class CloudantSync: NSObject {
     }
 
     private func configuration(environment: Environment) -> Configuration {
-        var dbName = "sunday_haha"
-
         switch environment {
         case .theraforge:
-//            let username = "new_1_new_test@test.com"
-//            let password = "123123123"ih
-//            let userID = "2af6f3e706874bf39133073d0a11ff50"
-//            let username = "kutakmiroslav@gmail.com"
-            let username = "tester001@HippocratesTech.com"
-            let password = "TheraForge123$2020@"
-            let userID = "2af6f3e706874bf39133073d0a192cf8"
+            let username = "<your-user-name>"
+            let password = "<your-password>"
+            let userID = "<your-user-uuid>"
             dbName = "theraforge_user_\(userID)"
-
+            
             // Must be HTTP and not HTTPS
             let remote = URL(string: "https://www.theraforge.org/api/v1/db/")!
             return Configuration(targetURL: remote,
                                  username: username,
                                  password: password)
-        case .aws:
-            let username = "admin"
-            let password = "WfFcHYCvD1me"
-
-            // Must be HTTP and not HTTPS
-            let remote = URL(string: "http://\(username):\(password)@ec2-34-244-147-188.eu-west-1.compute.amazonaws.com:5984/\(dbName)")!
-            return Configuration(targetURL: remote,
-                                 username: username,
-                                 password: password)
-        case .bluemix:
-
-            let cloudantUsername = "21815429-df91-4853-9f15-2ae09afb67ee-bluemix"
-            let cloudantPassword = "e3bfcd1a8544beb66c646aed13f752ed6d729ef7450fbe61fa4cc78737b58933"
-            let apikey = "voXtluG7_sDZQVyMF_ED6OFepnqd-FCHJqXaoR4CB4Np"
-
-            let baseURL = "cloudant.com"
-            let remote = URL(string: "https://\(apikey):\(cloudantPassword)@\(cloudantUsername).\(baseURL)/\(dbName)")!
-            return Configuration(targetURL: remote,
-                                 username: cloudantUsername,
-                                 password: cloudantPassword)
         }
+        
     }
 
     func replicate(direction: ReplicationDirection, environment: Environment, completionBlock: ((Error?) -> Void)? = nil) throws {
@@ -147,16 +123,16 @@ class CloudantSync: NSObject {
         case .push:
             dataStore.push(to: configuration.targetURL, replicator: replicator, username: configuration.username, password: configuration.password) { (error: Error?) in
                 if let error = error {
-                    print(error)
+                    OTFError("Error: %{public}@", error.localizedDescription)
                     completionBlock?(error)
                 } else {
-                    print("PUSH SUCCEEDED")
+                    OTFLog("PUSH SUCCEEDED", "")
                     completionBlock?(nil)
                 }
             }
         case .pull:
             dataStore.pull(from: configuration.targetURL, replicator: replicator, username: configuration.username, password: configuration.password) { error in
-                print("Pull Error -",error)
+                OTFError("Pull Error: %{public}@", error?.localizedDescription ?? "")
                 completionBlock?(error)
             }
         }

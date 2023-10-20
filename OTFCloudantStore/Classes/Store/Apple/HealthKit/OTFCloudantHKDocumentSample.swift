@@ -34,6 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
+import OTFUtilities
 
 /**
  An abstract class that represents a health document.
@@ -88,7 +89,7 @@ public struct OTFCloudantHKDocumentSample: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKDocumentSample.self, from: data)
             return sample
         } catch {
-            debugPrint("Mapping from Cloudant's DocumentSample to HK's DocumentSample failed with error \(error)")
+            OTFError("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }

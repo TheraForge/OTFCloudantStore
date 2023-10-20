@@ -144,6 +144,7 @@ extension OTFCloudantStore {
      - Parameter contacts: the contacts you delete from the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
+     
      */
     open func deleteContacts(_ contacts: [OCKContact],
                              callbackQueue: DispatchQueue = .main,

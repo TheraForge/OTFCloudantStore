@@ -36,7 +36,7 @@ OF SUCH DAMAGE.
 import HealthKit
 import OTFCareKitStore
 #endif
-
+import OTFUtilities
 /*
  OTFHealthKitSynchronizer is used to sync data bi-direction between HealthKitStore and CloudantStore.
  The synchronisation will be performed when:
@@ -264,7 +264,7 @@ public class OTFHealthKitSynchronizer {
             let query = HKSampleQuery(sampleType: type, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self](_, samples, error) in
                 guard let self = self else { return }
                 if let error = error {
-                    print("Fetching samples of type \(type) failed with error \(error)")
+                    OTFError("Fetching samples type failed with error: %{public}@", error.localizedDescription)
                 }
                 if let samples = samples {
                     self.healthStoreSamples.append(contentsOf: samples)
@@ -280,7 +280,7 @@ public class OTFHealthKitSynchronizer {
             case .success(let samples):
                 self.dataStoreSamples = samples
             case .failure(let error):
-                debugPrint("Fetching OTFCloudantSamples failed with error: \(error)")
+                OTFError("Fetching OTFCloudantSamples failed with error: %{public}@", error.localizedDescription)
             }
             dispatchGroup.leave()
         }
@@ -299,13 +299,14 @@ public class OTFHealthKitSynchronizer {
                     if !isSampleStored {
                         self.healthStore.save(sample) { (succeeded, error) in
                             if let error = error {
-                                debugPrint("Saving sample from OTFCloudantStore failed with error: \(error)")
+                                OTFError("Saving sample from OTFCloudantStore failed with error: %{public}@", error.localizedDescription)
                             } else if !succeeded {
-                                debugPrint("Saving sample from OTFCloudantStore failed without error")
+                                OTFError("Saving sample from OTFCloudantStore failed without error", "")
+                                
                             }
                         }
                     } else {
-                        debugPrint("Sample exists in HealthkitStore")
+                        OTFError("Sample exists in HealthkitStore", "")
                     }
                 }
             }
@@ -323,7 +324,7 @@ public class OTFHealthKitSynchronizer {
                     if !isSampleStored {
                         self.dataStore.add([OTFCloudantSample(sample: hkSample, patientId: "")])
                     } else {
-                        debugPrint("Sample exists in Cloudant")
+                        OTFLog("Sample exists in Cloudant", "succeeded")
                     }
                 }
             }
@@ -346,7 +347,7 @@ public class OTFHealthKitSynchronizer {
         let query = HKSampleQuery(sampleType: type, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self](_, samples, error) in
             guard let self = self else { return }
             if let error = error {
-                print("Fetching samples of type \(type) failed with error \(error)")
+                OTFError("Fetching samples type failed with error: %{public}@", error.localizedDescription)
             }
             if let samples = samples, !samples.isEmpty {
                 self.healthStoreSamples.append(contentsOf: samples)
@@ -360,7 +361,7 @@ public class OTFHealthKitSynchronizer {
             case .success(let samples):
                 self.dataStoreSamples = samples
             case .failure(let error):
-                debugPrint("Fetching OTFCloudantSamples failed with error: \(error)")
+                OTFError("Fetching OTFCloudantSamples failed with error: %{public}@", error.localizedDescription)
             }
             dispatchGroup.leave()
         }
@@ -379,13 +380,13 @@ public class OTFHealthKitSynchronizer {
                     if !isSampleStored {
                         self.healthStore.save(sample) { (succeeded, error) in
                             if let error = error {
-                                debugPrint("Saving sample from OTFCloudantStore failed with error: \(error)")
+                                OTFError("Saving sample from OTFCloudantStore failed with error: %{public}@", error.localizedDescription)
                             } else if !succeeded {
-                                debugPrint("Saving sample from OTFCloudantStore failed without error")
+                                OTFLog("Saving sample from OTFCloudantStore failed without error", "Not succeeded")
                             }
                         }
                     } else {
-                        debugPrint("Sample exists in HealthkitStore")
+                        OTFLog("Sample exists in HealthkitStore", "succeeded")
                     }
                 }
             }
@@ -402,7 +403,7 @@ public class OTFHealthKitSynchronizer {
                     if !isSampleStored {
                         self.dataStore.add([OTFCloudantSample(sample: hkSample, patientId: "")])
                     } else {
-                        debugPrint("Sample exists in Cloudant")
+                        OTFLog("Sample exists in Cloudant", "succeeded")
                     }
                 }
             }

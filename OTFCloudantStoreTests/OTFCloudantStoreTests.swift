@@ -36,6 +36,7 @@ import UIKit
 import HealthKit
 import XCTest
 import OTFCloudantStore
+import OTFUtilities
 
 class OTFCloudantStoreTests: OTFCloudantTests {
     #if HEALTH && CARE
@@ -46,7 +47,6 @@ class OTFCloudantStoreTests: OTFCloudantTests {
         promptForPermissions()
     }
 
-    // swiftlint:disable function_body_length
     private func promptForPermissions() {
         if isHealthKitAvailable() {
 
@@ -181,11 +181,11 @@ class OTFCloudantStoreTests: OTFCloudantTests {
             if let error = error {
                 XCTFail("Error Saving Step Count Sample: \(error.localizedDescription)")
             } else {
-                print("Successfully saved STEPS COUNT Sample")
+                OTFLog("Successfully saved STEPS COUNT Sample", "successed")
                 self.synchronizer.syncWithHealthKit(direction: .fromHKToCloudant, type: stepCount) {
                     self.cloudantSyncWithHealthKit { hkSample in
                         if let sample = hkSample {
-                            print("*** Sample quantity ***", sample.quantity)
+                            OTFLog("*** Sample quantity *** %{public}@", sample.quantity)
                             XCTAssertEqual(sample.quantity, stepCountQuantity)
                         } else {
                             XCTFail("Can't find the data into Cloudant store")
@@ -250,7 +250,7 @@ class OTFCloudantStoreTests: OTFCloudantTests {
                     XCTFail("sample is missing....")
                     return
                 }
-                print("*** MOST RECENT SAMPLE - \n", mostRecentSample.quantity)
+            OTFLog("*** MOST RECENT SAMPLE - \n %{public}@", mostRecentSample.quantity)
                 XCTAssertEqual(mostRecentSample.quantity, HKQuantity(unit: .count(), doubleValue: self.stepCountsValue))
                 expect.fulfill()
         }
@@ -289,14 +289,14 @@ class OTFCloudantStoreTests: OTFCloudantTests {
             } else if !status {
                 XCTFail("Failed to save workout")
             } else {
-                print("**** Saved WorkoutSync ****")
+                OTFLog("**** Saved WorkoutSync ****", "")
                 self.synchronizer.syncWithHealthKit(direction: .fromHKToCloudant, type: distanceRunning) {
 
                     let sampleType: OTFHealthSampleType = .quantity
                     self.cloudantStore.collection(healthKitSampleType: sampleType).getCloudantSamples { (result) in
                         switch result {
                         case .success(let samples):
-                            print(samples)
+                            OTFLog("samples: %{public}@", samples.rawValue)
                         case .failure(let error):
                             XCTFail(error.localizedDescription)
                         }

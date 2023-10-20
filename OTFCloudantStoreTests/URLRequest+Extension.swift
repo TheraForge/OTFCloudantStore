@@ -43,7 +43,7 @@ public extension URLRequest {
         guard
             let url = url,
             let httpMethod = httpMethod,
-            url.absoluteString.utf8.count > 0
+            !url.absoluteString.utf8.isEmpty
         else {
                 return ""
         }
@@ -67,7 +67,7 @@ public extension URLRequest {
         }
 
         // HTTP body
-        if let httpBody = httpBody, httpBody.count > 0 {
+        if let httpBody = httpBody, !httpBody.isEmpty {
             let httpBodyString = String(data: httpBody, encoding: String.Encoding.utf8)!
             let escapedHttpBody = URLRequest.escapeAllSingleQuotes(httpBodyString)
             curlCommand = curlCommand.appendingFormat(" --data '%@' \\\n", escapedHttpBody)

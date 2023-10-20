@@ -35,11 +35,12 @@ OF SUCH DAMAGE.
 import XCTest
 import OTFCloudantStore
 import OTFCloudClientAPI
+import OTFUtilities
 
 class OTFCloudantSSETest: XCTestCase {
 
-    private let testEmail = "tester001@HippocratesTech.com"
-    private let testPassword = "TheraForge123$2020@"
+    private let testEmail = "<your-test-email>"
+    private let testPassword = "<your-test-password>"
 
     func testSubscribeChange() {
         let timeout: TimeInterval = 3_000.0
@@ -48,29 +49,29 @@ class OTFCloudantSSETest: XCTestCase {
         let shared = TheraForgeNetwork.shared
 
         shared.eventSourceOnOpen = {
-            print("**** Event source open...")
+            OTFLog("**** Event source open...", "")
             do {
                 try CloudantSync.shared.replicate(direction: .push, environment: .theraforge) { error in
-                    print("PUSH ERROR: ", error?.localizedDescription)
+                    OTFError("PUSH ERROR: %{public}@", error?.localizedDescription ?? "")
                 }
             } catch {
-                print(error.localizedDescription)
+                OTFError("Error: %{public}@", error.localizedDescription)
             }
         }
 
         shared.onReceivedMessage = { event in
-            print("**** Event Recieved -", event)
+            OTFLog("**** Event Recieved -", event.message)
             expect.fulfill()
         }
 
         login(shared) { result in
             switch result {
             case .success(let response):
-                print(response)
+                OTFLog("Response: %{public}@", response.message ?? "")
                 let auth = Auth(accesstoken: response.token, refreshToken: response.refreshToken)
                 shared.observeChangeEvent(auth: auth)
             case .failure(let error):
-                print(error)
+                OTFError("Error: %{public}@", error.localizedDescription)
             }
         }
 
@@ -88,22 +89,22 @@ class OTFCloudantSSETest: XCTestCase {
         let shared = TheraForgeNetwork.shared
 
         shared.eventSourceOnOpen = {
-            print("CREATE EVENT: Event source opened....")
+            OTFLog("CREATE EVENT: Event source opened....")
         }
 
         shared.onReceivedMessage = { event in
-            print("CREATE EVENT: ", event)
+            OTFLog("CREATE EVENT: %{public}@", event.message)
             expect.fulfill()
         }
 
         login(shared) { result in
             switch result {
             case .success(let response):
-                print(response)
+                OTFLog("Response: %{public}@", response.message ?? "")
                 let auth = Auth(accesstoken: response.token, refreshToken: response.refreshToken)
                 shared.observeChangeEvent(auth: auth)
             case .failure(let error):
-                print(error)
+                OTFError("Error: %{public}@", error.localizedDescription)
             }
         }
 

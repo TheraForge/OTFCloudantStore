@@ -34,6 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
+import OTFUtilities
 
 public protocol OTFCloudantHKSampleProtocol: Codable, OTFCloudantRevision, Identifiable {
 
@@ -110,7 +111,7 @@ public struct OTFCloudantHKSample: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKSample.self, from: data)
             return sample
         } catch {
-            debugPrint("Mapping from OTF's HKSample to HK's HKSample failed with error \(error)")
+            OTFError("Mapping from OTF's HKSample to HK's HKSample failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }
@@ -182,7 +183,7 @@ public struct OTFCloudantHKSampleType: OTFHKSampleType {
             let sampleType = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKSampleType.self, from: data)
             return sampleType
         } catch {
-            debugPrint("Mapping from Cloudant's sample type to HK's sample type failed with error \(error)")
+            OTFError("Mapping from Cloudant's sample type to HK's sample type failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }

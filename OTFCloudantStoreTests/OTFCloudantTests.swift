@@ -35,6 +35,7 @@ OF SUCH DAMAGE.
 import XCTest
 import OTFCloudantStore
 import HealthKit
+import OTFUtilities
 
 class OTFCloudantTests: XCTestCase {
     #if HEALTH
@@ -71,17 +72,17 @@ class OTFCloudantTests: XCTestCase {
 
         for type in sampleTypes {
             group.enter()
-            print("Deleting Old data for...... \(type)")
+            OTFLog("Deleting Old data for......%{public}@ ", type)
             cloudantStore.collection(healthKitSampleType: type).getSamples { result in
                 switch result {
                 case .success(let samples):
                     self.cloudantStore.deleteSamples(samples: samples)
                     self.healthStore.delete(samples) { _, _ in
-                        print("Old Data deleted successfully.....")
+                        OTFLog("Old Data deleted successfully.....", samples)
                         group.leave()
                     }
                 case .failure:
-                    print("No data found...")
+                    OTFError("No data found...", "failure")
                     group.leave()
                 }
             }
@@ -110,10 +111,9 @@ extension OTFCloudantTests {
             switch result {
             case .success(let samples):
                 guard let sample = samples.first else {
-                    debugPrint("Can not find uuid - \(uuid)")
-                    debugPrint("*** All UUID in samples ***")
+                    OTFLog("No data found... %{public}@", uuid.uuidString)
                     samples.forEach {
-                        debugPrint($0.uuid)
+                        OTFLog("uuid... %{public}@", $0.uuid)
                     }
                     completion(nil)
                     return
@@ -129,7 +129,7 @@ extension OTFCloudantTests {
                         completion(categorySample)
                     }
                 default:
-                    debugPrint("No supported OTFHealthSampleType found. returing from line 242")
+                    OTFLog("No supported OTFHealthSampleType found. returing from line 242", "")
                     completion(nil)
                 }
             case .failure:
@@ -144,12 +144,12 @@ extension OTFCloudantTests {
             switch result {
             case .success(let samples):
                 for sample in samples {
-                    print(sample.typeIdentifier)
-                    print(sample.unit)
+                    OTFLog("typeIdentifier:- %{public}@", sample.typeIdentifier)
+                    OTFLog("unit:- %{public}@", sample.unit)
+                    
                 }
                 if let sample = samples.first, let hkSample = sample.toHKSample(), let quantitySample = hkSample as? HKQuantitySample {
-                    print("Type - ", sample.typeIdentifier, "unit - ", sample.unit)
-                    print("Quantity - ", quantitySample.quantity)
+                    OTFLog("Type - unit - Quantity - %{public}@", sample.typeIdentifier)
                     completion?(quantitySample)
                 }
             case .failure:

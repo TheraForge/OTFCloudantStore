@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
-
+import OTFUtilities
 /**
  A sample that stores an audiogram.
  */
@@ -132,7 +132,7 @@ public struct OTFCloudantHKAudiogramSampleType: OTFHKSampleType {
             let sampleType = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKAudiogramSampleType.self, from: data)
             return sampleType
         } catch {
-            debugPrint("Mapping from Cloudant's AudiogramSampleType to HK's AudiogramSampleType failed with error \(error)")
+            OTFError("Mapping from Cloudant's AudiogramSampleType to HK's AudiogramSampleType failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }

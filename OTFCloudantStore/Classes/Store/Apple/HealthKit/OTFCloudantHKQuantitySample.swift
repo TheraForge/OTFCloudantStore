@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 #if HEALTH
 import HealthKit
-
+import OTFUtilities
 /**
  An object that stores a value for a given unit.
  */
@@ -321,7 +321,7 @@ public struct OTFCloudantHKQuantityType: OTFHKSampleType {
             let type = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKQuantityType.self, from: data)
             return type
         } catch {
-            debugPrint("Mapping from Cloudant's QuantityType to HK's QuantityType failed with error \(error)")
+            OTFError("Mapping from Cloudant's QuantityType to HK's QuantityType failed with error: %{public}@", error.localizedDescription)
             return nil
         }
     }

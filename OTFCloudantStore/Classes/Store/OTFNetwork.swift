@@ -33,6 +33,7 @@ OF SUCH DAMAGE.
  */
 
 import Foundation
+import OTFUtilities
 
 public enum RequestMethod: String {
     case get = "GET"
@@ -59,14 +60,14 @@ public class OTFNetwork {
         session.dataTask(with: urlRequest) { (data, urlResponse, error) in
             DispatchQueue.main.async {
                 if let urlResponse = urlResponse {
-                    debugPrint(urlResponse.description)
+                    OTFLog("URL description %{public}@", urlResponse.description)
                 }
                 if let error = error {
                     completionBlOTF(.failure(error))
                     return
                 }
                 if let data = data {
-                    debugPrint("Data responded: \(String(data: data, encoding: .utf8) ?? "Request successful with result: nil")")
+                    OTFLog("Data responded: %{public}@", String(data: data, encoding: .utf8) ?? "Request successful with result: nil")
                     completionBlOTF(.success(data))
                 }
             }
@@ -84,7 +85,7 @@ public class OTFNetwork {
                     let model = try JSONDecoder().decode(T.self, from: data)
                     result(.success(model))
                 } catch let error {
-                    debugPrint("Decode failed with error: \(error.localizedDescription)")
+                    OTFError("Decode failed with error: %{public}@", error.localizedDescription)
                     result(.failure(error))
                 }
             case .failure(let error):
