@@ -34,7 +34,6 @@ OF SUCH DAMAGE.
 
 import UIKit
 
-// swiftlint:disable identifier_name
 /**
  OTFCloudantQueryComponents are used to create query with single field or combined query with multiple fields
  */
@@ -89,7 +88,6 @@ public struct OTFCloudantQueryComponent {
     }
 }
 
-// swiftlint:disable line_length
 /*
  OTFCloudantCombinationQueryComponent is used to create combined query from 2 OTFCloudantQueryComponents
  Params:
@@ -132,7 +130,6 @@ public struct OTFCloudantComplexQueryComponent {
         self.combinationSelector = combinationSelector
     }
 
-    // swiftlint:disable line_length
     public static func complexQueryComponent(_ leftComponent: OTFCloudantCombinationQueryComponent, _ combinationSelector: OTFCloudantCombinationSelector, _ rightComponent: OTFCloudantCombinationQueryComponent) -> OTFCloudantComplexQueryComponent {
         return .init(leftComponent: leftComponent, rightComponent: rightComponent, combinationSelector: combinationSelector)
     }

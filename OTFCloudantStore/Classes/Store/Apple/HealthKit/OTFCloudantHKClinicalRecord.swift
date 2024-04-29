@@ -35,8 +35,9 @@ OF SUCH DAMAGE.
 #if HEALTH
 import HealthKit
 import OTFUtilities
-@available(iOS 14.0, *)
 
+@available(iOS 14.0, *)
+@available(watchOS, unavailable)
 /**
  A sample that stores a clinical record.
  */
@@ -57,10 +58,10 @@ public struct OTFCloudantHKClinicalRecord: OTFCloudantHKSampleProtocol {
     /// The sample type.
     public var sampleType: OTFCloudantHKSampleType?
 
-    /// The sample’s start date.
+    /// The sample's start date.
     public var startDate: Date
 
-    /// The sample’s end date.
+    /// The sample's end date.
     public var endDate: Date
 
     /// An identifier that indicates the type of record, such as an allergic reaction, a lab result, or a medical procedure.
@@ -147,7 +148,7 @@ public struct OTFCloudantHKClinicalType: OTFHKSampleType {
 }
 
 @available(iOS 14.0, *)
-
+@available(watchOS, unavailable)
 /**
  An object containing Fast Healthcare Interoperability Resources (FHIR) data.
  */
@@ -156,10 +157,10 @@ public struct OTFCloudantHKFHIRResource: Codable {
     /// The Fast Healthcare Interoperability Resources (FHIR) data for this record.
     public var fhirVersion: OTFCloudantHKFHIRVersion?
 
-    /// The value from the FHIR resource’s resourceType field.
+    /// The value from the FHIR resource's resourceType field.
     public var resourceType: String?
 
-    /// The value from the FHIR resource’s id field.
+    /// The value from the FHIR resource's id field.
     public var identifier: String?
 
     /// The JSON representation of the FHIR resource.
@@ -182,18 +183,19 @@ public struct OTFCloudantHKFHIRResource: Codable {
 }
 
 @available(iOS 14.0, *)
+@available(watchOS, unavailable)
 /**
  The FHIR version.
  */
 public struct OTFCloudantHKFHIRVersion: Codable {
 
-    /// The standard’s major version number.
+    /// The standard's major version number.
     public var majorVersion: Int?
 
-    /// The standard’s minor version number.
+    /// The standard's minor version number.
     public var minorVersion: Int?
 
-    /// The standard’s patch version number.
+    /// The standard's patch version number.
     public var patchVersion: Int?
 
     /// A string representation of the version.

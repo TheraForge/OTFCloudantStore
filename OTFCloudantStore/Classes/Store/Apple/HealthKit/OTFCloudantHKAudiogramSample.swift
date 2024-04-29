@@ -170,7 +170,6 @@ public struct OTFCloudantHKAudiogramSensitivityPoint: Codable {
      - Description: Returns from the Cloudant's  sensitivity point into HK's  sensitivity point.
      - Returns: This function will return an optional HKAudiogramSensitivityPoint object, that could be null also.
      */
-    // swiftlint:disable line_length
     public func toHKAudiogramSensitivityPoint() -> HKAudiogramSensitivityPoint? {
         let audigram = try? HKAudiogramSensitivityPoint(frequency: frequency?.toHKQuantity() ?? .defaultValue(), leftEarSensitivity: leftEarSensitivity?.toHKQuantity(), rightEarSensitivity: rightEarSensitivity?.toHKQuantity())
         return audigram

@@ -52,11 +52,10 @@ public enum OTFSyncDirection {
 
 #if HEALTH && CARE
 
-/**
- The synchronisation between HealthKitStore and CloudantStore.
- */
-// swiftlint:disable all
 public class OTFHealthKitSynchronizer {
+    /**
+    The synchronisation between HealthKitStore and CloudantStore.
+     */
     
     /// An interface between Carekit, HealthKit and CDTDatastore.
     private let dataStore: OTFCloudantStore!
@@ -263,12 +262,7 @@ public class OTFHealthKitSynchronizer {
         for type in allTypes {
             let query = HKSampleQuery(sampleType: type, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self](_, samples, error) in
                 guard let self = self else { return }
-                if let error = error {
-                    OTFError("Fetching samples type failed with error: %{public}@", error.localizedDescription)
-                }
-                if let samples = samples {
-                    self.healthStoreSamples.append(contentsOf: samples)
-                }
+                self.processQueryResult(samples: samples, error: error)
                 dispatchGroup.leave()
             }
             dispatchGroup.enter()
@@ -286,48 +280,65 @@ public class OTFHealthKitSynchronizer {
         }
         dispatchGroup.notify(queue: dispatchQueue) {
             // Sync from Cloudant to HealthKitStore
-            if direction != .fromHKToCloudant {
-                for cloudantSample in self.dataStoreSamples {
-                    guard let sample = cloudantSample.toHKSample() else { continue }
-                    var isSampleStored = false
-                    for hkSample in self.healthStoreSamples {
-                        if cloudantSample.isEqual(to: hkSample) {
-                            isSampleStored = true
-                            break
-                        }
-                    }
-                    if !isSampleStored {
-                        self.healthStore.save(sample) { (succeeded, error) in
-                            if let error = error {
-                                OTFError("Saving sample from OTFCloudantStore failed with error: %{public}@", error.localizedDescription)
-                            } else if !succeeded {
-                                OTFError("Saving sample from OTFCloudantStore failed without error", "")
-                                
-                            }
-                        }
-                    } else {
-                        OTFError("Sample exists in HealthkitStore", "")
-                    }
-                }
+            guard direction != .fromHKToCloudant else {
+                return
             }
-
+            for cloudantSample in self.dataStoreSamples {
+                guard let sample = cloudantSample.toHKSample() else { continue }
+                self.storSample(sample: sample, cloudantSample: cloudantSample)
+            }
             // Sync from HealthKitStore to Cloudant
-            if direction != .fromCloudantToHK {
-                for hkSample in self.healthStoreSamples {
-                    var isSampleStored = false
-                    for cloudantSample in self.dataStoreSamples {
-                        if cloudantSample.isEqual(to: hkSample) {
-                            isSampleStored = true
-                            break
-                        }
+            guard direction != .fromCloudantToHK else {
+                return
+            }
+            for hkSample in self.healthStoreSamples {
+                var isSampleStored = false
+                for cloudantSample in self.dataStoreSamples {
+                    guard cloudantSample.isEqual(to: hkSample) else {
+                        continue
                     }
-                    if !isSampleStored {
-                        self.dataStore.add([OTFCloudantSample(sample: hkSample, patientId: "")])
-                    } else {
-                        OTFLog("Sample exists in Cloudant", "succeeded")
-                    }
+                    isSampleStored = true
+                    break
+                }
+                if !isSampleStored {
+                    self.dataStore.add([OTFCloudantSample(sample: hkSample, patientId: "")])
+                } else {
+                    OTFLog("Sample exists in Cloudant", "succeeded")
                 }
             }
+        
+        }
+    }
+    
+    public func processQueryResult(samples: [HKSample]?, error: Error?) {
+        if let error = error {
+            OTFError("Fetching samples type failed with error: %{public}@", error.localizedDescription)
+        }
+        if let samples = samples {
+            self.healthStoreSamples.append(contentsOf: samples)
+        }
+    }
+    
+    public func storSample(sample: HKSample, cloudantSample: OTFCloudantSample) {
+        var isSampleStored = false
+        for hkSample in self.healthStoreSamples {
+            guard cloudantSample.isEqual(to: hkSample) else {
+                continue
+            }
+            isSampleStored = true
+            break
+        }
+        if !isSampleStored {
+            self.healthStore.save(sample) { (succeeded, error) in
+                if let error = error {
+                    OTFError("Saving sample from OTFCloudantStore failed with error: %{public}@", error.localizedDescription)
+                } else if !succeeded {
+                    OTFError("Saving sample from OTFCloudantStore failed without error", "")
+                    
+                }
+            }
+        } else {
+            OTFError("Sample exists in HealthkitStore", "")
         }
     }
 
@@ -346,12 +357,7 @@ public class OTFHealthKitSynchronizer {
         dispatchGroup.enter()
         let query = HKSampleQuery(sampleType: type, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self](_, samples, error) in
             guard let self = self else { return }
-            if let error = error {
-                OTFError("Fetching samples type failed with error: %{public}@", error.localizedDescription)
-            }
-            if let samples = samples, !samples.isEmpty {
-                self.healthStoreSamples.append(contentsOf: samples)
-            }
+            self.processQueryResult(samples: samples, error: error)
             dispatchGroup.leave()
         }
         healthStore.execute(query)
@@ -367,44 +373,32 @@ public class OTFHealthKitSynchronizer {
         }
         dispatchGroup.notify(queue: dispatchQueue) {
             // Sync from Cloudant to HealthKitStore
-            if direction != .fromHKToCloudant {
-                for cloudantSample in self.dataStoreSamples {
-                    guard let sample = cloudantSample.toHKSample() else { continue }
-                    var isSampleStored = false
-                    for hkSample in self.healthStoreSamples {
-                        if cloudantSample.isEqual(to: hkSample) {
-                            isSampleStored = true
-                            break
-                        }
-                    }
-                    if !isSampleStored {
-                        self.healthStore.save(sample) { (succeeded, error) in
-                            if let error = error {
-                                OTFError("Saving sample from OTFCloudantStore failed with error: %{public}@", error.localizedDescription)
-                            } else if !succeeded {
-                                OTFLog("Saving sample from OTFCloudantStore failed without error", "Not succeeded")
-                            }
-                        }
-                    } else {
-                        OTFLog("Sample exists in HealthkitStore", "succeeded")
-                    }
-                }
+            guard direction != .fromHKToCloudant else {
+                return
             }
+            for cloudantSample in self.dataStoreSamples {
+                guard let sample = cloudantSample.toHKSample() else { continue }
+                self.storSample(sample: sample, cloudantSample: cloudantSample)
+            }
+            
             // Sync from HealthKitStore to Cloudant
-            if direction != .fromCloudantToHK {
-                for hkSample in self.healthStoreSamples {
-                    var isSampleStored = false
-                    for cloudantSample in self.dataStoreSamples{
-                        if cloudantSample.isEqual(to: hkSample) {
-                            isSampleStored = true
-                            break
-                        }
+            guard direction != .fromCloudantToHK else {
+                return
+            }
+            for hkSample in self.healthStoreSamples {
+                var isSampleStored = false
+                for cloudantSample in self.dataStoreSamples {
+                    
+                    guard cloudantSample.isEqual(to: hkSample) else {
+                        continue
                     }
-                    if !isSampleStored {
-                        self.dataStore.add([OTFCloudantSample(sample: hkSample, patientId: "")])
-                    } else {
-                        OTFLog("Sample exists in Cloudant", "succeeded")
-                    }
+                    isSampleStored = true
+                    break
+                }
+                if !isSampleStored {
+                    self.dataStore.add([OTFCloudantSample(sample: hkSample, patientId: "")])
+                } else {
+                    OTFLog("Sample exists in Cloudant", "succeeded")
                 }
             }
 
@@ -417,7 +411,9 @@ public class OTFHealthKitSynchronizer {
      */
     public func observeOnHKStoreRealTimeUpdates() {
         for type in allTypes {
-            let query = HKAnchoredObjectQuery(type: type, predicate: nil, anchor: nil, limit: HKObjectQueryNoLimit) { (anchoredQuery, samplesOrNil, deletedObjectsOrNil, queryAnchor, error) in
+            let query = HKAnchoredObjectQuery(
+                type: type, predicate: nil, anchor: nil,
+                limit: HKObjectQueryNoLimit) { (anchoredQuery, samplesOrNil, deletedObjectsOrNil, queryAnchor, error) in
                 guard let samples = samplesOrNil, let deletedObjects = deletedObjectsOrNil else {
                     // Properly handle the error.
                     return

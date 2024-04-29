@@ -39,8 +39,23 @@ import OTFUtilities
 
 class OTFCategorySampleTests: OTFCloudantTests {
     #if HEALTH
-    // swiftlint:disable line_length
-    private let identifiers: [HKCategoryTypeIdentifier] = [.abdominalCramps, .sleepAnalysis, .sleepChanges, .acne, .appetiteChanges, .bladderIncontinence, .bloating, .breastPain, .cervicalMucusQuality, .chestTightnessOrPain, .chills, .constipation, .contraceptive, .coughing, .diarrhea, .dizziness, .drySkin, .fainting, .fatigue, .fever, .generalizedBodyAche, .hairLoss, .handwashingEvent, .headache, .heartburn, .hotFlashes, .intermenstrualBleeding, .lactation, .lossOfSmell, .lossOfTaste, .lowerBackPain, .memoryLapse, .menstrualFlow, .mindfulSession, .moodChanges, .nausea, .nightSweats, .ovulationTestResult, .pelvicPain, .pregnancy, .rapidPoundingOrFlutteringHeartbeat, .runnyNose, .sexualActivity, .shortnessOfBreath, .sinusCongestion, .skippedHeartbeat, .soreThroat, .toothbrushingEvent, .vaginalDryness, .vomiting, .wheezing]
+    private let identifiers: [HKCategoryTypeIdentifier] = [.abdominalCramps, .sleepAnalysis, .sleepChanges, .acne,
+        .appetiteChanges, .bladderIncontinence,
+        .bloating, .breastPain, .cervicalMucusQuality,
+        .chestTightnessOrPain, .chills, .constipation,
+        .contraceptive, .coughing, .diarrhea,
+        .dizziness, .drySkin, .fainting, .fatigue,
+        .fever, .generalizedBodyAche, .hairLoss,
+        .handwashingEvent, .headache, .heartburn,
+        .hotFlashes, .intermenstrualBleeding,
+        .lactation, .lossOfSmell, .lossOfTaste,
+        .lowerBackPain, .memoryLapse, .menstrualFlow,
+        .mindfulSession, .moodChanges, .nausea,
+        .nightSweats, .ovulationTestResult,
+        .pelvicPain, .pregnancy, .rapidPoundingOrFlutteringHeartbeat,
+        .runnyNose, .sexualActivity, .shortnessOfBreath,
+        .sinusCongestion, .skippedHeartbeat, .soreThroat,
+        .toothbrushingEvent, .vaginalDryness, .vomiting, .wheezing]
 
     override func setUp() {
         super.setUp()
@@ -94,7 +109,6 @@ class OTFCategorySampleTests: OTFCloudantTests {
         }
     }
 
-    // swiftlint:disable trailing_closure
     func saveCategorySample(identifier: HKCategoryTypeIdentifier, completion: @escaping (() -> Void)) {
         let expect = expectation(description: "It should wait until saving finishes.")
 

@@ -37,7 +37,6 @@ import OTFCDTDatastore
 import OTFCloudClientAPI
 import OTFUtilities
 
-// swiftlint:disable all
 class CloudantSync: NSObject {
     static let shared = CloudantSync()
     private override init() {}
@@ -111,6 +110,7 @@ class CloudantSync: NSObject {
 
         let replicator = try factory.oneWay(replication)
         let dataStore = try datastoreManager.datastoreNamed("test_store")
+        
         switch environment {
         case .theraforge:
             replicator.sessionConfigDelegate = TheraForgeNetwork.shared

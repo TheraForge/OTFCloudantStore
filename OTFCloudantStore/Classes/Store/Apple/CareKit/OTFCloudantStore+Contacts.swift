@@ -93,7 +93,6 @@ extension OTFCloudantStore {
         })
     }
 
-    // swiftlint:disable trailing_closure
     /**
      Adds a contacts asynchronously to the store.
      

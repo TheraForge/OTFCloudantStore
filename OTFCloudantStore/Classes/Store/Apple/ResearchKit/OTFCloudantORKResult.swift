@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 import Foundation
 #if CARE
-import OTFResearchKit
+//import OTFResearchKit
 #endif
 
 public struct OTFCloudantORKResult: Codable, OTFCloudantRevision, Identifiable {

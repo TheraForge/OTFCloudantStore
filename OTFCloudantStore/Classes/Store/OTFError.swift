@@ -79,5 +79,4 @@ public enum OTFCloudantError: LocalizedError {
             return "Invalid value: \(reason)"
         }
     }
-
 }

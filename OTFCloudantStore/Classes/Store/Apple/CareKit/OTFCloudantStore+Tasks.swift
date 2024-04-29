@@ -55,8 +55,7 @@ extension OTFCloudantStore {
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    public func fetchTasks(query: OCKTaskQuery = OCKTaskQuery(), callbackQueue: DispatchQueue = .main,
-                           completion: @escaping (Result<[OCKTask], OCKStoreError>) -> Void) {
+    public func fetchTasks(query: OCKTaskQuery = OCKTaskQuery(), callbackQueue: DispatchQueue = .main,completion: @escaping (Result<[OCKTask], OCKStoreError>) -> Void) {
         let cloudantQuery = OTFCloudantTaskQuery(taskQuery: query)
         fetch(cloudantQuery: cloudantQuery, callbackQueue: callbackQueue, completion: completion)
     }
@@ -139,7 +138,6 @@ extension OTFCloudantStore {
 
     }
 
-    // swiftlint:disable trailing_closure
     /**
      Adds a task asynchronously to the store.
      
