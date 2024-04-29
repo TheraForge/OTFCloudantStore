@@ -39,7 +39,7 @@ struct CloudantStoreKey: EnvironmentKey {
 
     static var defaultValue: OTFCloudantStore? = {
         do {
-            let store = try StoreService.shared.currentStore()
+            let store = try StoreService.shared.currentStore(peer: OTFWatchConnectivityPeer())
             return store
         } catch {
             return nil

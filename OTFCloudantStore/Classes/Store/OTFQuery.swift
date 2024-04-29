@@ -172,7 +172,6 @@ open class OTFCloudantOutcomeQuery: OTFQueryProtocol {
 
     public var parameters = [String: Any]()
 
-    // swiftlint:disable trailing_closure
     /// Creates an outcome query with a specific query.
     init(outcomeQuery: OCKOutcomeQuery) {
         parameters[PropertyKey.uuid] = mapArrayToQueryParameter(stringArray: outcomeQuery.uuids.map({ $0.uuidString }))
@@ -238,7 +237,6 @@ open class OTFCloudantTaskQuery: OTFQueryProtocol {
 
     public var parameters = [String: Any]()
 
-    // swiftlint:disable opening_brace
     /// Creates the tasks with a specific query.
     init(taskQuery: OCKTaskQuery) {
         parameters[PropertyKey.uuid] = mapArrayToQueryParameter(stringArray: taskQuery.uuids.map { $0.uuidString })

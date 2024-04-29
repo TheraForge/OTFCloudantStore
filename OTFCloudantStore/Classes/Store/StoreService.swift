@@ -41,7 +41,7 @@ public class StoreService {
      - Description: It will return an instance of OTFCloudantStore initialized with the default db name `local_db`
      - Returns: Fully initialized OTFCloudantStore object.
      */
-    public func currentStore() throws -> OTFCloudantStore {
-        return try OTFCloudantStore(storeName: "local_db")
+    public func currentStore(peer: OTFWatchConnectivityPeer) throws -> OTFCloudantStore {
+        return try OTFCloudantStore(storeName: "local_db", remote: peer)
     }
 }

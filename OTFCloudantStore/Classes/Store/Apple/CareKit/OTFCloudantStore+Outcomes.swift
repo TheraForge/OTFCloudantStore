@@ -61,7 +61,6 @@ extension OTFCloudantStore {
         }, completion: completion)
     }
 
-    // swiftlint:disable trailing_closure
     /**
      Adds the outcomes asynchronously to the store.
      

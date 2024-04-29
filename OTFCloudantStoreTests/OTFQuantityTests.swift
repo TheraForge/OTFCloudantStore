@@ -40,8 +40,33 @@ import OTFUtilities
 
 class OTFQuantityTests: OTFCloudantTests {
     #if HEALTH
-    // swiftlint:disable line_length
-    private let quantityIdentifiers: [HKQuantityTypeIdentifier] = [.bodyMassIndex, .bodyFatPercentage, .leanBodyMass, .waistCircumference, .activeEnergyBurned, .distanceWalkingRunning, .bodyMassIndex, .stepCount, .height, .bodyMass, .distanceCycling, .distanceWheelchair, .basalEnergyBurned, .activeEnergyBurned, .flightsClimbed, .pushCount, .distanceSwimming, .swimmingStrokeCount, .distanceDownhillSnowSports, .walkingSpeed, .walkingDoubleSupportPercentage, .walkingStepLength, .sixMinuteWalkTestDistance, .stairAscentSpeed, .stairDescentSpeed, .heartRate, .bodyTemperature, .basalBodyTemperature, .bloodPressureSystolic, .bloodPressureDiastolic, .respiratoryRate, .restingHeartRate, .heartRateVariabilitySDNN, .oxygenSaturation, .peripheralPerfusionIndex, .numberOfTimesFallen, .electrodermalActivity, .inhalerUsage, .bloodAlcoholContent, .forcedVitalCapacity, .forcedExpiratoryVolume1, .peakExpiratoryFlowRate, .environmentalAudioExposure, .headphoneAudioExposure, .dietaryFatTotal, .dietaryFatPolyunsaturated, .dietaryFatMonounsaturated, .dietaryFatSaturated, .dietaryCholesterol, .dietarySodium, .dietaryCarbohydrates, .dietaryFiber, .dietarySugar, .dietaryEnergyConsumed, .dietaryProtein, .dietaryVitaminA, .dietaryVitaminB6, .dietaryVitaminB12, .dietaryVitaminC, .dietaryVitaminD, .dietaryVitaminE, .dietaryVitaminK, .dietaryCalcium, .dietaryIron, .dietaryThiamin, .dietaryRiboflavin, .dietaryNiacin, .dietaryFolate, .dietaryPantothenicAcid, .dietaryPhosphorus, .dietaryIodine, .dietaryMagnesium, .dietaryZinc, .dietarySelenium, .dietaryCopper, .dietaryManganese, .dietaryChromium, .dietaryMolybdenum, .dietaryChloride, .dietaryPotassium, .dietaryCaffeine, .dietaryWater, .uvExposure]
+    private let quantityIdentifiers: [HKQuantityTypeIdentifier] = [
+        .bodyMassIndex, .bodyFatPercentage, .leanBodyMass,
+        .waistCircumference, .activeEnergyBurned,
+        .distanceWalkingRunning, .bodyMassIndex, .stepCount,
+        .height, .bodyMass, .distanceCycling, .distanceWheelchair,
+        .basalEnergyBurned, .activeEnergyBurned, .flightsClimbed,
+        .pushCount, .distanceSwimming, .swimmingStrokeCount,
+        .distanceDownhillSnowSports, .walkingSpeed,
+        .walkingDoubleSupportPercentage, .walkingStepLength,
+        .sixMinuteWalkTestDistance, .stairAscentSpeed, .stairDescentSpeed,
+        .heartRate, .bodyTemperature, .basalBodyTemperature, .bloodPressureSystolic,
+        .bloodPressureDiastolic, .respiratoryRate, .restingHeartRate,
+        .heartRateVariabilitySDNN, .oxygenSaturation, .peripheralPerfusionIndex,
+        .numberOfTimesFallen, .electrodermalActivity, .inhalerUsage,
+        .bloodAlcoholContent, .forcedVitalCapacity, .forcedExpiratoryVolume1,
+        .peakExpiratoryFlowRate, .environmentalAudioExposure,
+        .headphoneAudioExposure, .dietaryFatTotal, .dietaryFatPolyunsaturated,
+        .dietaryFatMonounsaturated, .dietaryFatSaturated, .dietaryCholesterol,
+        .dietarySodium, .dietaryCarbohydrates, .dietaryFiber, .dietarySugar,
+        .dietaryEnergyConsumed, .dietaryProtein, .dietaryVitaminA,
+        .dietaryVitaminB6, .dietaryVitaminB12, .dietaryVitaminC, .dietaryVitaminD,
+        .dietaryVitaminE, .dietaryVitaminK, .dietaryCalcium, .dietaryIron,
+        .dietaryThiamin, .dietaryRiboflavin, .dietaryNiacin, .dietaryFolate,
+        .dietaryPantothenicAcid, .dietaryPhosphorus, .dietaryIodine,
+        .dietaryMagnesium, .dietaryZinc, .dietarySelenium, .dietaryCopper,
+        .dietaryManganese, .dietaryChromium, .dietaryMolybdenum, .dietaryChloride,
+        .dietaryPotassium, .dietaryCaffeine, .dietaryWater, .uvExposure]
 
     override func setUp() {
         super.setUp()

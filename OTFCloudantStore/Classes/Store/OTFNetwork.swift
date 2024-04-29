@@ -131,7 +131,6 @@ public class OTFNetwork {
 
         return urlVars.isEmpty ? "" : "?" + urlVars.joined(separator: "&")
     }
-
 }
 
 extension URLRequest {
@@ -165,5 +164,4 @@ extension URLRequest {
 
         return command.joined(separator: " \\\n\t")
     }
-
 }

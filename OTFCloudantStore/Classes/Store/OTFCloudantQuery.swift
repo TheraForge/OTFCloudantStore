@@ -38,7 +38,6 @@ import OTFCDTDatastore
 #if HEALTH
 import HealthKit
 
-// swiftlint:disable line_length
 /*
  OTFCloudantQuery provides functionalities to help on querying data from OTFCloudantStore
  There're 2 types of querying data:
@@ -137,19 +136,16 @@ public class OTFCloudantQuery {
         return self
     }
 
-    // swiftlint:disable trailing_closure
     public func `where`(query: OTFCloudantQueryComponent) -> OTFCloudantQuery {
         dictionary.merge(query.toQuery(), uniquingKeysWith: { (_, last) in last })
         return self
     }
 
-    // swiftlint:disable trailing_closure
     public func `where`(query: OTFCloudantCombinationQueryComponent) -> OTFCloudantQuery {
         dictionary.merge(query.toQuery(), uniquingKeysWith: { (_, last) in last })
         return self
     }
 
-    // swiftlint:disable trailing_closure
     public func `where`(query: OTFCloudantComplexQueryComponent) -> OTFCloudantQuery {
         dictionary.merge(query.toQuery(), uniquingKeysWith: { (_, last) in last })
         return self

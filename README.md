@@ -13,9 +13,16 @@ OTFCloudantStore is an interface between the OTFCarekit, HealthKit and OTFCDTDat
 
 ## Change Log
 <details open>
+  <summary>Release 1.0.4-beta</summary>
+  <ul>
+    <li>Added Synchronization</li>
+  </ul>
+</details>
+
+<details>
   <summary>Release 1.0.3-beta</summary>
   <ul>
-    <li>Added Watch OS support</li>
+    <li>Added WatchOS support</li>
   </ul>
 </details>
 
@@ -42,6 +49,7 @@ OTFCloudantStore is an interface between the OTFCarekit, HealthKit and OTFCDTDat
   * [OTFCloudantRevision](#OTFCloudantRevision)
   * [OTFCloudantQuery](#OTFCloudantQuery)
   * [OTFCloudantQueryComponents](#OTFCloudantQueryComponents)
+  * [OTFWatchConnectivityPeer](#OTFWatchConnectivityPeer)
 * [Healthkit Integration](#Healthkit-Integration)
 * [CareKit Integration](#CareKit-Integration)
 * [License](#License)
@@ -175,7 +183,46 @@ Example
 Example:
     dataStore.collection(name: “OCKContact”).where(.simpleComponent(“title”, .equal, “Family Practice Doctor”), .and, .simpleComponent(“effectiveDate”, .greaterThan, “2020-11-27T23:00:00Z”)).get{}
 ```
+## OTFWatchConnectivityPeer <a name="OTFCloudantQueryComponents"></a> ##
+Apple's `WatchConnectivity` framework to pair iOS and watchOS devices and enables communication between the two device types.
+Synchronizes daily tasks from iOS to watchOS and updates their outcomes in both stores.
 
+`OTFWatchConnectivityPeer` enables synchronizing two instances of `CloudantStore` where one store is part of an iOS app and the other belongs to the watchOS companion app.
+
+```swift
+- Parameters:
+   - peerMessage: A message received from the peer for which a response will be created.
+   - store: A store from which the reply can be built.
+   - sendReply: A callback that will be invoked with the response when it is ready.
+    
+    public func reply(to peerMessage: [String: Any],
+                      store: OTFCloudantStore,
+                      sendReply: @escaping(_ message: [String: Any]) -> Void) {
+        
+        if let _ = peerMessage[revisionRequestKey] as? String {
+            store.computeRevision(store: store) { result in
+                if let data = result {
+                    sendReply([revisionReplyKey: data])
+                } else {
+                    sendReply([revisionErrorKey: "Revision Error"])
+                }
+            }
+            return
+        }
+        
+        if let _ = peerMessage[revisionPushKey] as? String {
+            pullRevisions() { revision in
+                store.mergeRevision(revision)
+                sendReply([:])
+            } completion: { error in
+                if let error = error {
+                    sendReply([revisionErrorKey: error])
+                }
+            }
+            return
+        }
+    }
+```
 
 ## Healthkit Integration <a name="Healthkit-Integration"></a>
 The TheraForge OTFCloudantStore supports to save and distribute most health and fitness data from Apple [HealthKit](https://developer.apple.com/documentation/healthkit).

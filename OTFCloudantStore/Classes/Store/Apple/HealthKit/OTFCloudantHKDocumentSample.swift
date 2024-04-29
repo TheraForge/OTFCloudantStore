@@ -53,10 +53,10 @@ public struct OTFCloudantHKDocumentSample: OTFCloudantHKSampleProtocol {
     /// The sample type.
     public var sampleType: OTFCloudantHKSampleType?
 
-    /// The sample’s start date.
+    /// The sample's start date.
     public var startDate: Date
 
-    /// The sample’s end date.
+    /// The sample's end date.
     public var endDate: Date
 
     /// The type of document represented by the sample.
@@ -135,6 +135,7 @@ public struct OTFCloudantHKDocumentType: OTFHKSampleType {
     }
 }
 
+@available(watchOS, unavailable)
 /**
  A Clinical Document Architecture (CDA) sample that stores a single document.
  */
@@ -158,10 +159,10 @@ public struct OTFCloudantHKCDADocumentSample: OTFCloudantHKSampleProtocol {
     /// The sample type.
     public var sampleType: OTFCloudantHKSampleType?
 
-    /// The sample’s start date.
+    /// The sample's start date.
     public var startDate: Date
 
-    /// The sample’s end date.
+    /// The sample's end date.
     public var endDate: Date
 
     /// The type of document represented by the sample.
@@ -194,6 +195,7 @@ public struct OTFCloudantHKCDADocumentSample: OTFCloudantHKSampleProtocol {
     }
 }
 
+@available(watchOS, unavailable)
 /**
  An object representing a Clinical Document Architecture (CDA) document in HealthKit.
  */
@@ -202,13 +204,13 @@ public struct OTFCloudantHKCDADocument: Codable {
     /// The CDA document stored as XML data.
     public var documentData: Data?
 
-    /// The document’s title.
+    /// The document's title.
     public var title: String?
 
-    /// The patient’s name.
+    /// The patient's name.
     public var patientName: String?
 
-    /// The document’s author.
+    /// The document's author.
     public var authorName: String?
 
     /// The name of the organization responsible for the document.

@@ -36,7 +36,6 @@ OF SUCH DAMAGE.
 import Foundation
 import OTFCareKitStore
 
-// swiftlint:disable all
 /**
  Extends OTFCloudantStore to perform actions on the patient.
  */

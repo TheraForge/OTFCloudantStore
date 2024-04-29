@@ -124,8 +124,27 @@ class OTFCloudantStoreTests: OTFCloudantTests {
                 return
             }
 
-            // swiftlint:disable line_length
-            sampleTypes = [walkingRunning, vitaminB6, stepsCount, soarThroat, dietaryFolate, sleepAnalysis, oxygenSaturation, dietaryChloride, sexualActivity, electrodermalActivity, dietaryIron, pelvicPain, acne, coughing, bodyAche, lossOfTaste, audioExposureEvent, diarrhea, pantothenicAcid, sleepChange, dietaryCalcium, nikeFuel, fatigue, headache, menstrualBleeding, allergyRecord, heartRate, dietaryCholesterol, dietarySodium, walkingPercentage, swimmingStrokeCount, abdominalCramps, peripheralPerfusionIndex, ovulationTestResult, fainting, peakExpirationFlowRate, heartRateVariabilitySDNN, dietaryIodine, runnyNose, vomiting, bodyFatPercantage, dizziness, appleStandTime, lowHeartRate, dietaryPhosphorus, vitalCapacity, dietaryThiamin, immunizationRecord, enviromentalAudioExposure, timeFallen, appetiteChanges, restingHeartRate, menstrualFlow, dietaryMagnesium, walkingAsymmetryPercentage, leanBodyMass, dietaryFiber, walkingSpeed, dietoryRiboFlavin, dietarySelenium, labResultRecord, rapidPoundingOrFlutterringHeartbeat, fever, constipation, appleExerciseTime, dateOfBirth, dateOfBirth, biologicalSex, bodyMassIndex, height, bodyMass, HKObjectType.workoutType()]
+            sampleTypes = [
+                walkingRunning, vitaminB6, stepsCount, soarThroat,
+                dietaryFolate, sleepAnalysis, oxygenSaturation,
+                dietaryChloride, sexualActivity, electrodermalActivity,
+                dietaryIron, pelvicPain, acne, coughing, bodyAche,
+                lossOfTaste, audioExposureEvent, diarrhea, pantothenicAcid,
+                sleepChange, dietaryCalcium, nikeFuel, fatigue, headache,
+                menstrualBleeding, allergyRecord, heartRate, dietaryCholesterol,
+                dietarySodium, walkingPercentage, swimmingStrokeCount,
+                abdominalCramps, peripheralPerfusionIndex, ovulationTestResult,
+                fainting, peakExpirationFlowRate, heartRateVariabilitySDNN,
+                dietaryIodine, runnyNose, vomiting, bodyFatPercantage, dizziness,
+                appleStandTime, lowHeartRate, dietaryPhosphorus, vitalCapacity,
+                dietaryThiamin, immunizationRecord, enviromentalAudioExposure,
+                timeFallen, appetiteChanges, restingHeartRate, menstrualFlow,
+                dietaryMagnesium, walkingAsymmetryPercentage, leanBodyMass,
+                dietaryFiber, walkingSpeed, dietoryRiboFlavin, dietarySelenium,
+                labResultRecord, rapidPoundingOrFlutterringHeartbeat, fever,
+                constipation, appleExerciseTime, dateOfBirth, dateOfBirth,
+                biologicalSex, bodyMassIndex, height, bodyMass,
+                HKObjectType.workoutType()]
 
             let healthKitTypesToWrite: Set<HKSampleType> = [walkingRunning, bodyMassIndex,
                                                             activeEnergy,

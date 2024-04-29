@@ -44,7 +44,6 @@ import HealthKit
 import OTFCareKitStore
 #endif
 
-// swiftlint:disable all
 /**
  - Description: OTFCloudantStore uses CDTDataStore as It's database. It provides functionalities to help on working with Carekit, HealthKit and OTFResearchKit
  */
@@ -79,14 +78,17 @@ open class OTFCloudantStore: Equatable {
     public let storeName: String
     public let dataStore: CDTDatastore
     public let datastoreManager: CDTDatastoreManager
+    public let remote: OCKRemoteSynchronizable?
 
     /**
     - Description - Initializer for OTFCloudantStore
     - Parameter storeName: Store name required to initialize OTFCloudantStore
     - Throws - This initializer can throw an error, that should be handled using try and catch block.
     */
-    public init(storeName: String) throws {
+    public init(storeName: String, remote: OCKRemoteSynchronizable? = nil) throws {
         self.storeName = storeName
+        self.remote = remote
+        self.remote?.delegate = remote?.delegate
         let fileManager = FileManager.default
         guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).last else {
             throw NSError(domain: "com.cloudant", code: 400, userInfo: [NSLocalizedDescriptionKey: "Can't access the document directory."])
@@ -151,7 +153,6 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
     }
 
     // MARK: - Delete healthkit samples
-    // swiftlint:disable closure_spacing
     public func deleteSamples(samples: [HKSample], callbackQueue: DispatchQueue = .main, completion: OCKResultClosure<[HKSample]>? = nil) {
         let cloudantSamples = samples.map { OTFCloudantSample(sample: $0, patientId: "")}
         delete(cloudantSamples) { (result) in
@@ -181,7 +182,7 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
             var errors = [Error]()
             var succeededItems = [Entity]()
             let result = dataStore.find(query, skip: 0, limit: UInt(cloudantQuery.limit ?? 0), fields: nil, sort: cloudantQuery.sortDescription)
-            result?.enumerateObjects({ (revision: CDTDocumentRevision, offset: UInt, pointer: UnsafeMutablePointer<ObjCBool>) in
+            result?.enumerateObjects({ (revision: CDTDocumentRevision, _: UInt, _: UnsafeMutablePointer<ObjCBool>) in
                 do {
                     if var item = try revision.data(as: Entity.self) {
                         if let filterClosure = filter, filterClosure(item) == false {
@@ -197,12 +198,12 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
             })
 
             callbackQueue.async {
-                if succeededItems.count > 0 {
+                if !succeededItems.isEmpty {
                     callbackQueue.async {
                         NSLog("Successfully fetched: \(succeededItems.map { $0.toDictionary() })")
                         completion?(.success(succeededItems))
                     }
-                } else if errors.count > 0 {
+                } else if !errors.isEmpty {
                     callbackQueue.async {
                         NSLog("Failed to fetch: Errors: \(errors.map { $0.localizedDescription })")
                         completion?(.failure(.fetchFailed(reason: "Errors: \(errors.map { $0.localizedDescription })")))
@@ -221,9 +222,10 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func add<Entity: Codable & Identifiable & OTFCloudantRevision>(_ items: [Entity],
-                          callbackQueue: DispatchQueue = .main,
-                          completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
+    open func add<Entity: Codable & Identifiable & OTFCloudantRevision>(
+        _ items: [Entity],
+        callbackQueue: DispatchQueue = .main,
+        completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
         where Entity.ID == String {
             processWithCallback(items: items, process: { item in
                 let revision = CDTDocumentRevision.revision(fromEntity: item)
@@ -249,9 +251,10 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func update<Entity: Codable & Identifiable & OTFCloudantRevision>(_ items: [Entity],
-                             callbackQueue: DispatchQueue = .main,
-                             completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
+    open func update<Entity: Codable & Identifiable & OTFCloudantRevision>(
+        _ items: [Entity],
+        callbackQueue: DispatchQueue = .main,
+        completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
         where Entity.ID == String {
             processWithCallback(items: items, process: { item in
                 let revision = CDTDocumentRevision.revision(fromEntity: item)
@@ -274,9 +277,10 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func delete<Entity: Encodable & Identifiable>(_ items: [Entity],
-                             callbackQueue: DispatchQueue = .main,
-                             completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
+    open func delete<Entity: Encodable & Identifiable>(
+        _ items: [Entity],
+        callbackQueue: DispatchQueue = .main,
+        completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
                              where Entity.ID == String {
         process(items: items, process: { item in
             try dataStore.deleteDocument(withId: item.id)
@@ -316,10 +320,10 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
         }
 
         callbackQueue.async {
-            if succeededItems.count > 0 {
+            if !succeededItems.isEmpty {
                 completion?(.success(items))
             }
-            if failedItems.count > 0 {
+            if !failedItems.isEmpty {
                 completion?(.failure(failureError(failedItems, errors)))
             }
         }
@@ -334,11 +338,12 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
      - Parameter failureError: the error thrown during the process.
      - Parameter completion: a callback that fires on a background thread.
      */
-    private func processWithCallback<Entity: Encodable & Identifiable>(items: [Entity],
-                                                           process: (_ item: Entity) throws -> Entity?,
-                                                           callbackQueue: DispatchQueue = .main,
-                                                           failureError: @escaping (_ items: [Entity], _ errors: [Error]) -> OTFCloudantError,
-                                                           completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
+    private func processWithCallback<Entity: Encodable & Identifiable>(
+        items: [Entity],
+        process: (_ item: Entity) throws -> Entity?,
+        callbackQueue: DispatchQueue = .main,
+        failureError: @escaping (_ items: [Entity], _ errors: [Error]) -> OTFCloudantError,
+        completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
         where Entity.ID == String {
 
         var failedItems = [Entity]()
@@ -360,10 +365,10 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
         }
 
         callbackQueue.async {
-            if succeededItems.count > 0 {
+            if !succeededItems.isEmpty {
                 completion?(.success(succeededItems))
             }
-            if failedItems.count > 0 {
+            if !failedItems.isEmpty {
                 completion?(.failure(failureError(failedItems, errors)))
             }
         }

@@ -35,7 +35,6 @@ OF SUCH DAMAGE.
 import UIKit
 import HealthKit
 
-// swiftlint:disable all
 class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -99,7 +98,18 @@ class ViewController: UIViewController {
                 return
         }
 
-        var samples: Set<HKObjectType> = [vitaminB6, soarThroat, dietaryFolate, sleepAnalysis, oxygenSaturation, dietaryChloride, sexualActivity, electrodermalActivity, dietaryIron, pelvicPain, acne, coughing, bodyAche, lossOfTaste, diarrhea, pantothenicAcid, sleepChange, dietaryCalcium, nikeFuel, fatigue, headache, menstrualBleeding, allergyRecord, heartRate, dietaryCholesterol, dietarySodium, swimmingStrokeCount, abdominalCramps, peripheralPerfusionIndex, ovulationTestResult, fainting, peakExpirationFlowRate, heartRateVariabilitySDNN, dietaryIodine, runnyNose, vomiting, bodyFatPercantage, dizziness, appleStandTime, lowHeartRate, dietaryPhosphorus, vitalCapacity]
+        var samples: Set<HKObjectType> = [
+            vitaminB6, soarThroat, dietaryFolate, sleepAnalysis,
+            oxygenSaturation, dietaryChloride, sexualActivity,
+            electrodermalActivity, dietaryIron, pelvicPain, acne,
+            coughing, bodyAche, lossOfTaste, diarrhea, pantothenicAcid,
+            sleepChange, dietaryCalcium, nikeFuel, fatigue, headache,
+            menstrualBleeding, allergyRecord, heartRate, dietaryCholesterol,
+            dietarySodium, swimmingStrokeCount, abdominalCramps,
+            peripheralPerfusionIndex, ovulationTestResult, fainting,
+            peakExpirationFlowRate, heartRateVariabilitySDNN, dietaryIodine,
+            runnyNose, vomiting, bodyFatPercantage, dizziness, appleStandTime,
+            lowHeartRate, dietaryPhosphorus, vitalCapacity]
 
         if #available(iOS 14.2, *) {
             if let audioExposureEvent = HKObjectType.categoryType(forIdentifier: .headphoneAudioExposureEvent),
