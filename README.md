@@ -1,7 +1,6 @@
 # OTFCloudantStore
 
-TheraForge's OTFCloudantStore uses OTFCDTDatastore to store, index and query local JSON data. Synchronisation is under
-the control of the application. OTFCloudantStore manages and resolves the conflicts locally on the device or on the remote database.
+TheraForge's OTFCloudantStore uses OTFCDTDatastore to store, index and query local JSON data. Synchronization is controlled by the application. OTFCloudantStore manages and resolves conflicts locally on the device or in the remote database.
 OTFCloudantStore is an interface between the OTFCarekit, HealthKit and OTFCDTDatastore frameworks.
 
 ## TheraForge Frameworks
@@ -13,6 +12,14 @@ OTFCloudantStore is an interface between the OTFCarekit, HealthKit and OTFCDTDat
 
 ## Change Log
 <details open>
+  <summary>Release 1.0.5-beta</summary>
+  <ul>
+    <li>Improved Readme file</li>
+    <li>Updated company name and copyright date</li>
+  </ul>
+</details>
+
+<details>
   <summary>Release 1.0.4-beta</summary>
   <ul>
     <li>Added Synchronization</li>
@@ -77,8 +84,8 @@ let store = OTFCloudantStore(storeName: “your store name”)
 
 ### OTFCloudantRevision <a name="OTFCloudantRevision"></a>
 
-In an application when you use distributed databases, copies of your data might be stored in multiple locations. The copies of a data might have different updates because of which "Conflicts" occur and IBM Cloud can't determine which copy is the correct one.
-Keeping this data in sync is important that is where  `OTFCloudantRevision`  solves this problem of confilicts. The `OTFCloudantRevision` make sure that every Entity has revision id in order to serve the [MVCC](https://en.wikipedia.org/wiki/Multiversion_concurrency_control).
+In an application, when distributed databases are used, copies of your data might be stored in multiple locations. The copies of a data might have different updates because of which "Conflicts" occur and IBM Cloud can't determine which copy is the correct one.
+Keeping this data in sync is important that is where  `OTFCloudantRevision`  solves this problem of conflicts. The `OTFCloudantRevision` make sure that every Entity has revision id in order to serve the [MVCC](https://en.wikipedia.org/wiki/Multiversion_concurrency_control).
 
 Use the following add, update, delete, and get data functions to modify your data into the store, your class must conform to the `Codable`, `Identifiable` and `OTFCloudantRevision`.
 
@@ -98,7 +105,7 @@ delete<Entity: Codable & Identifiable & OTFCloudantRevision>(_ items: [Entity], 
 IBM® [Cloudant®](https://cloudant.com) for IBM Cloud Query is a declarative JSON querying syntax for IBM Cloudant databases. IBM Cloudant Query uses two types of indexes: json and text.
 If you know exactly what data you want to look for, or you want to keep storage and processing requirements to a minimum, you can specify how the index is created by making it of type json.
 But for maximum flexibility when you search for data, you typically create an index of type text. Indexes of type text have a simple mechanism for automatically indexing all the fields in the documents.
-OTFCloudantQuery filters and sorts the data, It can be used to order a collection of data by some fields which are indexes, if the field is not index, the result will be empty array.
+OTFCloudantQuery filters and sorts data. It can be used to order a collection of data by some fields which are indexes, if the field is not index, the result will be empty array.
 
 ```swift
 let query = store.collection(className, fields: [String]?) -> OTFCloudantQuery 
@@ -110,7 +117,7 @@ query.where(propertyName: propertyName, value: theFilter) -> OTFCloudantQuery
 
 #### Sorting
 
-Theraforge OTFCloudantStore provides sorting fucntionality for the given property. To sort any property ensure that the following are true:
+Theraforge OTFCloudantStore provides sorting functionality for the given property. To sort any property ensure that the following are true:
 - At least one of the sort field is included in the selector.
 - An index is already defined, with all the sort fields in the same order.
 - Each object in the sort array has a single key.
@@ -130,7 +137,7 @@ The OTFCloudantQueryComponents are used to query with single field or combined q
 ```swift
 Example
     The query: where the title is equal to “Family Practice Doctor” will be translated into OTFCloudantQueryComponent like:
-    let query = OTFCloudantQueryComponent.simpleComponent(field: “title”, comparisionOperator: .equal, value: “Family Practice Doctor”, )
+    let query = OTFCloudantQueryComponent.simpleComponent(field: “title”, comparisonOperator: .equal, value: “Family Practice Doctor”, )
     The query: where the age is less than 20 will be translated into OTFCloudantQueryComponent like
     let query = OTFCloudantQueryComponent.simpleComponent(field: “age”, value: 20, comparisionOperator: .lessThan)
     The query: where the age is in [15,20,30] will be translated into OTFCloudantQueryComponent like
@@ -152,11 +159,11 @@ Example
     let rightComponent = OTFCloudantQueryComponent.simpleComponent(field: “age”, comparisionOperator: .in, value: [15,20,30])
     let combinedQuery = OTFCloudantCombinationQueryComponent.combinedQueryComponent(leftComponent: leftComponent, combinationSelector: .and, rightComponent: rightComponent)
 ```
-`leftComponent`: type OTFCloudantQueryComponent, which is presenting for the first condition check.
+`leftComponent`: type OTFCloudantQueryComponent, which represents the first condition check.
 
 `rightComponent`: type OTFCloudantQueryComponent, which is presenting for the second condition check.
 
-`combinationSelector`: type OTFCloudantCombinationSelector which is use to combine two queries (and / or).
+`combinationSelector`: type OTFCloudantCombinationSelector which is used to combine two queries (and/or).
 
 ##### OTFCloudantComplexQueryComponent
 This query component builds a complex query from two  `OTFCloudantCombinationQueryComponents`. 
@@ -225,7 +232,7 @@ Synchronizes daily tasks from iOS to watchOS and updates their outcomes in both 
 ```
 
 ## Healthkit Integration <a name="Healthkit-Integration"></a>
-The TheraForge OTFCloudantStore supports to save and distribute most health and fitness data from Apple [HealthKit](https://developer.apple.com/documentation/healthkit).
+The TheraForge OTFCloudantStore supports saving and distributing most health and fitness data from Apple [HealthKit](https://developer.apple.com/documentation/healthkit).
 The OTFCloudantStore provides `OTFCloudantSample` which will map the data from HealthKit’s entities and also helps on parsing data back to HealthKit’s entities.
 
 The OTFCloudantStore stores following different types of data:
@@ -326,7 +333,7 @@ In OTFCloudantStore we've provided some custom flags that users can use to decid
 
  
  By using these pods user can have a control over the frameworks that he/she wants to install according to their need. He don't have to specify these flags anywhere as everything is done already in the code. He/she just need to figure out which framework configuration (from the above 4 configurations) best suites to his requirement and simply install it in his project. 
- For example - If user want's to use OTFCareKit framework in his project but he don't wants to use HealthKit as it may cause a rejection on Appstore if he is not actually using any HealthKit related code but still importing HealthKit. So he can use `pod OTFCloudantStore/CloudantCare`. It will not allow app to import HealthKit or use it's code.
+ For example - If user want's to use OTFCareKit framework in his project but he don't wants to use HealthKit as it may cause a rejection on the App Store if he is not actually using any HealthKit related code but still importing HealthKit. So he can use `pod OTFCloudantStore/CloudantCare`. It will not allow app to import HealthKit or use it's code.
  
  
  ## License <a name="License"></a>
