@@ -12,6 +12,13 @@ OTFCloudantStore is an interface between the OTFCarekit, HealthKit and OTFCDTDat
 
 ## Change Log
 <details open>
+  <summary>Release 2.0.0</summary>
+  <ul>
+    <li>Updated dependencies for TheraForge 2.0.0 release</li>
+  </ul>
+</details>
+
+<details>
   <summary>Release 1.0.5-beta</summary>
   <ul>
     <li>Improved Readme file</li>
