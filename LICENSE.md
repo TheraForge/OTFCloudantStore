@@ -1,6 +1,6 @@
 TERMS OF LICENSE
 ================
-Copyright (c) 2025, **Hippocrates Technologies Sagl.**. All rights reserved.
+Copyright (c) 2026, **Hippocrates Technologies Sagl.**. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  
