@@ -57,10 +57,6 @@ class OTFCategorySampleTests: OTFCloudantTests {
         .sinusCongestion, .skippedHeartbeat, .soreThroat,
         .toothbrushingEvent, .vaginalDryness, .vomiting, .wheezing]
 
-    override func setUp() {
-        super.setUp()
-    }
-
     func testCategorySamples() {
         let semaphor = DispatchSemaphore(value: 0)
 
@@ -71,7 +67,7 @@ class OTFCategorySampleTests: OTFCloudantTests {
 
         for identifier in identifiers {
             guard let categoryType = HKObjectType.categoryType(forIdentifier: identifier) else {
-                OTFLog("This identifier no longer available in HealthKit", identifier)
+                OTFLogger.logger().info("Identifier no longer available in HealthKit: \(identifier.rawValue, privacy: .public)")
                 break
             }
             if self.healthStore.authorizationStatus(for: categoryType) != .sharingAuthorized {
@@ -114,11 +110,11 @@ class OTFCategorySampleTests: OTFCloudantTests {
 
         if let categoryType = HKObjectType.categoryType(forIdentifier: identifier), let endDate = Date().addMinute(20) {
             let value = identifier.valueForIdentifier
-            OTFLog("Identifier %{public}@", identifier)
+            OTFLogger.logger().info("Identifier: \(identifier.rawValue, privacy: .public)")
             let metadata = identifier.metadata
             let categorySample = HKCategorySample(type: categoryType, value: value, start: Date(), end: endDate, metadata: metadata)
 
-            healthStore.save(categorySample, withCompletion: { (success, error) -> Void in
+            healthStore.save(categorySample, withCompletion: { (success, error) in
 
                 if let error = error {
                     XCTFail(error.localizedDescription)
@@ -126,16 +122,16 @@ class OTFCategorySampleTests: OTFCloudantTests {
                 }
 
                 if success {
-                    OTFLog("My new data was saved in Healthkit", success)
+                    OTFLogger.logger().info("New data was saved in HealthKit: \(success, privacy: .public)")
                     self.synchronizer.syncWithHealthKit(direction: .fromHKToCloudant, type: categoryType) {
-                        OTFLog("Sync done", categoryType)
+                        OTFLogger.logger().info("Sync done for \(categoryType.identifier, privacy: .public)")
                         DispatchQueue.main.async {
                             self.findInCloudant(uuid: categorySample.uuid, in: .category) { sample in
                                 if let qSample = sample as? HKCategorySample {
-                                    OTFLog("Test succeded for - %{public}@", identifier.rawValue)
+                                    OTFLogger.logger().info("Test succeeded for \(identifier.rawValue, privacy: .public)")
                                     XCTAssertEqual(qSample.value, categorySample.value)
                                 } else {
-                                    OTFLog("Nil quantity type - %{public}@", identifier.rawValue)
+                                    OTFLogger.logger().info("Nil quantity type for \(identifier.rawValue, privacy: .public)")
                                     XCTFail("Can't find \(identifier.rawValue)")
                                 }
                                 expect.fulfill()

@@ -32,19 +32,58 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
  */
 
+import Foundation
 import SwiftUI
 
 struct CloudantStoreKey: EnvironmentKey {
     typealias Value = OTFCloudantStore?
 
-    static var defaultValue: OTFCloudantStore? = {
+    private enum DefaultValueCache {
+        case unresolved
+        case resolved(OTFCloudantStore?)
+    }
+
+    private static let defaultValueLock = NSLock()
+    private static var defaultValueCache = DefaultValueCache.unresolved
+
+    static var defaultValueProvider: () -> OTFCloudantStore? = productionDefaultValue {
+        didSet {
+            resetDefaultValueCache()
+        }
+    }
+
+    static var defaultValue: OTFCloudantStore? {
+        defaultValueLock.lock()
+        defer { defaultValueLock.unlock() }
+
+        switch defaultValueCache {
+        case .resolved(let store):
+            return store
+        case .unresolved:
+            let store = defaultValueProvider()
+            defaultValueCache = .resolved(store)
+            return store
+        }
+    }
+
+    static func resetDefaultValueProvider() {
+        defaultValueProvider = productionDefaultValue
+    }
+
+    private static func resetDefaultValueCache() {
+        defaultValueLock.lock()
+        defaultValueCache = .unresolved
+        defaultValueLock.unlock()
+    }
+
+    private static func productionDefaultValue() -> OTFCloudantStore? {
         do {
             let store = try StoreService.shared.currentStore(peer: OTFWatchConnectivityPeer())
             return store
         } catch {
             return nil
         }
-    }()
+    }
 }
 
 extension EnvironmentValues {

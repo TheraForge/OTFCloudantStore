@@ -90,7 +90,7 @@ public struct OTFCloudantHKSeriesSample: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKSeriesSample.self, from: data)
             return sample
         } catch {
-            OTFError("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }
@@ -151,7 +151,7 @@ public struct OTFCloudantHKHeartbeatSeriesSample: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKHeartbeatSeriesSample.self, from: data)
             return sample
         } catch {
-            OTFError("Mapping from Cloudant's HeartbeatSeriesSample to HK's HeartbeatSeriesSample failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Mapping from Cloudant's HeartbeatSeriesSample to HK's HeartbeatSeriesSample failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }

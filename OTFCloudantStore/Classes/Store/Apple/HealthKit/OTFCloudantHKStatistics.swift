@@ -75,7 +75,7 @@ public struct OTFCloudantHKStatistics: Codable {
             let statistics = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKStatistics.self, from: data)
             return statistics
         } catch {
-            OTFError("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Mapping from Cloudant's Statistics into HK's Statistics failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }

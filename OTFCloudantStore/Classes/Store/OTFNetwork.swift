@@ -42,12 +42,55 @@ public enum RequestMethod: String {
     case delete = "DELETE"
 }
 
+enum OTFNetworkError: LocalizedError, Equatable {
+    case emptyData
+    case httpStatus(Int)
+
+    var errorDescription: String? {
+        switch self {
+        case .emptyData:
+            return "Network response did not include data."
+        case .httpStatus(let statusCode):
+            return "Network request failed with HTTP status \(statusCode)."
+        }
+    }
+}
+
+protocol URLSessionDataTasking {
+    func resume()
+}
+
+extension URLSessionDataTask: URLSessionDataTasking {}
+
+protocol URLSessioning {
+    func makeDataTask(
+        with request: URLRequest,
+        completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void
+    ) -> URLSessionDataTasking
+}
+
+extension URLSession: URLSessioning {
+    func makeDataTask(
+        with request: URLRequest,
+        completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void
+    ) -> URLSessionDataTasking {
+        dataTask(with: request, completionHandler: completionHandler)
+    }
+}
+
 public class OTFNetwork {
     public static var shared = OTFNetwork()
     private var baseURL = ""
-    private let session = URLSession.shared
+    private let session: URLSessioning
 
-    private init() {}
+    private init() {
+        self.session = URLSession.shared
+    }
+
+    init(session: URLSessioning, baseURL: String = "") {
+        self.session = session
+        self.baseURL = baseURL
+    }
 
     public func setBaseUrl(baseURL: String) {
         self.baseURL = baseURL
@@ -57,19 +100,26 @@ public class OTFNetwork {
        To make a networking call with URLRequest Parameter, it with return a completionHandler with Data and Error objects.
     */
     public func sendRequest(urlRequest: URLRequest, completionBlOTF: @escaping (Result<Data, Error>) -> Void) {
-        session.dataTask(with: urlRequest) { (data, urlResponse, error) in
+        session.makeDataTask(with: urlRequest) { (data, urlResponse, error) in
             DispatchQueue.main.async {
                 if let urlResponse = urlResponse {
-                    OTFLog("URL description %{public}@", urlResponse.description)
+                    OTFLogger.logger().info("URL description \(urlResponse.description, privacy: .public)")
                 }
                 if let error = error {
                     completionBlOTF(.failure(error))
                     return
                 }
-                if let data = data {
-                    OTFLog("Data responded: %{public}@", String(data: data, encoding: .utf8) ?? "Request successful with result: nil")
-                    completionBlOTF(.success(data))
+                if let httpResponse = urlResponse as? HTTPURLResponse,
+                   !(200..<300).contains(httpResponse.statusCode) {
+                    completionBlOTF(.failure(OTFNetworkError.httpStatus(httpResponse.statusCode)))
+                    return
                 }
+                if let data = data {
+                    OTFLogger.logger().info("Network request returned \(data.count, privacy: .public) response bytes")
+                    completionBlOTF(.success(data))
+                    return
+                }
+                completionBlOTF(.failure(OTFNetworkError.emptyData))
             }
         }.resume()
     }
@@ -85,7 +135,7 @@ public class OTFNetwork {
                     let model = try JSONDecoder().decode(T.self, from: data)
                     result(.success(model))
                 } catch let error {
-                    OTFError("Decode failed with error: %{public}@", error.localizedDescription)
+                    OTFLogger.logger().error("Decode failed with error: \(error.localizedDescription, privacy: .public)")
                     result(.failure(error))
                 }
             case .failure(let error):
@@ -140,7 +190,14 @@ extension URLRequest {
      */
     public var curlString: String {
         guard let url = url else { return "" }
-        var baseCommand = #"curl "\#(url.absoluteString)""#
+        var diagnosticURL = url
+        if var components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+           components.user != nil || components.password != nil {
+            components.user = components.user == nil ? nil : "<redacted>"
+            components.password = components.password == nil ? nil : "<redacted>"
+            diagnosticURL = components.url ?? url
+        }
+        var baseCommand = #"curl "\#(diagnosticURL.absoluteString)""#
 
         if httpMethod == "HEAD" {
             baseCommand += " --head"
@@ -152,14 +209,23 @@ extension URLRequest {
             command.append("-X \(method)")
         }
 
+        let sensitiveHeaderNames = Set([
+            "authorization",
+            "api-key",
+            "cookie",
+            "set-cookie"
+        ])
         if let headers = allHTTPHeaderFields {
             for (key, value) in headers where key != "Cookie" {
-                command.append("-H '\(key): \(value)'")
+                let diagnosticValue = sensitiveHeaderNames.contains(key.lowercased())
+                    ? "<redacted>"
+                    : value
+                command.append("-H '\(key): \(diagnosticValue)'")
             }
         }
 
-        if let data = httpBody, let body = String(data: data, encoding: .utf8) {
-            command.append("-d '\(body)'")
+        if let data = httpBody, !data.isEmpty {
+            command.append("-d '<redacted: \(data.count) bytes>'")
         }
 
         return command.joined(separator: " \\\n\t")

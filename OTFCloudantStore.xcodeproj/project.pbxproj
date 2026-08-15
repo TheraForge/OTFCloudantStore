@@ -12,6 +12,13 @@
 		1457C9A0269EAE7E009E2284 /* OTFCategorySampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1457C99F269EAE7E009E2284 /* OTFCategorySampleTests.swift */; };
 		147F0AF626946A3D00DCA85A /* Date+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1452D715267756F800DEEC14 /* Date+Extension.swift */; };
 		14AF8DDE2657744E003513DF /* OTFCloudantStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AF8DDD2657744E003513DF /* OTFCloudantStoreTests.swift */; };
+		A0D1E2F32D2F000100000001 /* WatchDeliveryOutcomeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E2F22D2F000100000001 /* WatchDeliveryOutcomeTests.swift */; };
+		A0D1E2F52D2F000100000002 /* CloudantCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E2F42D2F000100000002 /* CloudantCodableTests.swift */; };
+		A0D1E2F72D30000100000003 /* InternalTestSeamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E2F62D30000100000003 /* InternalTestSeamTests.swift */; };
+		A0D1E2FC2D30000200000005 /* SynchronizationAlgorithmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E2FB2D30000200000005 /* SynchronizationAlgorithmTests.swift */; };
+		A0D1E3022D31000100000007 /* CareKitStoreContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E3012D31000100000007 /* CareKitStoreContractTests.swift */; };
+		A0D1E3042D31000200000008 /* HealthKitConversionSynchronizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E3032D31000200000008 /* HealthKitConversionSynchronizerTests.swift */; };
+		A0D1E3062D32000100000009 /* NetworkStoreServiceResearchKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E3052D32000100000009 /* NetworkStoreServiceResearchKitTests.swift */; };
 		14AF8DE02657744E003513DF /* OTFCloudantStore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA23A0192450B1FD008BEDD7 /* OTFCloudantStore.framework */; };
 		14AF8DFC26577486003513DF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AF8DFB26577486003513DF /* AppDelegate.swift */; };
 		14AF8DFE26577486003513DF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14AF8DFD26577486003513DF /* SceneDelegate.swift */; };
@@ -29,6 +36,8 @@
 		90B38C7F2B1E00F700A8EF89 /* OTFCloudantStore+Synchronization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B38C7A2B1E00F600A8EF89 /* OTFCloudantStore+Synchronization.swift */; };
 		90B38C822B1E00F700A8EF89 /* OTFWatchConnectivityPeer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B38C7D2B1E00F600A8EF89 /* OTFWatchConnectivityPeer.swift */; };
 		90B38C832B1E00F700A8EF89 /* OCKRemoteSynchronizable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B38C7E2B1E00F700A8EF89 /* OCKRemoteSynchronizable.swift */; };
+		A0D1E2F92D30000100000004 /* OTFWatchSyncApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E2F82D30000100000004 /* OTFWatchSyncApplier.swift */; };
+		A0D1E2FA2D30000100000004 /* OTFWatchSyncApplier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0D1E2F82D30000100000004 /* OTFWatchSyncApplier.swift */; };
 		90C7A1E22B5149CD0020D20F /* OCKCloudantStore.h in Headers */ = {isa = PBXBuildFile; fileRef = FA23A01C2450B1FD008BEDD7 /* OCKCloudantStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		90C7A1E42B5149CD0020D20F /* String+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE31D982600C60D009168B4 /* String+Extension.swift */; };
 		90C7A1E52B5149CD0020D20F /* OTFCloudantStore+Patients.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE31DB92600C60E009168B4 /* OTFCloudantStore+Patients.swift */; };
@@ -155,6 +164,13 @@
 		1457C99F269EAE7E009E2284 /* OTFCategorySampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTFCategorySampleTests.swift; sourceTree = "<group>"; };
 		14AF8DDB2657744E003513DF /* OTFCloudantStoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OTFCloudantStoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		14AF8DDD2657744E003513DF /* OTFCloudantStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTFCloudantStoreTests.swift; sourceTree = "<group>"; };
+		A0D1E2F22D2F000100000001 /* WatchDeliveryOutcomeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDeliveryOutcomeTests.swift; sourceTree = "<group>"; };
+		A0D1E2F42D2F000100000002 /* CloudantCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudantCodableTests.swift; sourceTree = "<group>"; };
+		A0D1E2F62D30000100000003 /* InternalTestSeamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalTestSeamTests.swift; sourceTree = "<group>"; };
+		A0D1E2FB2D30000200000005 /* SynchronizationAlgorithmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchronizationAlgorithmTests.swift; sourceTree = "<group>"; };
+		A0D1E3012D31000100000007 /* CareKitStoreContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CareKitStoreContractTests.swift; sourceTree = "<group>"; };
+		A0D1E3032D31000200000008 /* HealthKitConversionSynchronizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitConversionSynchronizerTests.swift; sourceTree = "<group>"; };
+		A0D1E3052D32000100000009 /* NetworkStoreServiceResearchKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStoreServiceResearchKitTests.swift; sourceTree = "<group>"; };
 		14AF8DDF2657744E003513DF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14AF8DF926577486003513DF /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		14AF8DFB26577486003513DF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -191,8 +207,9 @@
 		90B38C7A2B1E00F600A8EF89 /* OTFCloudantStore+Synchronization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "OTFCloudantStore+Synchronization.swift"; sourceTree = "<group>"; };
 		90B38C7D2B1E00F600A8EF89 /* OTFWatchConnectivityPeer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OTFWatchConnectivityPeer.swift; sourceTree = "<group>"; };
 		90B38C7E2B1E00F700A8EF89 /* OCKRemoteSynchronizable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OCKRemoteSynchronizable.swift; sourceTree = "<group>"; };
+		A0D1E2F82D30000100000004 /* OTFWatchSyncApplier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OTFWatchSyncApplier.swift; sourceTree = "<group>"; };
 		90C7A2232B5149CD0020D20F /* OTFCloudantStoreWatch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OTFCloudantStoreWatch.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		90C7A2242B5149CF0020D20F /* OTFCloudantStore.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = OTFCloudantStore.plist; path = /Users/waqaskhadim/Documents/IOS/Theraforge/OTFCloudantStore/OTFCloudantStore.plist; sourceTree = "<absolute>"; };
+		90C7A2242B5149CF0020D20F /* OTFCloudantStore.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = OTFCloudantStore.plist; path = OTFCloudantStore.plist; sourceTree = SOURCE_ROOT; };
 		91276D5FC83A9BF77FAA3978 /* Pods-OTFCloudantStore.carehealth.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore.carehealth.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore/Pods-OTFCloudantStore.carehealth.xcconfig"; sourceTree = "<group>"; };
 		9366D4177588A4E1DA51F50C /* Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStore-OTFCloudantStoreTests/Pods-OTFCloudantStore-OTFCloudantStoreTests.care_debug.xcconfig"; sourceTree = "<group>"; };
 		A7F82D3B6709C30AA5E16B4E /* Pods-OTFCloudantStoreWatch.cloudant.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OTFCloudantStoreWatch.cloudant.xcconfig"; path = "Target Support Files/Pods-OTFCloudantStoreWatch/Pods-OTFCloudantStoreWatch.cloudant.xcconfig"; sourceTree = "<group>"; };
@@ -298,6 +315,13 @@
 			children = (
 				1452D72E2677697900DEEC14 /* OTFCloudantTests.swift */,
 				14AF8DDD2657744E003513DF /* OTFCloudantStoreTests.swift */,
+				A0D1E2F22D2F000100000001 /* WatchDeliveryOutcomeTests.swift */,
+				A0D1E2F42D2F000100000002 /* CloudantCodableTests.swift */,
+				A0D1E2F62D30000100000003 /* InternalTestSeamTests.swift */,
+				A0D1E2FB2D30000200000005 /* SynchronizationAlgorithmTests.swift */,
+				A0D1E3012D31000100000007 /* CareKitStoreContractTests.swift */,
+				A0D1E3032D31000200000008 /* HealthKitConversionSynchronizerTests.swift */,
+				A0D1E3052D32000100000009 /* NetworkStoreServiceResearchKitTests.swift */,
 				1452D729267768ED00DEEC14 /* OTFQuantityTests.swift */,
 				1457C99F269EAE7E009E2284 /* OTFCategorySampleTests.swift */,
 				14CDA45B2668E39C0064B502 /* OTFCloudantSSETest.swift */,
@@ -349,6 +373,7 @@
 			children = (
 				90B38C7E2B1E00F700A8EF89 /* OCKRemoteSynchronizable.swift */,
 				90B38C7A2B1E00F600A8EF89 /* OTFCloudantStore+Synchronization.swift */,
+				A0D1E2F82D30000100000004 /* OTFWatchSyncApplier.swift */,
 				90B38C7D2B1E00F600A8EF89 /* OTFWatchConnectivityPeer.swift */,
 			);
 			path = Synchronization;
@@ -740,7 +765,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\nif command -v swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 		1FD86A9BC6B50F5AFE93FA1A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -824,7 +849,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"\nif command -v swiftlint >/dev/null; then\n    swiftlint\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 		9D0F155B0B7589E142C1F3D8 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -851,6 +876,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				14AF8DDE2657744E003513DF /* OTFCloudantStoreTests.swift in Sources */,
+				A0D1E2F32D2F000100000001 /* WatchDeliveryOutcomeTests.swift in Sources */,
+				A0D1E2F52D2F000100000002 /* CloudantCodableTests.swift in Sources */,
+				A0D1E2F72D30000100000003 /* InternalTestSeamTests.swift in Sources */,
+				A0D1E2FC2D30000200000005 /* SynchronizationAlgorithmTests.swift in Sources */,
+				A0D1E3022D31000100000007 /* CareKitStoreContractTests.swift in Sources */,
+				A0D1E3042D31000200000008 /* HealthKitConversionSynchronizerTests.swift in Sources */,
+				A0D1E3062D32000100000009 /* NetworkStoreServiceResearchKitTests.swift in Sources */,
 				1452D72A267768ED00DEEC14 /* OTFQuantityTests.swift in Sources */,
 				14D4C6092669DFA400AD1219 /* URLRequest+Extension.swift in Sources */,
 				1457C9A0269EAE7E009E2284 /* OTFCategorySampleTests.swift in Sources */,
@@ -886,6 +918,7 @@
 				90C7A1EC2B5149CD0020D20F /* CloudantDecoder.swift in Sources */,
 				90C7A1ED2B5149CD0020D20F /* CDTDocumentRevision+Extension.swift in Sources */,
 				90C7A1EE2B5149CD0020D20F /* OTFCloudantStore+Synchronization.swift in Sources */,
+				A0D1E2FA2D30000100000004 /* OTFWatchSyncApplier.swift in Sources */,
 				90C7A1EF2B5149CD0020D20F /* OTFCloudantHKSeriesSample.swift in Sources */,
 				90C7A1F02B5149CD0020D20F /* Encoder.swift in Sources */,
 				90C7A1F12B5149CD0020D20F /* OCKModels+Extension.swift in Sources */,
@@ -940,6 +973,7 @@
 				CEE31DC62600C60E009168B4 /* CloudantDecoder.swift in Sources */,
 				CEE31DCC2600C60E009168B4 /* CDTDocumentRevision+Extension.swift in Sources */,
 				90B38C7F2B1E00F700A8EF89 /* OTFCloudantStore+Synchronization.swift in Sources */,
+				A0D1E2F92D30000100000004 /* OTFWatchSyncApplier.swift in Sources */,
 				CEE31DD92600C60E009168B4 /* OTFCloudantHKSeriesSample.swift in Sources */,
 				CEE31DC52600C60E009168B4 /* Encoder.swift in Sources */,
 				CEE31DC82600C60E009168B4 /* OCKModels+Extension.swift in Sources */,
@@ -1024,7 +1058,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 474UVJ2BEF;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1089,7 +1123,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1161,7 +1195,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1232,7 +1266,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1304,7 +1338,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1376,7 +1410,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1448,7 +1482,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1521,7 +1555,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1593,7 +1627,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = OTFCloudantStoreTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1624,7 +1658,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 474UVJ2BEF;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1687,7 +1721,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1757,7 +1791,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1827,7 +1861,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1897,7 +1931,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1967,7 +2001,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2037,7 +2071,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2107,7 +2141,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2177,7 +2211,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2243,7 +2277,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -2270,7 +2304,7 @@
 				);
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2343,7 +2377,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2366,7 +2400,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2434,7 +2468,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2462,7 +2496,7 @@
 				);
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2535,7 +2569,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2558,7 +2592,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2626,7 +2660,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -2653,7 +2687,7 @@
 				);
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2726,7 +2760,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2749,7 +2783,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2817,7 +2851,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -2844,7 +2878,7 @@
 				);
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2917,7 +2951,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2940,7 +2974,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2972,7 +3006,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3004,7 +3038,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3036,7 +3070,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3068,7 +3102,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3100,7 +3134,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3136,7 +3170,7 @@
 				);
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3172,7 +3206,7 @@
 				);
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3208,7 +3242,7 @@
 				);
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3244,7 +3278,7 @@
 				);
 				INFOPLIST_FILE = OTFCloudantStore.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3317,7 +3351,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3340,7 +3374,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = OTFCloudantStore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'OTFCloudantStore'
-  s.version          = '2.0.0'
+  s.version          = '2.1.0'
   s.summary          = 'TheraForge OTFCloudantStore uses OTFCDTDatastore to store the data.'
 
 # This description is used to generate tags and improve search results.
@@ -27,8 +27,8 @@ Pod::Spec.new do |s|
 
   s.source_files = 'OTFCloudantStore/Classes/**/*'
   s.default_subspec = 'CloudantOnly'
-  s.dependency 'OTFCDTDatastore', '2.1.1-tf.2'
-  s.dependency 'OTFCloudClientAPI', '2.0.0'
+  s.dependency 'OTFCDTDatastore', '2.1.1-tf.3'
+  s.dependency 'OTFCloudClientAPI', '2.1.0'
   s.dependency 'OTFUtilities', '2.0.0'
 
   s.subspec 'CloudantOnly' do |ss|
@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
     ss.pod_target_xcconfig = { 
       'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => '$(inherited) CLOUDANT'
     }
-    ss.dependency 'OTFCDTDatastore', '2.1.1-tf.2'
+    ss.dependency 'OTFCDTDatastore', '2.1.1-tf.3'
   end
 
   s.subspec 'CloudantCare' do |ss|
@@ -47,7 +47,7 @@ Pod::Spec.new do |s|
       'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => '$(inherited) CARE'
     }
     ss.dependency 'OTFCareKitStore/Care', '2.0.2-tf.2'
-    ss.dependency 'OTFCDTDatastore', '2.1.1-tf.2'
+    ss.dependency 'OTFCDTDatastore', '2.1.1-tf.3'
   end
 
   s.subspec 'CloudantCareHealth' do |ss|
@@ -57,7 +57,7 @@ Pod::Spec.new do |s|
       'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => '$(inherited) CARE HEALTH'
     }
     ss.dependency 'OTFCareKitStore/CareHealth', '2.0.2-tf.2'
-    ss.dependency 'OTFCDTDatastore', '2.1.1-tf.2'
+    ss.dependency 'OTFCDTDatastore', '2.1.1-tf.3'
   end
 
   s.subspec 'CloudantHealth' do |ss|
@@ -66,7 +66,7 @@ Pod::Spec.new do |s|
     ss.pod_target_xcconfig = {
       'SWIFT_ACTIVE_COMPILATION_CONDITIONS' => '$(inherited) HEALTH'
     }
-    ss.dependency 'OTFCDTDatastore', '2.1.1-tf.2'
+    ss.dependency 'OTFCDTDatastore', '2.1.1-tf.3'
   end
 end
 

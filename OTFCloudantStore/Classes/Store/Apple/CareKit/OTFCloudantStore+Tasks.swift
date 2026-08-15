@@ -33,202 +33,284 @@ OF SUCH DAMAGE.
  */
 
 #if CARE && HEALTH
-import Foundation
-import OTFCareKitStore
+  import Foundation
+  import OTFCareKitStore
 
-extension OCKTask: Identifiable {
+  extension OCKTask: @retroactive Identifiable {
     public var id: String {
-        return uuid.uuidString
+      return uuid.uuidString
     }
-}
+  }
 
-/**
- Extends OTFCloudantStore to perform actions on the tasks.
- */
+  /**
+   Extends OTFCloudantStore to perform actions on the tasks.
+   */
 
-extension OTFCloudantStore {
+  extension OTFCloudantStore {
 
     /**
       Fetches tasks from the store.
-     
+
      - Parameter query: a query that limits which tasks your fetch returns.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    public func fetchTasks(query: OCKTaskQuery = OCKTaskQuery(), callbackQueue: DispatchQueue = .main,completion: @escaping (Result<[OCKTask], OCKStoreError>) -> Void) {
-        let cloudantQuery = OTFCloudantTaskQuery(taskQuery: query)
-        fetch(cloudantQuery: cloudantQuery, callbackQueue: callbackQueue, completion: completion)
+    public func fetchTasks(
+      query: OCKTaskQuery = OCKTaskQuery(),
+      callbackQueue: DispatchQueue = .main,
+      completion: @escaping (Result<[OCKTask], OCKStoreError>) -> Void
+    ) {
+      let cloudantQuery = OTFCloudantTaskQuery(taskQuery: query)
+      let sortsLocally = !query.sortDescriptors.isEmpty
+      if sortsLocally {
+        cloudantQuery.sortDescription = nil
+        cloudantQuery.limit = nil
+        cloudantQuery.offset = 0
+      }
+      fetch(
+        cloudantQuery: cloudantQuery, callbackQueue: callbackQueue,
+        completion: { (result: Result<[OCKTask], OCKStoreError>) in
+          switch result {
+          case .success(let tasks):
+            guard sortsLocally else {
+              completion(.success(tasks))
+              return
+            }
+
+            let sortedTasks = self.sortTasks(tasks, using: query.sortDescriptors)
+            completion(.success(self.paginate(sortedTasks, offset: query.offset, limit: query.limit)))
+          case .failure(let error):
+            completion(.failure(error))
+          }
+        })
     }
 
     /**
       This method adds, upadates or deletes a task from the store.
-     
+
      - Parameter addOrUpdate: a tasks you add or update to the store.
      - Parameter delete: a tasks you delete from the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    public func addUpdateOrDeleteTasks(addOrUpdate tasks: [OCKTask],
-                                       delete deleteTasks: [OCKTask],
-                                       callbackQueue: DispatchQueue,
-                                       completion: ((Result<([OCKTask], [OCKTask], [OCKTask]), OCKStoreError>) -> Void)?) {
-        self.fetchTasks { (result: Result<[OCKTask], OCKStoreError>) in
-            switch result {
-            case .success(let existingTasks):
-                let existingTaskIDs = existingTasks.map { $0.id }
-                let tasksToBeAdded = tasks.filter { !existingTaskIDs.contains($0.id) }
-                let tasksToBeUpdated = tasks.filter { existingTaskIDs.contains($0.id) }
+    public func addUpdateOrDeleteTasks(
+      addOrUpdate tasks: [OCKTask],
+      delete deleteTasks: [OCKTask],
+      callbackQueue: DispatchQueue,
+      completion: ((Result<([OCKTask], [OCKTask], [OCKTask]), OCKStoreError>) -> Void)?
+    ) {
+      self.fetchTasks(callbackQueue: callbackQueue) { (result: Result<[OCKTask], OCKStoreError>) in
+        switch result {
+        case .success(let existingTasks):
+          let existingTaskIDs = existingTasks.map { $0.id }
+          let tasksToBeAdded = tasks.filter { !existingTaskIDs.contains($0.id) }
+          let tasksToBeUpdated = tasks.filter { existingTaskIDs.contains($0.id) }
 
-                var errors = [OCKStoreError]()
-                var addedTasks = [OCKTask]()
-                var updatedTasks = [OCKTask]()
-                var deletedTasks = [OCKTask]()
+          var errors = [OCKStoreError]()
+          var addedTasks = [OCKTask]()
+          var updatedTasks = [OCKTask]()
+          var deletedTasks = [OCKTask]()
 
-                let group = DispatchGroup()
+          let group = DispatchGroup()
 
-                if !tasksToBeAdded.isEmpty {
-                    group.enter()
-                    self.addTasks(tasksToBeAdded, callbackQueue: callbackQueue) { (result: Result<[OCKTask], OCKStoreError>) in
-                        switch result {
-                        case .success(let array):
-                            addedTasks = array
-                        case .failure(let error):
-                            errors.append(error)
-                        }
-                        group.leave()
-                    }
-                }
-                if !tasksToBeUpdated.isEmpty {
-                    group.enter()
-                    self.updateTasks(tasksToBeUpdated, callbackQueue: callbackQueue) { (result: Result<[OCKTask], OCKStoreError>) in
-                        switch result {
-                        case .success(let array):
-                            updatedTasks = array
-                        case .failure(let error):
-                            errors.append(error)
-                        }
-                        group.leave()
-                    }
-                }
-                if !deleteTasks.isEmpty {
-                    group.enter()
-                    self.deleteTasks(deleteTasks, callbackQueue: callbackQueue) { (result: Result<[OCKTask], OCKStoreError>) in
-                        switch result {
-                        case .success(let array):
-                            deletedTasks = array
-                        case .failure(let error):
-                            errors.append(error)
-                        }
-                        group.leave()
-                    }
-                }
-
-                group.notify(queue: callbackQueue) {
-                    if addedTasks.isEmpty && updatedTasks.isEmpty && deletedTasks.isEmpty && !errors.isEmpty {
-                        completion?(.failure(errors[0]))
-                    } else {
-                        completion?(.success((addedTasks, updatedTasks, deletedTasks)))
-                    }
-                }
-
-            case .failure(let error):
-                completion?(.failure(error))
+          if !tasksToBeAdded.isEmpty {
+            group.enter()
+            self.addTasks(tasksToBeAdded, callbackQueue: callbackQueue) { (result: Result<[OCKTask], OCKStoreError>) in
+              switch result {
+              case .success(let array):
+                addedTasks = array
+              case .failure(let error):
+                errors.append(error)
+              }
+              group.leave()
             }
+          }
+          if !tasksToBeUpdated.isEmpty {
+            group.enter()
+            self.updateTasks(tasksToBeUpdated, callbackQueue: callbackQueue) { (result: Result<[OCKTask], OCKStoreError>) in
+              switch result {
+              case .success(let array):
+                updatedTasks = array
+              case .failure(let error):
+                errors.append(error)
+              }
+              group.leave()
+            }
+          }
+          if !deleteTasks.isEmpty {
+            group.enter()
+            self.deleteTasks(deleteTasks, callbackQueue: callbackQueue) { (result: Result<[OCKTask], OCKStoreError>) in
+              switch result {
+              case .success(let array):
+                deletedTasks = array
+              case .failure(let error):
+                errors.append(error)
+              }
+              group.leave()
+            }
+          }
+
+          group.notify(queue: callbackQueue) {
+            if addedTasks.isEmpty && updatedTasks.isEmpty && deletedTasks.isEmpty && !errors.isEmpty {
+              completion?(.failure(errors[0]))
+            } else {
+              completion?(.success((addedTasks, updatedTasks, deletedTasks)))
+            }
+          }
+
+        case .failure(let error):
+          completion?(.failure(error))
         }
+      }
 
     }
 
     /**
      Adds a task asynchronously to the store.
-     
+
      - Parameter tasks: a task you add to the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    public func addTasks(_ tasks: [OCKTask], callbackQueue: DispatchQueue = .main,
-                         completion: ((Result<[OCKTask], OCKStoreError>) -> Void)? = nil) {
-        add(tasks, callbackQueue: callbackQueue, completion: { result in
-            switch result {
-            case .success(let tasks):
-                self.taskDelegate?.taskStore(self,
-                                             didUpdateTasks: tasks)
-                completion?(.success(tasks))
-            case .failure:
-                completion?(result.mapError { $0.toOCKStoreError() })
-            }
+    public func addTasks(
+      _ tasks: [OCKTask],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[OCKTask], OCKStoreError>) -> Void)? = nil
+    ) {
+      add(
+        tasks, callbackQueue: callbackQueue,
+        completion: { result in
+          switch result {
+          case .success(let tasks):
+            self.taskDelegate?.taskStore(
+              self,
+              didAddTasks: tasks)
+            completion?(.success(tasks))
+          case .failure:
+            completion?(result.mapError { $0.toOCKStoreError() })
+          }
         })
     }
 
     /**
      Updates a task asynchronously to the store.
-     
+
      - Parameter tasks: a task you update from the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    public func updateTasks(_ tasks: [OCKTask], callbackQueue: DispatchQueue = .main,
-                            completion: ((Result<[OCKTask], OCKStoreError>) -> Void)? = nil) {
-        update(tasks, callbackQueue: .main) { result in
-            switch result {
-            case .success(let tasks):
-                self.taskDelegate?.taskStore(self,
-                                             didUpdateTasks: tasks)
-                completion?(.success(tasks))
-            case .failure:
-                completion?(result.mapError { $0.toOCKStoreError() })
-            }
+    public func updateTasks(
+      _ tasks: [OCKTask],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[OCKTask], OCKStoreError>) -> Void)? = nil
+    ) {
+      update(tasks, callbackQueue: callbackQueue) { result in
+        switch result {
+        case .success(let tasks):
+          self.taskDelegate?.taskStore(
+            self,
+            didUpdateTasks: tasks)
+          completion?(.success(tasks))
+        case .failure:
+          completion?(result.mapError { $0.toOCKStoreError() })
         }
+      }
     }
 
     /**
      Deletes a task asynchronously from the store.
-     
+
      - Parameter tasks: a task you delete from the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    public func deleteTasks(_ tasks: [OCKTask], callbackQueue: DispatchQueue = .main,
-                            completion: ((Result<[OCKTask], OCKStoreError>) -> Void)? = nil) {
-        delete(tasks, callbackQueue: callbackQueue) { result in
-            switch result {
-            case .success(let tasks):
-                self.taskDelegate?.taskStore(self, didDeleteTasks: tasks)
-                completion?(.success(tasks))
-            case .failure:
-                completion?(result.mapError { $0.toOCKStoreError() })
-            }
+    public func deleteTasks(
+      _ tasks: [OCKTask],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[OCKTask], OCKStoreError>) -> Void)? = nil
+    ) {
+      delete(tasks, callbackQueue: callbackQueue) { result in
+        switch result {
+        case .success(let tasks):
+          self.taskDelegate?.taskStore(self, didDeleteTasks: tasks)
+          completion?(.success(tasks))
+        case .failure:
+          completion?(result.mapError { $0.toOCKStoreError() })
         }
+      }
     }
 
-}
+    private func sortTasks(
+      _ tasks: [OCKTask],
+      using sortDescriptors: [OCKTaskQuery.SortDescriptor]
+    ) -> [OCKTask] {
+      guard !sortDescriptors.isEmpty else {
+        return tasks
+      }
 
-/**
- Extends OTFCloudantError to return the errors when there is problem during a transaction.
- */
-extension OTFCloudantError {
+      return tasks.enumerated().sorted { lhs, rhs in
+        for sortDescriptor in sortDescriptors {
+          switch sortDescriptor {
+          case .effectiveDate(let ascending):
+            if lhs.element.effectiveDate != rhs.element.effectiveDate {
+              return ascending
+                ? lhs.element.effectiveDate < rhs.element.effectiveDate
+                : lhs.element.effectiveDate > rhs.element.effectiveDate
+            }
+          case .groupIdentifier(let ascending):
+            let lhsValue = lhs.element.groupIdentifier?.lowercased() ?? ""
+            let rhsValue = rhs.element.groupIdentifier?.lowercased() ?? ""
+            if lhsValue != rhsValue {
+              return ascending ? lhsValue < rhsValue : lhsValue > rhsValue
+            }
+          case .title(let ascending):
+            let lhsValue = lhs.element.title?.lowercased() ?? ""
+            let rhsValue = rhs.element.title?.lowercased() ?? ""
+            if lhsValue != rhsValue {
+              return ascending ? lhsValue < rhsValue : lhsValue > rhsValue
+            }
+          }
+        }
+        return lhs.offset < rhs.offset
+      }.map { $0.element }
+    }
+
+    private func paginate<Entity>(_ items: [Entity], offset: Int, limit: Int?) -> [Entity] {
+      let startIndex = min(max(offset, 0), items.count)
+      let remainingItems = items.dropFirst(startIndex)
+      guard let limit = limit else {
+        return Array(remainingItems)
+      }
+      return Array(remainingItems.prefix(max(limit, 0)))
+    }
+
+  }
+
+  /// Extends OTFCloudantError to return the errors when there is problem during a transaction.
+  extension OTFCloudantError {
 
     /**
      - Description: Return the errors the store emits when there is problem during a transaction.
      - Returns: It will return an OCKStoreError object
      */
     func toOCKStoreError() -> OCKStoreError {
-        switch self {
-        case .addFailed(let reason):
-            return .addFailed(reason: reason)
-        case .deleteFailed(let reason):
-            return .deleteFailed(reason: reason)
-        case .fetchFailed(let reason):
-            return .fetchFailed(reason: reason)
-        case .invalidValue(let reason):
-            return .invalidValue(reason: reason)
-        case .remoteSynchronizationFailed(let reason):
-            return .remoteSynchronizationFailed(reason: reason)
-        case .timedOut(let reason):
-            return .timedOut(reason: reason)
-        case .updateFailed(let reason):
-            return .updateFailed(reason: reason)
-        }
+      switch self {
+      case .addFailed(let reason):
+        return .addFailed(reason: reason)
+      case .deleteFailed(let reason):
+        return .deleteFailed(reason: reason)
+      case .fetchFailed(let reason):
+        return .fetchFailed(reason: reason)
+      case .invalidValue(let reason):
+        return .invalidValue(reason: reason)
+      case .remoteSynchronizationFailed(let reason):
+        return .remoteSynchronizationFailed(reason: reason)
+      case .timedOut(let reason):
+        return .timedOut(reason: reason)
+      case .updateFailed(let reason):
+        return .updateFailed(reason: reason)
+      }
     }
 
-}
+  }
 #endif

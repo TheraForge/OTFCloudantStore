@@ -44,7 +44,7 @@ class TheraForgeCloudantEncoder: Encoder {
 
     fileprivate var storage: _CloudantEncodingStorage
     fileprivate let options: EncoderOptions
-    fileprivate(set) public var codingPath: [CodingKey]
+    public fileprivate(set) var codingPath: [CodingKey]
 
     public var userInfo: [CodingUserInfoKey: Any] {
         return options.userInfo
@@ -116,7 +116,7 @@ private struct _CloudantEncodingStorage {
     // MARK: Properties
     /// The container stack.
     /// Elements may be any one of the plist types (NSNumber, NSString, NSDate, NSArray, NSDictionary).
-    private(set) fileprivate var containers: [NSObject] = []
+    fileprivate private(set) var containers: [NSObject] = []
 
     // MARK: - Initialization
     /// Initializes `self` with no containers.
@@ -160,7 +160,7 @@ private struct _CloudantKeyedEncodingContainer<K: CodingKey>: KeyedEncodingConta
     private let container: NSMutableDictionary
 
     /// The path of coding keys taken to get to this point in encoding.
-    private(set) public var codingPath: [CodingKey]
+    public private(set) var codingPath: [CodingKey]
 
     // MARK: - Initialization
     /// Initializes `self` with the given references.
@@ -232,7 +232,7 @@ private struct _CloudantUnkeyedEncodingContainer: UnkeyedEncodingContainer {
     private let container: NSMutableArray
 
     /// The path of coding keys taken to get to this point in encoding.
-    private(set) public var codingPath: [CodingKey]
+    public private(set) var codingPath: [CodingKey]
 
     /// The number of elements encoded into the container.
     public var count: Int {
@@ -353,7 +353,7 @@ extension TheraForgeCloudantEncoder {
             return NSNumber(value: date.timeIntervalSince1970)
 
         case .millisecondsSince1970:
-            return NSNumber(value: 1_000.0 * date.timeIntervalSince1970)
+            return NSNumber(value: 1000.0 * date.timeIntervalSince1970)
 
         case .iso8601:
             if #available(OSX 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
@@ -440,11 +440,19 @@ extension TheraForgeCloudantEncoder {
     }
 }
 
-extension TheraForgeCloudantEncoder: SingleValueEncodingContainer {
-    // MARK: - SingleValueEncodingContainer Methods
-    private func assertCanEncodeNewValue() {
+extension TheraForgeCloudantEncoder {
+    fileprivate func assertCanEncodeNewValue() {
         precondition(canEncodeNewValue, "Attempt to encode value through single value container when previously value already encoded.")
     }
+
+    public func encode(_ value: IndexSet) throws {
+        assertCanEncodeNewValue()
+        storage.push(container: box(value))
+    }
+}
+
+extension TheraForgeCloudantEncoder: SingleValueEncodingContainer {
+    // MARK: - SingleValueEncodingContainer Methods
 
     public func encodeNil() throws {
         assertCanEncodeNewValue()
@@ -521,11 +529,6 @@ extension TheraForgeCloudantEncoder: SingleValueEncodingContainer {
         storage.push(container: box(value))
     }
 
-    public func encode(_ value: IndexSet) throws {
-        assertCanEncodeNewValue()
-        storage.push(container: box(value))
-    }
-
     public func encode<T: Encodable>(_ value: T) throws {
         assertCanEncodeNewValue()
         try storage.push(container: box(value))
@@ -568,7 +571,7 @@ private class CloudantReferencingEncoder: TheraForgeCloudantEncoder {
     }
 
     // MARK: - Coding Path Operations
-    fileprivate override var canEncodeNewValue: Bool {
+    override fileprivate var canEncodeNewValue: Bool {
         // With a regular encoder, the storage and coding path grow together.
         // A referencing encoder, however, inherits its parents coding path, as well as the key it was created for.
         // We have to take this into account.

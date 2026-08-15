@@ -35,7 +35,7 @@ OF SUCH DAMAGE.
 import Foundation
 
 /// The unique data store names.
-public struct DataStoreName {
+public enum DataStoreName {
     public static let manager = "cloudant-sync-datastore"
     public static let contact = "cloudant_contact_db"
     public static let patients = "cloudant_patient_db"

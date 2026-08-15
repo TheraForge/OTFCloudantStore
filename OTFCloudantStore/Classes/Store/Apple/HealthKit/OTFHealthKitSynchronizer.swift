@@ -52,16 +52,124 @@ public enum OTFSyncDirection {
 
 #if HEALTH && CARE
 
+struct HealthKitDeletedSample {
+    let uuid: UUID
+}
+
+protocol HealthKitClient {
+    var isHealthDataAvailable: Bool { get }
+
+    func fetchSamples(of type: HKSampleType, completion: @escaping ([HKSample]?, Error?) -> Void)
+    func save(_ sample: HKSample, completion: @escaping (Bool, Error?) -> Void)
+    func observeSamples(
+        of type: HKSampleType,
+        initialHandler: @escaping ([HKSample]?, [HealthKitDeletedSample]?) -> Void,
+        updateHandler: @escaping ([HKSample]?, [HealthKitDeletedSample]?) -> Void
+    )
+}
+
+protocol CloudantSampleStore {
+    func fetchSamples(completion: @escaping (Result<[OTFCloudantSample], OTFCloudantError>) -> Void)
+    func addSamples(_ samples: [OTFCloudantSample])
+    func updateSamples(_ samples: [OTFCloudantSample])
+    func deleteSamples(_ samples: [OTFCloudantSample])
+    func fetchSamples(
+        healthKitSampleType: OTFHealthSampleType,
+        uuid: String,
+        completion: @escaping (Result<[OTFCloudantSample], OTFCloudantError>) -> Void
+    )
+}
+
+private final class HKHealthStoreClient: HealthKitClient {
+    private let healthStore: HKHealthStore
+
+    init(healthStore: HKHealthStore) {
+        self.healthStore = healthStore
+    }
+
+    var isHealthDataAvailable: Bool {
+        HKHealthStore.isHealthDataAvailable()
+    }
+
+    func fetchSamples(of type: HKSampleType, completion: @escaping ([HKSample]?, Error?) -> Void) {
+        let query = HKSampleQuery(
+            sampleType: type,
+            predicate: nil,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: nil
+        ) { _, samples, error in
+            completion(samples, error)
+        }
+        healthStore.execute(query)
+    }
+
+    func save(_ sample: HKSample, completion: @escaping (Bool, Error?) -> Void) {
+        healthStore.save(sample, withCompletion: completion)
+    }
+
+    func observeSamples(
+        of type: HKSampleType,
+        initialHandler: @escaping ([HKSample]?, [HealthKitDeletedSample]?) -> Void,
+        updateHandler: @escaping ([HKSample]?, [HealthKitDeletedSample]?) -> Void
+    ) {
+        let query = HKAnchoredObjectQuery(
+            type: type,
+            predicate: nil,
+            anchor: nil,
+            limit: HKObjectQueryNoLimit
+        ) { _, samples, deletedObjects, _, _ in
+            initialHandler(samples, deletedObjects?.map { HealthKitDeletedSample(uuid: $0.uuid) })
+        }
+        query.updateHandler = { _, samples, deletedObjects, _, _ in
+            updateHandler(samples, deletedObjects?.map { HealthKitDeletedSample(uuid: $0.uuid) })
+        }
+        healthStore.execute(query)
+    }
+}
+
+private final class OTFCloudantSampleStoreAdapter: CloudantSampleStore {
+    private let dataStore: OTFCloudantStore
+
+    init(dataStore: OTFCloudantStore) {
+        self.dataStore = dataStore
+    }
+
+    func fetchSamples(completion: @escaping (Result<[OTFCloudantSample], OTFCloudantError>) -> Void) {
+        dataStore.collection(className: "OTFCloudantSample").get { (result: Result<[OTFCloudantSample], OTFCloudantError>) in
+            completion(result)
+        }
+    }
+
+    func addSamples(_ samples: [OTFCloudantSample]) {
+        dataStore.add(samples)
+    }
+
+    func updateSamples(_ samples: [OTFCloudantSample]) {
+        dataStore.update(samples)
+    }
+
+    func deleteSamples(_ samples: [OTFCloudantSample]) {
+        dataStore.delete(samples)
+    }
+
+    func fetchSamples(
+        healthKitSampleType: OTFHealthSampleType,
+        uuid: String,
+        completion: @escaping (Result<[OTFCloudantSample], OTFCloudantError>) -> Void
+    ) {
+        dataStore.collection(healthKitSampleType: healthKitSampleType)
+            .where("uuid", isEqualTo: uuid)
+            .getCloudantSamples(completion: completion)
+    }
+}
+
 public class OTFHealthKitSynchronizer {
     /**
     The synchronisation between HealthKitStore and CloudantStore.
      */
     
-    /// An interface between Carekit, HealthKit and CDTDatastore.
-    private let dataStore: OTFCloudantStore!
-    
-    /// An interface for accessing and storing the user's health data.
-    private let healthStore: HKHealthStore!
+    private let cloudantSampleStore: CloudantSampleStore
+    private let healthKitClient: HealthKitClient
     
     /// A health store samples.
     private var healthStoreSamples = [HKSample]()
@@ -81,8 +189,8 @@ public class OTFHealthKitSynchronizer {
      - Parameter healthStore: This function requires a HKHealthStore object as parameter in order to initialize.
      */
     public init(dataStore: OTFCloudantStore, healthStore: HKHealthStore) {
-        self.dataStore = dataStore
-        self.healthStore = healthStore
+        self.cloudantSampleStore = OTFCloudantSampleStoreAdapter(dataStore: dataStore)
+        self.healthKitClient = HKHealthStoreClient(healthStore: healthStore)
         allTypes = Set([HKObjectType.workoutType(),
                             HKObjectType.audiogramSampleType(),
                             HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
@@ -177,7 +285,7 @@ public class OTFHealthKitSynchronizer {
                             HKObjectType.clinicalType(forIdentifier: .procedureRecord)!,
                             HKObjectType.clinicalType(forIdentifier: .vitalSignRecord)!,
                             HKObjectType.categoryType(forIdentifier: .appleStandHour)!,
-                            HKObjectType.categoryType(forIdentifier: .audioExposureEvent)!,
+                            HKObjectType.categoryType(forIdentifier: .environmentalAudioExposureEvent)!,
                             HKObjectType.categoryType(forIdentifier: .cervicalMucusQuality)!,
                             HKObjectType.categoryType(forIdentifier: .highHeartRateEvent)!,
                             HKObjectType.categoryType(forIdentifier: .intermenstrualBleeding)!,
@@ -252,67 +360,51 @@ public class OTFHealthKitSynchronizer {
         }
     }
 
+    init(
+        healthKitClient: HealthKitClient,
+        cloudantSampleStore: CloudantSampleStore,
+        sampleTypes: Set<HKSampleType>
+    ) {
+        self.healthKitClient = healthKitClient
+        self.cloudantSampleStore = cloudantSampleStore
+        self.allTypes = sampleTypes
+    }
+
     /**
     - Description: Call this function whenever we're going to sync data to HealthKitStore for the first time or we want to sync from CloudantStore to HealthKitStore when there's new data arrived from cloudant pull replicator.
     - Parameter direction: This function requires an OTFSyncDirection parameter to sync data.
      */
     public func syncWithHealthKit(direction: OTFSyncDirection) {
-        guard HKHealthStore.isHealthDataAvailable() else { return }
+        guard healthKitClient.isHealthDataAvailable else { return }
+        healthStoreSamples = []
+        dataStoreSamples = []
         let dispatchGroup = DispatchGroup()
         for type in allTypes {
-            let query = HKSampleQuery(sampleType: type, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self](_, samples, error) in
+            dispatchGroup.enter()
+            healthKitClient.fetchSamples(of: type) { [weak self] samples, error in
                 guard let self = self else { return }
                 self.processQueryResult(samples: samples, error: error)
                 dispatchGroup.leave()
             }
-            dispatchGroup.enter()
-            healthStore.execute(query)
         }
         dispatchGroup.enter()
-        dataStore.collection(className: "OTFCloudantSample").get { (result: Result<[OTFCloudantSample], OTFCloudantError>) in
+        cloudantSampleStore.fetchSamples { (result: Result<[OTFCloudantSample], OTFCloudantError>) in
             switch result {
             case .success(let samples):
                 self.dataStoreSamples = samples
             case .failure(let error):
-                OTFError("Fetching OTFCloudantSamples failed with error: %{public}@", error.localizedDescription)
+                OTFLogger.logger().error("Fetching OTFCloudantSamples failed with error: \(error.localizedDescription, privacy: .public)")
             }
             dispatchGroup.leave()
         }
         dispatchGroup.notify(queue: dispatchQueue) {
-            // Sync from Cloudant to HealthKitStore
-            guard direction != .fromHKToCloudant else {
-                return
-            }
-            for cloudantSample in self.dataStoreSamples {
-                guard let sample = cloudantSample.toHKSample() else { continue }
-                self.storSample(sample: sample, cloudantSample: cloudantSample)
-            }
-            // Sync from HealthKitStore to Cloudant
-            guard direction != .fromCloudantToHK else {
-                return
-            }
-            for hkSample in self.healthStoreSamples {
-                var isSampleStored = false
-                for cloudantSample in self.dataStoreSamples {
-                    guard cloudantSample.isEqual(to: hkSample) else {
-                        continue
-                    }
-                    isSampleStored = true
-                    break
-                }
-                if !isSampleStored {
-                    self.dataStore.add([OTFCloudantSample(sample: hkSample, patientId: "")])
-                } else {
-                    OTFLog("Sample exists in Cloudant", "succeeded")
-                }
-            }
-        
+            self.syncSamples(direction: direction)
         }
     }
     
     public func processQueryResult(samples: [HKSample]?, error: Error?) {
         if let error = error {
-            OTFError("Fetching samples type failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Fetching samples type failed with error: \(error.localizedDescription, privacy: .public)")
         }
         if let samples = samples {
             self.healthStoreSamples.append(contentsOf: samples)
@@ -329,16 +421,49 @@ public class OTFHealthKitSynchronizer {
             break
         }
         if !isSampleStored {
-            self.healthStore.save(sample) { (succeeded, error) in
+            self.healthKitClient.save(sample) { (succeeded, error) in
                 if let error = error {
-                    OTFError("Saving sample from OTFCloudantStore failed with error: %{public}@", error.localizedDescription)
+                    OTFLogger.logger().error("Saving sample from OTFCloudantStore failed with error: \(error.localizedDescription, privacy: .public)")
                 } else if !succeeded {
-                    OTFError("Saving sample from OTFCloudantStore failed without error", "")
+                    OTFLogger.logger().error("Saving sample from OTFCloudantStore failed without error")
                     
                 }
             }
         } else {
-            OTFError("Sample exists in HealthkitStore", "")
+            OTFLogger.logger().error("Sample exists in HealthkitStore")
+        }
+    }
+
+    private func syncSamples(direction: OTFSyncDirection) {
+        if direction != .fromHKToCloudant {
+            syncCloudantSamplesToHealthKit()
+        }
+
+        if direction != .fromCloudantToHK {
+            syncHealthKitSamplesToCloudant()
+        }
+    }
+
+    private func syncCloudantSamplesToHealthKit() {
+        for cloudantSample in dataStoreSamples {
+            guard let sample = cloudantSample.toHKSample() else { continue }
+            storSample(sample: sample, cloudantSample: cloudantSample)
+        }
+    }
+
+    private func syncHealthKitSamplesToCloudant() {
+        for hkSample in healthStoreSamples {
+            if isCloudantSampleStored(for: hkSample) {
+                OTFLogger.logger().info("Sample exists in Cloudant")
+            } else {
+                cloudantSampleStore.addSamples([OTFCloudantSample(sample: hkSample, patientId: "")])
+            }
+        }
+    }
+
+    private func isCloudantSampleStored(for hkSample: HKSample) -> Bool {
+        dataStoreSamples.contains { cloudantSample in
+            cloudantSample.isEqual(to: hkSample)
         }
     }
 
@@ -352,56 +477,28 @@ public class OTFHealthKitSynchronizer {
      - Returns completion: This is a blank completion Handler 
      */
     public func syncWithHealthKit(direction: OTFSyncDirection, type: HKSampleType, completion: (() -> Void)?) {
-        guard HKHealthStore.isHealthDataAvailable() else { return }
+        guard healthKitClient.isHealthDataAvailable else { return }
+        healthStoreSamples = []
+        dataStoreSamples = []
         let dispatchGroup = DispatchGroup()
         dispatchGroup.enter()
-        let query = HKSampleQuery(sampleType: type, predicate: nil, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { [weak self](_, samples, error) in
+        healthKitClient.fetchSamples(of: type) { [weak self] samples, error in
             guard let self = self else { return }
             self.processQueryResult(samples: samples, error: error)
             dispatchGroup.leave()
         }
-        healthStore.execute(query)
         dispatchGroup.enter()
-        dataStore.collection(className: "OTFCloudantSample").get { (result: Result<[OTFCloudantSample], OTFCloudantError>) in
+        cloudantSampleStore.fetchSamples { (result: Result<[OTFCloudantSample], OTFCloudantError>) in
             switch result {
             case .success(let samples):
                 self.dataStoreSamples = samples
             case .failure(let error):
-                OTFError("Fetching OTFCloudantSamples failed with error: %{public}@", error.localizedDescription)
+                OTFLogger.logger().error("Fetching OTFCloudantSamples failed with error: \(error.localizedDescription, privacy: .public)")
             }
             dispatchGroup.leave()
         }
         dispatchGroup.notify(queue: dispatchQueue) {
-            // Sync from Cloudant to HealthKitStore
-            guard direction != .fromHKToCloudant else {
-                return
-            }
-            for cloudantSample in self.dataStoreSamples {
-                guard let sample = cloudantSample.toHKSample() else { continue }
-                self.storSample(sample: sample, cloudantSample: cloudantSample)
-            }
-            
-            // Sync from HealthKitStore to Cloudant
-            guard direction != .fromCloudantToHK else {
-                return
-            }
-            for hkSample in self.healthStoreSamples {
-                var isSampleStored = false
-                for cloudantSample in self.dataStoreSamples {
-                    
-                    guard cloudantSample.isEqual(to: hkSample) else {
-                        continue
-                    }
-                    isSampleStored = true
-                    break
-                }
-                if !isSampleStored {
-                    self.dataStore.add([OTFCloudantSample(sample: hkSample, patientId: "")])
-                } else {
-                    OTFLog("Sample exists in Cloudant", "succeeded")
-                }
-            }
-
+            self.syncSamples(direction: direction)
             completion?()
         }
     }
@@ -411,56 +508,76 @@ public class OTFHealthKitSynchronizer {
      */
     public func observeOnHKStoreRealTimeUpdates() {
         for type in allTypes {
-            let query = HKAnchoredObjectQuery(
-                type: type, predicate: nil, anchor: nil,
-                limit: HKObjectQueryNoLimit) { (anchoredQuery, samplesOrNil, deletedObjectsOrNil, queryAnchor, error) in
-                guard let samples = samplesOrNil, let deletedObjects = deletedObjectsOrNil else {
-                    // Properly handle the error.
-                    return
-                }
-                // add new samples to CloudantStore
-                let cloudantSamples = samples.map { OTFCloudantSample(sample: $0, patientId: "") }
-                self.dataStore.add(cloudantSamples)
-                // delete samples from CloudantStore
-                for deletedSample in deletedObjects {
-                    var sampleType: OTFHealthSampleType = .quantity
-                    if type is HKCorrelationType {
-                        sampleType = .correlation
-                    } else if type is HKCategoryType{
-                        sampleType = .category
+            healthKitClient.observeSamples(
+                of: type,
+                initialHandler: { samplesOrNil, deletedObjectsOrNil in
+                self.handleAnchoredQueryUpdate(
+                    type: type,
+                    samples: samplesOrNil,
+                    deletedObjects: deletedObjectsOrNil,
+                    saveSamples: { samples in
+                        self.cloudantSampleStore.addSamples(samples)
                     }
-                    self.dataStore.collection(healthKitSampleType: sampleType).where("uuid", isEqualTo: deletedSample.uuid.uuidString).getCloudantSamples { (result) in
-                        if let samples = try? result.get() {
-                            self.dataStore.delete(samples)
-                        }
+                )
+            },
+                updateHandler: { samplesOrNil, deletedObjectsOrNil in
+                self.handleAnchoredQueryUpdate(
+                    type: type,
+                    samples: samplesOrNil,
+                    deletedObjects: deletedObjectsOrNil,
+                    saveSamples: { samples in
+                        self.cloudantSampleStore.updateSamples(samples)
                     }
-                }
+                )
             }
-            query.updateHandler = { (query, samplesOrNil, deletedObjectsOrNil, newAnchor, errorOrNil) in
-                guard let samples = samplesOrNil, let deletedObjects = deletedObjectsOrNil else {
-                    // Properly handle the error.
-                    return
-                }
-                // add new samples to CloudantStore
-                let cloudantSamples = samples.map { OTFCloudantSample(sample: $0, patientId: "") }
-                self.dataStore.update(cloudantSamples)
-                // delete samples from CloudantStore
-                for deletedSample in deletedObjects {
-                    var sampleType: OTFHealthSampleType = .quantity
-                    if type is HKCorrelationType {
-                        sampleType = .correlation
-                    } else if type is HKCategoryType {
-                        sampleType = .category
-                    }
-                    self.dataStore.collection(healthKitSampleType: sampleType).where("uuid", isEqualTo: deletedSample.uuid.uuidString).getCloudantSamples { (result) in
-                        if let samples = try? result.get() {
-                            self.dataStore.delete(samples)
-                        }
-                    }
-                }
-            }
-            healthStore.execute(query)
+            )
         }
+    }
+
+    private func handleAnchoredQueryUpdate(
+        type: HKSampleType,
+        samples: [HKSample]?,
+        deletedObjects: [HealthKitDeletedSample]?,
+        saveSamples: ([OTFCloudantSample]) -> Void
+    ) {
+        let samples = samples ?? []
+        let deletedObjects = deletedObjects ?? []
+
+        if !samples.isEmpty {
+            let cloudantSamples = samples.map { OTFCloudantSample(sample: $0, patientId: "") }
+            saveSamples(cloudantSamples)
+        }
+
+        deleteCloudantSamples(matching: deletedObjects, healthKitType: type)
+    }
+
+    private func deleteCloudantSamples(
+        matching deletedObjects: [HealthKitDeletedSample],
+        healthKitType: HKSampleType
+    ) {
+        let sampleType = cloudantSampleType(for: healthKitType)
+        for deletedSample in deletedObjects {
+            cloudantSampleStore.fetchSamples(
+                healthKitSampleType: sampleType,
+                uuid: deletedSample.uuid.uuidString
+            ) { result in
+                    if let samples = try? result.get() {
+                        self.cloudantSampleStore.deleteSamples(samples)
+                    }
+            }
+        }
+    }
+
+    private func cloudantSampleType(for healthKitType: HKSampleType) -> OTFHealthSampleType {
+        if healthKitType is HKCorrelationType {
+            return .correlation
+        }
+
+        if healthKitType is HKCategoryType {
+            return .category
+        }
+
+        return .quantity
     }
 }
 #endif

@@ -36,12 +36,26 @@ import Foundation
 
 public class StoreService {
     public static let shared = StoreService()
+    typealias StoreFactory = (String, OTFWatchConnectivityPeer) throws -> OTFCloudantStore
+
+    private let storeFactory: StoreFactory
+
+    init(storeFactory: @escaping StoreFactory = StoreService.defaultStoreFactory) {
+        self.storeFactory = storeFactory
+    }
 
     /**
      - Description: It will return an instance of OTFCloudantStore initialized with the default db name `local_db`
      - Returns: Fully initialized OTFCloudantStore object.
      */
     public func currentStore(peer: OTFWatchConnectivityPeer) throws -> OTFCloudantStore {
-        return try OTFCloudantStore(storeName: "local_db", remote: peer)
+        return try storeFactory("local_db", peer)
+    }
+
+    private static func defaultStoreFactory(
+        storeName: String,
+        peer: OTFWatchConnectivityPeer
+    ) throws -> OTFCloudantStore {
+        try OTFCloudantStore(storeName: storeName, remote: peer)
     }
 }

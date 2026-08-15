@@ -33,89 +33,181 @@ OF SUCH DAMAGE.
  */
 
 import XCTest
+import Network
 import OTFCloudantStore
 import OTFCloudClientAPI
 import OTFUtilities
 
 class OTFCloudantSSETest: XCTestCase {
 
-    private let testEmail = "<your-test-email>"
-    private let testPassword = "<your-test-password>"
+    private let eventTimeout: TimeInterval = 5
+    private let apiKey = "test-api-key"
+    private let auth = Auth(
+        token: "test-access-token",
+        refreshToken: "test-refresh-token",
+        iat: Date().timeIntervalSince1970,
+        exp: Date().addingTimeInterval(3600).timeIntervalSince1970
+    )
 
-    func testSubscribeChange() {
-        let timeout: TimeInterval = 3_000.0
-        let expect = expectation(description: "This should get an callback in handler \(timeout) seconds, otherwise we will consider this test case failed.")
+    func testObserveChangeEventConnectsToChangesFeedAndDeliversMessage() throws {
+        let server = try LocalSSEServer(event: Event(d: 1, message: "local-change", type: .dbUpdate))
+        try server.start()
+        defer { server.stop() }
 
+        configureNetwork(port: server.port)
+
+        let opened = expectation(description: "SSE changes feed opened")
+        let received = expectation(description: "SSE changes feed delivered an event")
         let shared = TheraForgeNetwork.shared
 
         shared.eventSourceOnOpen = {
-            OTFLog("**** Event source open...", "")
-            do {
-                try CloudantSync.shared.replicate(direction: .push, environment: .theraforge) { error in
-                    OTFError("PUSH ERROR: %{public}@", error?.localizedDescription ?? "")
-                }
-            } catch {
-                OTFError("Error: %{public}@", error.localizedDescription)
-            }
+            opened.fulfill()
         }
 
         shared.onReceivedMessage = { event in
-            OTFLog("**** Event Recieved -", event.message)
-            expect.fulfill()
+            XCTAssertEqual(event.d, 1)
+            XCTAssertEqual(event.message, "local-change")
+            XCTAssertEqual(event.type, .dbUpdate)
+            received.fulfill()
         }
 
-        login(shared) { result in
-            switch result {
-            case .success(let response):
-                OTFLog("Response: %{public}@", response.message ?? "")
-                let auth = Auth(accesstoken: response.token, refreshToken: response.refreshToken)
-                shared.observeChangeEvent(auth: auth)
-            case .failure(let error):
-                OTFError("Error: %{public}@", error.localizedDescription)
-            }
-        }
+        shared.observeChangeEvent(auth: auth)
 
-        waitForExpectations(timeout: timeout) { error in
-            if let error = error {
-                XCTFail(error.localizedDescription)
-            }
-        }
+        wait(for: [opened, received], timeout: eventTimeout)
+        let request = try XCTUnwrap(server.request)
+        XCTAssertTrue(request.hasPrefix("GET /api/db/_changes HTTP/1.1"))
+        XCTAssertTrue(request.contains("Authorization: Bearer \(auth.token)"))
+        XCTAssertTrue(request.contains("Accept: text/event-stream"))
     }
 
-    func testCreateChangeEvent() {
-        let timeout: TimeInterval = 3_000
-        let expect = expectation(description: "This should get a callback in handler in \(timeout) seconds. otherwise we will consider this test case failed.")
+    func testObserveOnServerSentEventsConnectsToSubscribeFeedAndDeliversMessage() throws {
+        let server = try LocalSSEServer(event: Event(d: 2, message: "local-subscribe", type: .keepAlive))
+        try server.start()
+        defer { server.stop() }
 
+        configureNetwork(port: server.port)
+
+        let opened = expectation(description: "SSE subscribe feed opened")
+        let received = expectation(description: "SSE subscribe feed delivered an event")
         let shared = TheraForgeNetwork.shared
 
         shared.eventSourceOnOpen = {
-            OTFLog("CREATE EVENT: Event source opened....")
+            opened.fulfill()
         }
 
         shared.onReceivedMessage = { event in
-            OTFLog("CREATE EVENT: %{public}@", event.message)
-            expect.fulfill()
+            XCTAssertEqual(event.d, 2)
+            XCTAssertEqual(event.message, "local-subscribe")
+            XCTAssertEqual(event.type, .keepAlive)
+            received.fulfill()
         }
 
-        login(shared) { result in
-            switch result {
-            case .success(let response):
-                OTFLog("Response: %{public}@", response.message ?? "")
-                let auth = Auth(accesstoken: response.token, refreshToken: response.refreshToken)
-                shared.observeChangeEvent(auth: auth)
-            case .failure(let error):
-                OTFError("Error: %{public}@", error.localizedDescription)
+        shared.observeOnServerSentEvents(auth: auth)
+
+        wait(for: [opened, received], timeout: eventTimeout)
+        let request = try XCTUnwrap(server.request)
+        XCTAssertTrue(request.hasPrefix("GET /api/v1/db/_subscribe HTTP/1.1"))
+        XCTAssertTrue(request.contains("Authorization: Bearer \(auth.token)"))
+        XCTAssertTrue(request.contains("API-KEY: \(apiKey)"))
+    }
+
+    private func configureNetwork(port: UInt16) {
+        let url = URL(string: "http://127.0.0.1:\(port)/api")!
+        let configurations = NetworkingLayer.Configurations(APIBaseURL: url, apiKey: apiKey, timeoutInterval: eventTimeout)
+        TheraForgeNetwork.configureNetwork(configurations)
+    }
+}
+
+private final class LocalSSEServer {
+    private let event: Event
+    private let queue = DispatchQueue(label: "OTFCloudantSSETest.LocalSSEServer")
+    private let listener: NWListener
+    private var connections: [NWConnection] = []
+    private let lock = NSLock()
+    private(set) var request: String?
+
+    var port: UInt16 {
+        guard let port = listener.port else { return 0 }
+        return port.rawValue
+    }
+
+    init(event: Event) throws {
+        self.event = event
+        listener = try NWListener(using: .tcp, on: .any)
+    }
+
+    func start() throws {
+        let ready = DispatchSemaphore(value: 0)
+        var startupError: Error?
+
+        listener.stateUpdateHandler = { state in
+            switch state {
+            case .ready:
+                ready.signal()
+            case .failed(let error):
+                startupError = error
+                ready.signal()
+            default:
+                break
             }
         }
 
-        waitForExpectations(timeout: timeout) { error in
-            if let error = error {
-                XCTFail(error.localizedDescription)
-            }
+        listener.newConnectionHandler = { [weak self] connection in
+            self?.handle(connection)
+        }
+
+        listener.start(queue: queue)
+        guard ready.wait(timeout: .now() + 2) == .success else {
+            throw LocalSSEServerError.timeout
+        }
+
+        if let startupError {
+            throw startupError
         }
     }
 
-    private func login(_ shared: TheraForgeNetwork, completion: @escaping(Result<Response.Login, ForgeError>) -> Void) {
-        shared.login(request: Request.Login(email: testEmail, password: testPassword), completionHandler: completion)
+    func stop() {
+        listener.cancel()
+        connections.forEach { $0.cancel() }
     }
+
+    private func handle(_ connection: NWConnection) {
+        connections.append(connection)
+        connection.stateUpdateHandler = { _ in }
+        connection.start(queue: queue)
+        receiveRequest(on: connection)
+    }
+
+    private func receiveRequest(on connection: NWConnection) {
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 4096) { [weak self] data, _, _, _ in
+            guard let self else { return }
+            self.lock.lock()
+            self.request = data.flatMap { String(data: $0, encoding: .utf8) }
+            self.lock.unlock()
+            self.sendEvent(on: connection)
+        }
+    }
+
+    private func sendEvent(on connection: NWConnection) {
+        let body = """
+        data: {"d":\(event.d),"message":"\(event.message)","type":"\(event.type.rawValue)"}
+
+        """
+        let response = """
+        HTTP/1.1 200 OK\r
+        Content-Type: text/event-stream\r
+        Cache-Control: no-cache\r
+        Content-Length: \(body.utf8.count)\r
+        Connection: close\r
+        \r
+        \(body)
+        """
+        connection.send(content: Data(response.utf8), completion: .contentProcessed { _ in
+            connection.cancel()
+        })
+    }
+}
+
+private enum LocalSSEServerError: Error {
+    case timeout
 }

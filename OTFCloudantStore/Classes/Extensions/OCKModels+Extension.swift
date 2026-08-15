@@ -36,7 +36,9 @@ OF SUCH DAMAGE.
 import OTFCareKitStore
 #endif
 
-let revisionIDKey = "revId"
+private enum OCKModelUserInfoKey {
+    static let revisionID = "revId"
+}
 
 public protocol OTFCloudantRevision {
     var revId: String? { get set }
@@ -46,13 +48,13 @@ public protocol OTFCloudantRevision {
 extension OCKContact: OTFCloudantRevision {
     public var revId: String? {
         get {
-            return userInfo?[revisionIDKey]
+            return userInfo?[OCKModelUserInfoKey.revisionID]
         }
         set {
             if userInfo == nil {
                 userInfo = [String: String]()
             }
-            userInfo?[revisionIDKey] = newValue
+            userInfo?[OCKModelUserInfoKey.revisionID] = newValue
         }
     }
 
@@ -79,13 +81,13 @@ extension OCKContact: OTFCloudantRevision {
 extension OCKTask: OTFCloudantRevision {
     public var revId: String? {
         get {
-            return userInfo?[revisionIDKey]
+            return userInfo?[OCKModelUserInfoKey.revisionID]
         }
         set {
             if userInfo == nil {
                 userInfo = [String: String]()
             }
-            userInfo?[revisionIDKey] = newValue
+            userInfo?[OCKModelUserInfoKey.revisionID] = newValue
         }
     }
 }
@@ -93,13 +95,13 @@ extension OCKTask: OTFCloudantRevision {
 extension OCKPatient: OTFCloudantRevision {
     public var revId: String? {
         get {
-            return userInfo?[revisionIDKey]
+            return userInfo?[OCKModelUserInfoKey.revisionID]
         }
         set {
             if userInfo == nil {
                 userInfo = [String: String]()
             }
-            userInfo?[revisionIDKey] = newValue
+            userInfo?[OCKModelUserInfoKey.revisionID] = newValue
         }
     }
 }
@@ -107,13 +109,13 @@ extension OCKPatient: OTFCloudantRevision {
 extension OCKOutcome: OTFCloudantRevision {
     public var revId: String? {
         get {
-            return userInfo?[revisionIDKey]
+            return userInfo?[OCKModelUserInfoKey.revisionID]
         }
         set {
             if userInfo == nil {
                 userInfo = [String: String]()
             }
-            userInfo?[revisionIDKey] = newValue
+            userInfo?[OCKModelUserInfoKey.revisionID] = newValue
         }
     }
 }
@@ -121,13 +123,13 @@ extension OCKOutcome: OTFCloudantRevision {
 extension OCKCarePlan: OTFCloudantRevision {
     public var revId: String? {
         get {
-            return userInfo?[revisionIDKey]
+            return userInfo?[OCKModelUserInfoKey.revisionID]
         }
         set {
             if userInfo == nil {
                 userInfo = [String: String]()
             }
-            userInfo?[revisionIDKey] = newValue
+            userInfo?[OCKModelUserInfoKey.revisionID] = newValue
         }
     }
 }

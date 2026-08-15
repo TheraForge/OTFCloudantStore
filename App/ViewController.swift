@@ -134,7 +134,7 @@ class ViewController: UIViewController {
                                                        HKObjectType.workoutType()]
         let readSamples = samples.union(healthKitTypesToRead)
 
-        healthStore.requestAuthorization(toShare: healthKitTypesToWrite, read: readSamples) { (success: Bool, error: Error?) in
+        healthStore.requestAuthorization(toShare: healthKitTypesToWrite, read: readSamples) { (_: Bool, _: Error?) in
         }
     }
 

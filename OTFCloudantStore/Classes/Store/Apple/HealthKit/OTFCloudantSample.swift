@@ -111,9 +111,12 @@ public struct OTFCloudantSample: OTFCloudantHKSampleProtocol {
             samples = nil
             type = .category
 
-            if let metadata = sample.metadata as? [String: Bool] {
-                self.metadata = metadata
+            let boolMetadata = sample.metadata?.compactMapValues { value -> Bool? in
+                guard let boolValue = value as? Bool else { return nil }
+                guard let numberValue = value as? NSNumber else { return boolValue }
+                return CFGetTypeID(numberValue) == CFBooleanGetTypeID() ? boolValue : nil
             }
+            self.metadata = boolMetadata?.isEmpty == false ? boolMetadata : nil
         } else if let quantity = sample as? HKQuantitySample {
             if let preferredUnit = OTFParsingHelper.preferredUnit(for: quantity) {
                 unit = preferredUnit.unitString
@@ -160,11 +163,11 @@ public struct OTFCloudantSample: OTFCloudantHKSampleProtocol {
         var metadata = [String: Any]()
         metadata[HKMetadataKeySyncIdentifier] = syncIdentifier
         metadata[HKMetadataKeySyncVersion] = syncVersion
-        metadata[HKMetadataKeyExternalUUID] = uuid?.uuidString
+        metadata[HKMetadataKeyExternalUUID] = id
         switch type {
         case .category:
             guard let type = HKCategoryType.categoryType(forIdentifier: HKCategoryTypeIdentifier(rawValue: typeIdentifier)) else {
-                OTFLog("Unidentify category type's indentifier with identifier: %{public}@", typeIdentifier)
+                OTFLogger.logger().info("Unidentify category type's indentifier with identifier: \(typeIdentifier, privacy: .public)")
                 return nil
             }
             if let originalMetadata = self.metadata {
@@ -173,11 +176,11 @@ public struct OTFCloudantSample: OTFCloudantHKSampleProtocol {
             return HKCategorySample(type: type, value: Int(value), start: startDate, end: endDate, metadata: metadata)
         case .quantity:
             guard let type = HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier(rawValue: typeIdentifier)) else {
-                OTFLog("Unidentify category type's indentifier with identifier: %{public}@", typeIdentifier)
+                OTFLogger.logger().info("Unidentify category type's indentifier with identifier: \(typeIdentifier, privacy: .public)")
                 return nil
             }
             guard let unit = OTFParsingHelper.processUnitString(unit) else {
-                OTFLog("Unidentify quantity's unit with unit: %{public}@", self.unit)
+                OTFLogger.logger().info("Unidentify quantity's unit with unit: \(self.unit, privacy: .public)")
                 return nil
             }
 
@@ -186,7 +189,7 @@ public struct OTFCloudantSample: OTFCloudantHKSampleProtocol {
             return HKQuantitySample(type: type, quantity: quantity, start: startDate, end: endDate, metadata: metadata)
         case .correlation:
             guard let type = HKCorrelationType.correlationType(forIdentifier: HKCorrelationTypeIdentifier(rawValue: typeIdentifier)) else {
-                OTFLog("Unidentify correlation type's indentifier with identifier: %{public}@", typeIdentifier)
+                OTFLogger.logger().info("Unidentify correlation type's indentifier with identifier: \(typeIdentifier, privacy: .public)")
                 return nil
             }
             let objects = samples?.map { $0.toHKSample() }.compactMap { $0 } ?? []
@@ -195,7 +198,10 @@ public struct OTFCloudantSample: OTFCloudantHKSampleProtocol {
     }
 
     public func isEqual(to sample: HKSample) -> Bool {
-        return  id == sample.metadata?[HKMetadataKeyExternalUUID] as? String
+        if let metadata = sample.metadata, metadata.keys.contains(HKMetadataKeyExternalUUID) {
+            return id == metadata[HKMetadataKeyExternalUUID] as? String
+        }
+        return id == sample.uuid.uuidString
     }
 
 }

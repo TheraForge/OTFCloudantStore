@@ -35,21 +35,51 @@ OF SUCH DAMAGE.
 import Foundation
 import OTFCDTDatastore
 import OTFUtilities
+
 #if CARE && HEALTH
-import OTFCareKitStore
-import HealthKit
+  import OTFCareKitStore
+  import HealthKit
 #elseif HEALTH
-import HealthKit
+  import HealthKit
 #elseif CARE
-import OTFCareKitStore
+  import OTFCareKitStore
 #endif
 
-/**
- - Description: OTFCloudantStore uses CDTDataStore as It's database. It provides functionalities to help on working with Carekit, HealthKit and OTFResearchKit
- */
+enum OTFCloudantStoreIndexBootstrap {
+  case ensure
+  case skip
+}
+
+/// - Description: OTFCloudantStore uses CDTDataStore as It's database. It provides functionalities to help on working with Carekit, HealthKit and OTFResearchKit
 open class OTFCloudantStore: Equatable {
 
-    #if CARE
+  private struct InstalledIndex {
+    let name: String
+    let type: String
+    let fields: [String]
+  }
+
+  private static let requiredClientSideIndexes: [[String]] = [
+    ["id", "effectiveDate"],
+    ["entityType"],
+    ["entityType", "effectiveDate"],
+    ["entityType", "id"],
+    ["entityType", "updatedDate"],
+    ["entityType", "createdDate"],
+    ["entityType", "startDate"],
+    ["entityType", "endDate"],
+    ["entityType", "startDate", "endDate"],
+    ["entityType", "taskUUID"],
+    ["entityType", "uuid"],
+    ["entityType", "groupIdentifier"],
+    ["entityType", "carePlanUUID"],
+    ["entityType", "remoteID"],
+    ["entityType", "startDate", "endDate"],
+    ["entityType", "taskUUID", "createdDate"],
+    ["entityType", "uuid", "updatedDate"]
+  ]
+
+  #if CARE
     /// The delegate receives callbacks when the contents of the patient store are modified.
     /// In `CareKit` apps, the delegate will be set automatically, and it should not be modified.
     public weak var patientDelegate: OCKPatientStoreDelegate?
@@ -72,266 +102,449 @@ open class OTFCloudantStore: Equatable {
 
     /// The configuration can be modified to enable or disable versioning of database entities.
     public var resetDelegate: OCKResetDelegate?
-    #endif
+  #endif
 
-    /// The name of the store. When the store type is `onDisk`, this name will be used for the SQLite filename.
-    public let storeName: String
-    public let dataStore: CDTDatastore
-    public let datastoreManager: CDTDatastoreManager
-    public let remote: OCKRemoteSynchronizable?
+  /// The name of the store. When the store type is `onDisk`, this name will be used for the SQLite filename.
+  public let storeName: String
+  public let dataStore: CDTDatastore
+  public let datastoreManager: CDTDatastoreManager
+  public let remote: OCKRemoteSynchronizable?
 
-    /**
-    - Description - Initializer for OTFCloudantStore
-    - Parameter storeName: Store name required to initialize OTFCloudantStore
-    - Throws - This initializer can throw an error, that should be handled using try and catch block.
-    */
-    public init(storeName: String, remote: OCKRemoteSynchronizable? = nil) throws {
-        self.storeName = storeName
-        self.remote = remote
-        self.remote?.delegate = remote?.delegate
-        let fileManager = FileManager.default
-        guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).last else {
-            throw NSError(domain: "com.cloudant", code: 400, userInfo: [NSLocalizedDescriptionKey: "Can't access the document directory."])
-        }
-        let storeURL = documentsDirectory.appendingPathExtension("/\(DataStoreName.manager)")
-        let path = storeURL.path
-        self.datastoreManager = try CDTDatastoreManager(directory: path)
+  /**
+  - Description - Initializer for OTFCloudantStore
+  - Parameter storeName: Store name required to initialize OTFCloudantStore
+  - Throws - This initializer can throw an error, that should be handled using try and catch block.
+  */
+  public init(storeName: String, remote: OCKRemoteSynchronizable? = nil) throws {
+    self.storeName = storeName
+    self.remote = remote
+    self.remote?.delegate = remote?.delegate
+    let fileManager = FileManager.default
+    guard
+      let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).last
+    else {
+      throw NSError(
+        domain: "com.cloudant", code: 400,
+        userInfo: [NSLocalizedDescriptionKey: "Can't access the document directory."])
+    }
+    let storeURL = documentsDirectory.appendingPathExtension("/\(DataStoreName.manager)")
+    let path = storeURL.path
+    self.datastoreManager = try CDTDatastoreManager(directory: path)
 
-        let datastore = try datastoreManager.datastoreNamed(storeName)
-        if let indexName = datastore.ensureIndexed(["id", "effectiveDate"]) {
-            NSLog("indexName: \(indexName)")
-        }
-        self.dataStore = datastore
+    let datastore = try datastoreManager.datastoreNamed(storeName)
+    self.dataStore = datastore
+    ensureClientSideIndexes()
+  }
+
+  init(
+    storeName: String,
+    remote: OCKRemoteSynchronizable? = nil,
+    datastoreManager: CDTDatastoreManager,
+    dataStore: CDTDatastore,
+    indexBootstrap: OTFCloudantStoreIndexBootstrap = .ensure
+  ) {
+    self.storeName = storeName
+    self.remote = remote
+    self.remote?.delegate = remote?.delegate
+    self.datastoreManager = datastoreManager
+    self.dataStore = dataStore
+
+    if indexBootstrap == .ensure {
+      ensureClientSideIndexes()
+    }
+  }
+
+  /**
+  - Description - Function to compare two OTFCloudantStore objects for their equality.
+  /// - Parameters:
+  ///   - lhs: First OTFCloudantStore object that we need to compare
+  ///   - rhs: Second OTFCloudantStore object that will be compared for equality.
+  /// - Returns: It will return a Bool value depends upon if the both OTFCloudantStore objects are equal or not.
+   */
+  public static func == (lhs: OTFCloudantStore, rhs: OTFCloudantStore) -> Bool {
+    return lhs.storeName == rhs.storeName
+  }
+
+  /// Ensures CareKit query indexes exist for every app target using this shared store.
+  @discardableResult
+  public func ensureClientSideIndexes() -> [[String]] {
+    let removedDuplicateIndexes = pruneDuplicateIndexes()
+    if removedDuplicateIndexes > 0 {
+      OTFLogger.logger().debug(
+        "OTFCloudantStore: pruned \(removedDuplicateIndexes, privacy: .public) duplicate client-side indexes"
+      )
     }
 
-    /**
-    - Description - Function to compare two OTFCloudantStore objects for their equality.
-    /// - Parameters:
-    ///   - lhs: First OTFCloudantStore object that we need to compare
-    ///   - rhs: Second OTFCloudantStore object that will be compared for equality.
-    /// - Returns: It will return a Bool value depends upon if the both OTFCloudantStore objects are equal or not.
-     */
-    public static func == (lhs: OTFCloudantStore, rhs: OTFCloudantStore) -> Bool {
-        return lhs.storeName == rhs.storeName
+    let missingIndexes = missingRequiredIndexes()
+    missingIndexes.forEach { fields in
+      let indexName = stableIndexName(for: fields)
+      _ = dataStore.ensureIndexed(fields, withName: indexName)
     }
+
+    let remainingMissingIndexes = missingRequiredIndexes()
+    if !remainingMissingIndexes.isEmpty {
+      OTFLogger.logger().error(
+        "OTFCloudantStore: missing required indexes after bootstrap \(remainingMissingIndexes.description, privacy: .public)"
+      )
+    }
+    return remainingMissingIndexes
+  }
+
+  @discardableResult
+  public func validateClientSideIndexes() -> [[String]] {
+    let missingIndexes = missingRequiredIndexes()
+    if !missingIndexes.isEmpty {
+      OTFLogger.logger().error(
+        "OTFCloudantStore: required indexes missing \(missingIndexes.description, privacy: .public)"
+      )
+    }
+    return missingIndexes
+  }
+
+  private func missingRequiredIndexes() -> [[String]] {
+    let installedSignatures = Set(installedIndexes().map(indexSignature(for:)))
+    return Self.requiredClientSideIndexes.filter {
+      !installedSignatures.contains(indexSignature(for: normalizedIndexFields($0)))
+    }
+  }
+
+  private func normalizedIndexFields(_ fields: [String]) -> [String] {
+    fields.filter { field in
+      field != "_id" && field != "_rev"
+    }
+  }
+
+  private func installedIndexes() -> [InstalledIndex] {
+    dataStore.listIndexes().compactMap { name, definition in
+      guard let fields = definition["fields"] as? [String],
+        let type = definition["type"] as? String
+      else {
+        return nil
+      }
+
+      return InstalledIndex(name: name, type: type, fields: normalizedIndexFields(fields))
+    }
+  }
+
+  private func indexSignature(for fields: [String], type: String = "json") -> String {
+    ([type] + fields).joined(separator: "|")
+  }
+
+  private func indexSignature(for index: InstalledIndex) -> String {
+    indexSignature(for: index.fields, type: index.type)
+  }
+
+  private func stableIndexName(for fields: [String], type: String = "json") -> String {
+    let suffix = ([type] + normalizedIndexFields(fields)).joined(separator: "_")
+    return "otf_index_\(suffix)"
+  }
+
+  @discardableResult
+  private func pruneDuplicateIndexes() -> Int {
+    let groupedIndexes = Dictionary(grouping: installedIndexes(), by: indexSignature(for:))
+    var removedIndexes = 0
+
+    for (_, indexes) in groupedIndexes where indexes.count > 1 {
+      let expectedName = stableIndexName(for: indexes[0].fields, type: indexes[0].type)
+      let sortedIndexes = indexes.sorted { lhs, rhs in
+        let lhsRank = lhs.name == expectedName ? 0 : 1
+        let rhsRank = rhs.name == expectedName ? 0 : 1
+        if lhsRank != rhsRank {
+          return lhsRank < rhsRank
+        }
+        return lhs.name < rhs.name
+      }
+
+      for duplicateIndex in sortedIndexes.dropFirst() where dataStore.deleteIndexNamed(duplicateIndex.name) {
+        removedIndexes += 1
+      }
+    }
+
+    return removedIndexes
+  }
 }
 
 #if CARE && HEALTH
-extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
+  extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
 
     /**
      - Description: - This function can be used to reset all the data from CloudantStore as well as HealthKit.
      - Throws: - This can throw an error, it should be handled using try, catch block properly.
      */
     public func reset() throws {
-        let sampleType: OTFHealthSampleType = .quantity
-        collection(healthKitSampleType: sampleType).getSamples { result in
-            switch result {
-            case .success(let samples):
-                self.deleteSamples(samples: samples)
-                if let delegate = self.resetDelegate {
-                    delegate.storeDidReset(self)
-                } else {
-                    OTFLog("Reset delegate is nil, Please assign value to reset delegate in order to get notified after reset finish.", "failure")
-                }
-            case .failure: break
-            }
+      let sampleType: OTFHealthSampleType = .quantity
+      collection(healthKitSampleType: sampleType).getSamples { result in
+        switch result {
+        case .success(let samples):
+          self.deleteSamples(samples: samples)
+          if let delegate = self.resetDelegate {
+            delegate.storeDidReset(self)
+          } else {
+            OTFLogger.logger().info(
+              "Reset delegate is nil, Please assign value to reset delegate in order to get notified after reset finish."
+            )
+          }
+        case .failure: break
         }
+      }
     }
 
     // MARK: - CRUD Operations
     // MARK: - Create query for CareKitData
     public func collection(className: String, fields: [String]? = nil) -> OTFCloudantQuery {
-        let query = OTFCloudantQuery(store: self, careKitClassName: className, fields: fields)
-        return query
+      let query = OTFCloudantQuery(store: self, careKitClassName: className, fields: fields)
+      return query
     }
 
     // MARK: - Create Query for HealthKitData
     public func collection(healthKitSampleType: OTFHealthSampleType, fields: [String]? = nil) -> OTFCloudantQuery {
-        let query = OTFCloudantQuery(store: self, healthKitSampleType: healthKitSampleType, fields: fields)
-        return query
+      let query = OTFCloudantQuery(
+        store: self, healthKitSampleType: healthKitSampleType, fields: fields)
+      return query
     }
 
     // MARK: - Delete healthkit samples
-    public func deleteSamples(samples: [HKSample], callbackQueue: DispatchQueue = .main, completion: OCKResultClosure<[HKSample]>? = nil) {
-        let cloudantSamples = samples.map { OTFCloudantSample(sample: $0, patientId: "")}
-        delete(cloudantSamples) { (result) in
-            switch result {
-            case .success:
-                completion?(.success(samples))
-            case .failure(let error):
-                OTFError("Deleting samples failed with error: %{public}@", error.localizedDescription)
-                completion?(.failure(error.toOCKStoreError()))
-            }
+    public func deleteSamples(
+      samples: [HKSample],
+      callbackQueue: DispatchQueue = .main,
+      completion: OCKResultClosure<[HKSample]>? = nil
+    ) {
+      let cloudantSamples = samples.map { OTFCloudantSample(sample: $0, patientId: "") }
+      delete(cloudantSamples) { (result) in
+        switch result {
+        case .success:
+          completion?(.success(samples))
+        case .failure(let error):
+          OTFLogger.logger().error(
+            "Deleting samples failed with error: \(error.localizedDescription, privacy: .public)")
+          completion?(.failure(error.toOCKStoreError()))
         }
+      }
     }
 
     // Maybe use this so that we have only one database?
-    open func fetch<Entity: Codable & Identifiable & OTFCloudantRevision>(cloudantQuery: OTFQueryProtocol,
-                                                                          callbackQueue: DispatchQueue = .main,
-                                                                          filter: ((Entity) -> Bool)? = nil,
-                                                                          completion: OCKResultClosure<[Entity]>? = nil)
-        where Entity.ID == String {
-            var query = cloudantQuery.parameters
+    public func fetch<Entity: Codable & Identifiable & OTFCloudantRevision>(
+      cloudantQuery: OTFQueryProtocol,
+      callbackQueue: DispatchQueue = .main,
+      filter: ((Entity) -> Bool)? = nil,
+      completion: OCKResultClosure<[Entity]>? = nil
+    ) where Entity.ID == String {
+      var query = cloudantQuery.parameters
 
-            // "entityType" is something that will not have any representation in the CareKit
-            // It only serves the Cloudant serialization and deserialization purposes
-            // Encoding and decoding
-            query["entityType"] = "\(Entity.self)"
+      // "entityType" is something that will not have any representation in the CareKit
+      // It only serves the Cloudant serialization and deserialization purposes
+      // Encoding and decoding
+      query["entityType"] = "\(Entity.self)"
 
-            var errors = [Error]()
-            var succeededItems = [Entity]()
-            let result = dataStore.find(query, skip: 0, limit: UInt(cloudantQuery.limit ?? 0), fields: nil, sort: cloudantQuery.sortDescription)
-            result?.enumerateObjects({ (revision: CDTDocumentRevision, _: UInt, _: UnsafeMutablePointer<ObjCBool>) in
-                do {
-                    if var item = try revision.data(as: Entity.self) {
-                        if let filterClosure = filter, filterClosure(item) == false {
-                            return
-                        }
-                        
-                        item.revId = revision.revId
-                        succeededItems.append(item)
-                    }
-                } catch {
-                    errors.append(error)
-                }
-            })
-
-            callbackQueue.async {
-                if !succeededItems.isEmpty {
-                    callbackQueue.async {
-                        NSLog("Successfully fetched: \(succeededItems.map { $0.toDictionary() })")
-                        completion?(.success(succeededItems))
-                    }
-                } else if !errors.isEmpty {
-                    callbackQueue.async {
-                        NSLog("Failed to fetch: Errors: \(errors.map { $0.localizedDescription })")
-                        completion?(.failure(.fetchFailed(reason: "Errors: \(errors.map { $0.localizedDescription })")))
-                    }
-                } else {
-                    NSLog("Returning empty data")
-                    completion?(.success([]))
-                }
+      var errors = [Error]()
+      var succeededItems = [Entity]()
+      let result = dataStore.find(
+        query,
+        skip: UInt(cloudantQuery.offset ?? 0),
+        limit: UInt(cloudantQuery.limit ?? 0),
+        fields: nil,
+        sort: cloudantQuery.sortDescription
+      )
+      result?.enumerateObjects({ (revision: CDTDocumentRevision, _: UInt, _: UnsafeMutablePointer<ObjCBool>) in
+        do {
+          if var item = try revision.data(as: Entity.self) {
+            if let filterClosure = filter, filterClosure(item) == false {
+              return
             }
+
+            item.revId = revision.revId
+            succeededItems.append(item)
+          }
+        } catch {
+          errors.append(error)
+        }
+      })
+
+      callbackQueue.async {
+        if !succeededItems.isEmpty {
+          callbackQueue.async {
+            completion?(.success(succeededItems))
+          }
+        } else if !errors.isEmpty {
+          callbackQueue.async {
+            let entityName = String(describing: Entity.self)
+            let joinedErrors = errors.map { $0.localizedDescription }.joined(separator: ", ")
+            OTFLogger.logger().error(
+              "OTFCloudantStore: failed to fetch \(entityName, privacy: .public) documents. Errors: \(joinedErrors, privacy: .public)"
+            )
+            completion?(
+              .failure(.fetchFailed(reason: "Errors: \(errors.map { $0.localizedDescription })")))
+          }
+        } else {
+          completion?(.success([]))
+        }
+      }
     }
 
     /**
      Adds the document to the data store.
-     
+
      - Parameter items: the entities whose document is added to the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func add<Entity: Codable & Identifiable & OTFCloudantRevision>(
-        _ items: [Entity],
-        callbackQueue: DispatchQueue = .main,
-        completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
-        where Entity.ID == String {
-            processWithCallback(items: items, process: { item in
-                let revision = CDTDocumentRevision.revision(fromEntity: item)
-                do {
-                    let document = try dataStore.createDocument(from: revision)
-                    NSLog("Added document: \(document)")
-                    return try revision.data(as: Entity.self)
-                } catch {
-                    OTFError("Error: %{public}@", error.localizedDescription)
-                    
-                    throw error
-                }
-            }, failureError: { (items, errors) -> OTFCloudantError in
-                NSLog("Adding Failed: [\(items)]. Errors: \(errors.map { $0.localizedDescription })")
-                return .addFailed(reason: "[\(items)]. Errors: \(errors.map { $0.localizedDescription })")
-            }, completion: completion)
+    public func add<Entity: Codable & Identifiable & OTFCloudantRevision>(
+      _ items: [Entity],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil
+    )
+    where Entity.ID == String {
+      processWithCallback(
+        items: items,
+        process: { item in
+          let revision = CDTDocumentRevision.revision(fromEntity: item)
+          do {
+            let savedRevision = try dataStore.createDocument(from: revision)
+            guard var savedItem = try savedRevision.data(as: Entity.self) else {
+              return try revision.data(as: Entity.self)
+            }
+            savedItem.revId = savedRevision.revId
+            return savedItem
+          } catch {
+            throw error
+          }
+        },
+        callbackQueue: callbackQueue,
+        failureError: { (items, errors) -> OTFCloudantError in
+          let joinedErrors = errors.map { $0.localizedDescription }.joined(separator: ", ")
+          OTFLogger.logger().error(
+            "OTFCloudantStore: add failed for \(items.count, privacy: .public) items. Errors: \(joinedErrors, privacy: .public)"
+          )
+          return .addFailed(reason: "[\(items)]. Errors: \(errors.map { $0.localizedDescription })")
+        }, completion: completion)
     }
 
     /**
      Updates the document in the data store.
-     
+
      - Parameter items: the entities whose document is updates in the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func update<Entity: Codable & Identifiable & OTFCloudantRevision>(
-        _ items: [Entity],
-        callbackQueue: DispatchQueue = .main,
-        completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
-        where Entity.ID == String {
-            processWithCallback(items: items, process: { item in
-                let revision = CDTDocumentRevision.revision(fromEntity: item)
-                do {
-                    try dataStore.updateDocument(from: revision)
-                    return try revision.data(as: Entity.self)
-                } catch {
-                    OTFError("Error: %{public}@", error.localizedDescription)
-                    throw error
-                }
-            }, failureError: { (items, errors) -> OTFCloudantError in
-                return .updateFailed(reason: "[\(items)]. Errors: \(errors.map { $0.localizedDescription })")
-            }, completion: completion)
+    public func update<Entity: Codable & Identifiable & OTFCloudantRevision>(
+      _ items: [Entity],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil
+    )
+    where Entity.ID == String {
+      processWithCallback(
+        items: items,
+        process: { item in
+          let revision = CDTDocumentRevision.revision(fromEntity: item)
+          do {
+            let updateRevision: CDTDocumentRevision
+            if revision.revId == nil {
+              guard let documentID = revision.docId else {
+                throw OTFCloudantError.invalidValue(reason: "Missing document id")
+              }
+              let currentRevision = try dataStore.getDocumentWithId(documentID)
+              guard let currentRevisionID = currentRevision.revId else {
+                throw OTFCloudantError.invalidValue(reason: "Missing document revision")
+              }
+              updateRevision = CDTDocumentRevision(docId: documentID, revId: currentRevisionID)
+              updateRevision.body = revision.body
+            } else {
+              updateRevision = revision
+            }
+
+            let savedRevision = try dataStore.updateDocument(from: updateRevision)
+            guard var savedItem = try savedRevision.data(as: Entity.self) else {
+              return try updateRevision.data(as: Entity.self)
+            }
+            savedItem.revId = savedRevision.revId
+            return savedItem
+          } catch {
+            throw error
+          }
+        },
+        callbackQueue: callbackQueue,
+        failureError: { (items, errors) -> OTFCloudantError in
+          let joinedErrors = errors.map { $0.localizedDescription }.joined(separator: ", ")
+          OTFLogger.logger().error(
+            "OTFCloudantStore: update failed for \(items.count, privacy: .public) items. Errors: \(joinedErrors, privacy: .public)"
+          )
+          return .updateFailed(
+            reason: "[\(items)]. Errors: \(errors.map { $0.localizedDescription })")
+        }, completion: completion)
     }
 
     /**
      Deletes the document from the data store.
-     
+
      - Parameter items: the entities whose document is deleted from the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func delete<Entity: Encodable & Identifiable>(
-        _ items: [Entity],
-        callbackQueue: DispatchQueue = .main,
-        completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
-                             where Entity.ID == String {
-        process(items: items, process: { item in
-            try dataStore.deleteDocument(withId: item.id)
-        }, failureError: { (items, errors) -> OTFCloudantError in
-            return .deleteFailed(reason: "[\(items)]. Errors: \(errors.map { $0.localizedDescription })")
+    public func delete<Entity: Encodable & Identifiable>(
+      _ items: [Entity],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil
+    )
+    where Entity.ID == String {
+      process(
+        items: items,
+        process: { item in
+          let documentID = CDTDocumentRevision.encodedDictionary(fromEntity: item)["id"] as? String ?? item.id
+          let currentRevision = try dataStore.getDocumentWithId(documentID)
+          try dataStore.deleteDocument(from: currentRevision)
+        },
+        callbackQueue: callbackQueue,
+        failureError: { (items, errors) -> OTFCloudantError in
+          return .deleteFailed(
+            reason: "[\(items)]. Errors: \(errors.map { $0.localizedDescription })")
         }, completion: completion)
     }
 
     /**
      Process to perform actions on the document in the data store.
-     
+
      - Parameter items: the entities whose document is processed in the store.
      - Parameter process: the action which is to be processed.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter failureError: the error thrown during the process.
      - Parameter completion: a callback that fires on a background thread.
      */
-    private func process<Entity: Encodable & Identifiable>(items: [Entity],
-                                                           process: (_ item: Entity) throws -> Void,
-                                                           callbackQueue: DispatchQueue = .main,
-                                                           failureError: @escaping (_ items: [Entity], _ errors: [Error]) -> OTFCloudantError,
-                                                           completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
-        where Entity.ID == String {
+    private func process<Entity: Encodable & Identifiable>(
+      items: [Entity],
+      process: (_ item: Entity) throws -> Void,
+      callbackQueue: DispatchQueue = .main,
+      failureError: @escaping (_ items: [Entity], _ errors: [Error]) -> OTFCloudantError,
+      completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil
+    )
+    where Entity.ID == String {
 
-        var failedItems = [Entity]()
-        var errors = [Error]()
-        var succeededItems = [Entity]()
+      var failedItems = [Entity]()
+      var errors = [Error]()
+      var succeededItems = [Entity]()
 
-        for item in items {
-            do {
-                try process(item)
-                succeededItems.append(item)
-            } catch {
-                failedItems.append(item)
-                errors.append(error)
-            }
+      for item in items {
+        do {
+          try process(item)
+          succeededItems.append(item)
+        } catch {
+          failedItems.append(item)
+          errors.append(error)
         }
+      }
 
-        callbackQueue.async {
-            if !succeededItems.isEmpty {
-                completion?(.success(items))
-            }
-            if !failedItems.isEmpty {
-                completion?(.failure(failureError(failedItems, errors)))
-            }
+      callbackQueue.async {
+        if !succeededItems.isEmpty {
+          completion?(.success(items))
         }
+        if !failedItems.isEmpty {
+          completion?(.failure(failureError(failedItems, errors)))
+        }
+      }
     }
-    
+
     /**
      Process to perform actions on the document in the data store.
-     
+
      - Parameter items: the entities whose document is processed in the store.
      - Parameter process: the action which is to be processed.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
@@ -339,40 +552,41 @@ extension OTFCloudantStore: OCKStoreProtocol, OCKAnyTaskStore {
      - Parameter completion: a callback that fires on a background thread.
      */
     private func processWithCallback<Entity: Encodable & Identifiable>(
-        items: [Entity],
-        process: (_ item: Entity) throws -> Entity?,
-        callbackQueue: DispatchQueue = .main,
-        failureError: @escaping (_ items: [Entity], _ errors: [Error]) -> OTFCloudantError,
-        completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil)
-        where Entity.ID == String {
+      items: [Entity],
+      process: (_ item: Entity) throws -> Entity?,
+      callbackQueue: DispatchQueue = .main,
+      failureError: @escaping (_ items: [Entity], _ errors: [Error]) -> OTFCloudantError,
+      completion: ((Result<[Entity], OTFCloudantError>) -> Void)? = nil
+    )
+    where Entity.ID == String {
 
-        var failedItems = [Entity]()
-        var errors = [Error]()
-        var succeededItems = [Entity]()
+      var failedItems = [Entity]()
+      var errors = [Error]()
+      var succeededItems = [Entity]()
 
-        for item in items {
-            do {
-                let processedItem = try process(item)
-                if let newItem = processedItem {
-                    succeededItems.append(newItem)
-                } else {
-                    succeededItems.append(item)
-                }
-            } catch {
-                failedItems.append(item)
-                errors.append(error)
-            }
+      for item in items {
+        do {
+          let processedItem = try process(item)
+          if let newItem = processedItem {
+            succeededItems.append(newItem)
+          } else {
+            succeededItems.append(item)
+          }
+        } catch {
+          failedItems.append(item)
+          errors.append(error)
         }
+      }
 
-        callbackQueue.async {
-            if !succeededItems.isEmpty {
-                completion?(.success(succeededItems))
-            }
-            if !failedItems.isEmpty {
-                completion?(.failure(failureError(failedItems, errors)))
-            }
+      callbackQueue.async {
+        if !succeededItems.isEmpty {
+          completion?(.success(succeededItems))
         }
+        if !failedItems.isEmpty {
+          completion?(.failure(failureError(failedItems, errors)))
+        }
+      }
     }
-    
-}
+
+  }
 #endif

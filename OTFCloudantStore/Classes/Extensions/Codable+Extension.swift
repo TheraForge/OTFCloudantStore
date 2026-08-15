@@ -45,7 +45,7 @@ extension Encodable {
             let dic = try enCoder.encode(self) as [String: Any]
             return dic
         } catch {
-            fatalError()
+            fatalError("Failed to encode \(Self.self) into a Cloudant dictionary: \(error)")
         }
     }
 }
@@ -55,11 +55,20 @@ public extension CDTDocumentRevision {
     static func encodedDictionary<Entity: Encodable & Identifiable>(fromEntity item: Entity) -> [String: Any] where Entity.ID == String {
         var dic = item.toDictionary()
         dic["entityType"] = "\(Entity.self)"
+        if let task = item as? OCKTask {
+            dic["startDate"] = theraForgeISO8601Formatter.string(from: task.schedule.startDate())
+            if let endDate = task.schedule.endDate() {
+                dic["endDate"] = theraForgeISO8601Formatter.string(from: endDate)
+            }
+        }
         var additionalInfoDict = [String: Any]()
         let additionalInfo = OTFAdditionalInfo(id: item.id)
         additionalInfoDict = additionalInfo.toDictionary()
         if var newDict = dic.copyValue(from: additionalInfoDict) {
             if let outcome = item as? OCKOutcome {
+                // Canonicalize outcome document IDs so the same task occurrence maps to the
+                // same Cloudant document on every device.
+                newDict["id"] = "\(outcome.taskUUID.uuidString)_\(outcome.taskOccurrenceIndex)"
                 if !outcome.values.isEmpty {
                     newDict["values"] = outcome.values.map { $0.updatedDictionary() }
                 }

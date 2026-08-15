@@ -103,7 +103,7 @@ public struct OTFCloudantHKClinicalRecord: OTFCloudantHKSampleProtocol {
             let clinicalRecord = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKClinicalRecord.self, from: data)
             return clinicalRecord
         } catch {
-            OTFError("Mapping from Cloudant's ClinicalRecord to HK's ClinicalRecord failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Mapping from Cloudant's ClinicalRecord to HK's ClinicalRecord failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }

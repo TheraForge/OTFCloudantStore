@@ -8,24 +8,24 @@ target 'OTFCloudantStore' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
   platform :ios, '16.0'
-  pod 'OTFCloudClientAPI', '2.0.0'
-  pod 'OTFCDTDatastore', '2.1.1-tf.2'
+  pod 'OTFCloudClientAPI', '2.1.0'
+  pod 'OTFCDTDatastore', '2.1.1-tf.3'
   pod 'OTFCareKitStore/CareHealth', '2.0.2-tf.2'
   pod 'OTFUtilities', '2.0.0'
 
   target 'OTFCloudantStoreWatch' do
     use_frameworks!
     platform :watchos, '9.0'
-    pod 'OTFCloudClientAPI', '2.0.0'
-    pod 'OTFCDTDatastore', '2.1.1-tf.2'
+    pod 'OTFCloudClientAPI', '2.1.0'
+    pod 'OTFCDTDatastore', '2.1.1-tf.3'
     pod 'OTFCareKitStore/CareHealth', '2.0.2-tf.2'
   end
   
   target 'OTFCloudantStoreTests' do
  #     inherit! :search_paths
       use_frameworks!
-      pod 'OTFCloudClientAPI', '2.0.0'
-      pod 'OTFCDTDatastore', '2.1.1-tf.2'
+      pod 'OTFCloudClientAPI', '2.1.0'
+      pod 'OTFCDTDatastore', '2.1.1-tf.3'
       pod 'OTFCareKitStore/CareHealth', '2.0.2-tf.2'
   end
 
