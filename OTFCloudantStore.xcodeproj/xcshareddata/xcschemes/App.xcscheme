@@ -20,31 +20,45 @@
                ReferencedContainer = "container:OTFCloudantStore.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "14AF8DDA2657744E003513DF"
+               BuildableName = "OTFCloudantStoreTests.xctest"
+               BlueprintName = "OTFCloudantStoreTests"
+               ReferencedContainer = "container:OTFCloudantStore.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "YES">
+      <CodeCoverageTargets>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "FA23A0182450B1FD008BEDD7"
+            BuildableName = "OTFCloudantStore.framework"
+            BlueprintName = "OTFCloudantStore"
+            ReferencedContainer = "container:OTFCloudantStore.xcodeproj">
+         </BuildableReference>
+      </CodeCoverageTargets>
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "14AF8E0D26577487003513DF"
-               BuildableName = "AppTests.xctest"
-               BlueprintName = "AppTests"
-               ReferencedContainer = "container:OTFCloudantStore.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "14AF8E1826577487003513DF"
-               BuildableName = "AppUITests.xctest"
-               BlueprintName = "AppUITests"
+               BlueprintIdentifier = "14AF8DDA2657744E003513DF"
+               BuildableName = "OTFCloudantStoreTests.xctest"
+               BlueprintName = "OTFCloudantStoreTests"
                ReferencedContainer = "container:OTFCloudantStore.xcodeproj">
             </BuildableReference>
          </TestableReference>

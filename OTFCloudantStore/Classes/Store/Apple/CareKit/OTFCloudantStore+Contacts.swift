@@ -33,130 +33,165 @@ OF SUCH DAMAGE.
  */
 
 #if CARE && HEALTH
-import OTFCDTDatastore
-import OTFCareKitStore
+  import OTFCDTDatastore
+  import OTFCareKitStore
 
-/**
- Extends OTFCloudantStore to perform actions on the contacts.
- */
-extension OTFCloudantStore {
+  /// Extends OTFCloudantStore to perform actions on the contacts.
+  extension OTFCloudantStore {
 
     /**
       Fetches contacts from the store.
-     
+
       - Parameter query: a query that limits which contact your fetch returns.
       - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
       - Parameter completion: a callback that fires on a background thread.
     */
-    open func fetchContacts(query: OCKContactQuery = OCKContactQuery(),
-                            callbackQueue: DispatchQueue = .main,
-                            completion: @escaping (Result<[OCKContact], OCKStoreError>) -> Void) {
-        let newQuery = OTFCloudantContactQuery(contactQuery: query)
-        fetch(cloudantQuery: newQuery, callbackQueue: callbackQueue, completion: { (result: Result<[OCKContact], OCKStoreError>) in
-            if query.sortDescriptors.isEmpty {
-                completion(result)
-            } else {
-                switch result {
-                case .success(let contacts):
-                    var finalResult = contacts
-                    for sortDescriptor in query.sortDescriptors {
-                        switch sortDescriptor {
-                        case .familyName(let ascending):
-                            if ascending {
-                                finalResult = finalResult.sorted { $0.name.familyName?.lowercased() ?? "" < $1.name.familyName?.lowercased() ?? "" }
-                            } else {
-                                finalResult = finalResult.sorted { $0.name.familyName?.lowercased() ?? "" > $1.name.familyName?.lowercased() ?? "" }
-                            }
-                        case .givenName(let ascending):
-                            if ascending {
-                                finalResult = finalResult.sorted { $0.name.givenName?.lowercased() ?? "" < $1.name.givenName?.lowercased() ?? "" }
-                            } else {
-                                finalResult = finalResult.sorted { $0.name.givenName?.lowercased() ?? "" > $1.name.givenName?.lowercased() ?? "" }
-                            }
-                        case .effectiveDate(ascending: let asc):
-                            if asc {
-                                finalResult = finalResult.sorted {
-                                    $0.effectiveDate < $1.effectiveDate
-                                }
-                            } else {
-                                finalResult = finalResult.sorted {
-                                    $0.effectiveDate > $1.effectiveDate
-                                }
-                            }
-                        }
-                    }
-                    completion(.success(finalResult))
-                default:
-                    completion(result)
-                }
+    public func fetchContacts(
+      query: OCKContactQuery = OCKContactQuery(),
+      callbackQueue: DispatchQueue = .main,
+      completion: @escaping (Result<[OCKContact], OCKStoreError>) -> Void
+    ) {
+      let newQuery = OTFCloudantContactQuery(contactQuery: query)
+      let sortsLocally = !query.sortDescriptors.isEmpty
+      if sortsLocally {
+        newQuery.limit = nil
+        newQuery.offset = 0
+      }
+      fetch(
+        cloudantQuery: newQuery, callbackQueue: callbackQueue,
+        completion: { (result: Result<[OCKContact], OCKStoreError>) in
+          if query.sortDescriptors.isEmpty {
+            completion(result)
+          } else {
+            switch result {
+            case .success(let contacts):
+              let finalResult = self.sortContacts(contacts, using: query.sortDescriptors)
+              completion(.success(sortsLocally ? self.paginate(finalResult, offset: query.offset, limit: query.limit) : finalResult))
+            default:
+              completion(result)
             }
+          }
         })
     }
 
     /**
      Adds a contacts asynchronously to the store.
-     
+
      - Parameter contacts: the contacts you add to the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func addContacts(_ contacts: [OCKContact],
-                          callbackQueue: DispatchQueue = .main,
-                          completion: ((Result<[OCKContact], OCKStoreError>) -> Void)? = nil) {
-        add(contacts, callbackQueue: callbackQueue, completion: { result in
-            switch result {
-            case .success(let contacts):
-                self.contactDelegate?.contactStore(self,
-                                                   didAddContacts: contacts)
-                completion?(.success(contacts))
-            case .failure:
-                completion?(result.mapError { $0.toOCKStoreError() })
-            }
+    public func addContacts(
+      _ contacts: [OCKContact],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[OCKContact], OCKStoreError>) -> Void)? = nil
+    ) {
+      add(
+        contacts, callbackQueue: callbackQueue,
+        completion: { result in
+          switch result {
+          case .success(let contacts):
+            self.contactDelegate?.contactStore(
+              self,
+              didAddContacts: contacts)
+            completion?(.success(contacts))
+          case .failure:
+            completion?(result.mapError { $0.toOCKStoreError() })
+          }
         })
     }
 
     /**
      Updates the contacts asynchronously to the store.
-     
+
      - Parameter contacts: the contacts you update to the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func updateContacts(_ contacts: [OCKContact],
-                             callbackQueue: DispatchQueue = .main,
-                             completion: OCKResultClosure<[OCKContact]>? = nil) {
-        update(contacts, callbackQueue: .main) { result in
-            switch result {
-            case .success(let contacts):
-                self.contactDelegate?.contactStore(self,
-                                                   didUpdateContacts: contacts)
-                completion?(.success(contacts))
-            case .failure:
-                completion?(result.mapError { $0.toOCKStoreError() })
-            }
+    public func updateContacts(
+      _ contacts: [OCKContact],
+      callbackQueue: DispatchQueue = .main,
+      completion: OCKResultClosure<[OCKContact]>? = nil
+    ) {
+      update(contacts, callbackQueue: callbackQueue) { result in
+        switch result {
+        case .success(let contacts):
+          self.contactDelegate?.contactStore(
+            self,
+            didUpdateContacts: contacts)
+          completion?(.success(contacts))
+        case .failure:
+          completion?(result.mapError { $0.toOCKStoreError() })
         }
+      }
     }
 
     /**
      Deletes the contacts asynchronously from the store.
-     
+
      - Parameter contacts: the contacts you delete from the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
-     
+
      */
-    open func deleteContacts(_ contacts: [OCKContact],
-                             callbackQueue: DispatchQueue = .main,
-                             completion: ((Result<[OCKContact], OCKStoreError>) -> Void)? = nil) {
-        delete(contacts, callbackQueue: callbackQueue) { result in
-            switch result {
-            case .success(let plans):
-                self.contactDelegate?.contactStore(self, didDeleteContacts: contacts)
-                completion?(.success(plans))
-            case .failure:
-                completion?(result.mapError { $0.toOCKStoreError() })
-            }
+    public func deleteContacts(
+      _ contacts: [OCKContact],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[OCKContact], OCKStoreError>) -> Void)? = nil
+    ) {
+      delete(contacts, callbackQueue: callbackQueue) { result in
+        switch result {
+        case .success(let plans):
+          self.contactDelegate?.contactStore(self, didDeleteContacts: contacts)
+          completion?(.success(plans))
+        case .failure:
+          completion?(result.mapError { $0.toOCKStoreError() })
         }
+      }
     }
-}
+
+    private func sortContacts(
+      _ contacts: [OCKContact],
+      using sortDescriptors: [OCKContactQuery.SortDescriptor]
+    ) -> [OCKContact] {
+      guard !sortDescriptors.isEmpty else {
+        return contacts
+      }
+
+      return contacts.enumerated().sorted { lhs, rhs in
+        for sortDescriptor in sortDescriptors {
+          switch sortDescriptor {
+          case .familyName(let ascending):
+            let lhsValue = lhs.element.name.familyName?.lowercased() ?? ""
+            let rhsValue = rhs.element.name.familyName?.lowercased() ?? ""
+            if lhsValue != rhsValue {
+              return ascending ? lhsValue < rhsValue : lhsValue > rhsValue
+            }
+          case .givenName(let ascending):
+            let lhsValue = lhs.element.name.givenName?.lowercased() ?? ""
+            let rhsValue = rhs.element.name.givenName?.lowercased() ?? ""
+            if lhsValue != rhsValue {
+              return ascending ? lhsValue < rhsValue : lhsValue > rhsValue
+            }
+          case .effectiveDate(ascending: let ascending):
+            if lhs.element.effectiveDate != rhs.element.effectiveDate {
+              return ascending
+                ? lhs.element.effectiveDate < rhs.element.effectiveDate
+                : lhs.element.effectiveDate > rhs.element.effectiveDate
+            }
+          }
+        }
+        return lhs.offset < rhs.offset
+      }.map { $0.element }
+    }
+
+    private func paginate<Entity>(_ items: [Entity], offset: Int, limit: Int?) -> [Entity] {
+      let startIndex = min(max(offset, 0), items.count)
+      let remainingItems = items.dropFirst(startIndex)
+      guard let limit = limit else {
+        return Array(remainingItems)
+      }
+      return Array(remainingItems.prefix(max(limit, 0)))
+    }
+  }
 #endif

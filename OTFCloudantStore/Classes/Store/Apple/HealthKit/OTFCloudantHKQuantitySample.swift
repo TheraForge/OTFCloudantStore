@@ -321,7 +321,7 @@ public struct OTFCloudantHKQuantityType: OTFHKSampleType {
             let type = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKQuantityType.self, from: data)
             return type
         } catch {
-            OTFError("Mapping from Cloudant's QuantityType to HK's QuantityType failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Mapping from Cloudant's QuantityType to HK's QuantityType failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }

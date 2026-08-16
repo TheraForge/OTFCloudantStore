@@ -69,9 +69,7 @@ public struct OTFCloudantHKWorkoutEvent: Codable {
         type = workoutEvent.type.rawValue
         dateInterval = workoutEvent.dateInterval
         metadata = workoutEvent.metadata
-        if #available(iOS 11, *) {
-            // date is deprecated
-        } else {
+        if #unavailable(iOS 11) {
             date = workoutEvent.date
         }
     }
@@ -215,7 +213,7 @@ public class OTFCloudantHKWorkoutRoute: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKSeriesSample.self, from: data)
             return sample
         } catch {
-            OTFError("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Mapping from Cloudant's Workout into HK's Workout failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }

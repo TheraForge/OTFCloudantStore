@@ -32,6 +32,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
  */
 
+import Foundation
 import XCTest
 import OTFCloudantStore
 import HealthKit
@@ -39,23 +40,34 @@ import OTFUtilities
 
 class OTFCloudantTests: XCTestCase {
     #if HEALTH
-    let healthStore = HKHealthStore()
+    private static let integrationEnvironmentKey = "OTFCLOUDANTSTORE_RUN_HEALTHKIT_INTEGRATION_TESTS"
+
+    private static var shouldRunHealthKitIntegrationTests: Bool {
+        ProcessInfo.processInfo.environment[integrationEnvironmentKey] == "1"
+    }
+
+    var healthStore: HKHealthStore!
     let stepCountsValue: Double = 20
-    let storeName = "test_store"
+    private(set) var storeName: String!
     var cloudantStore: OTFCloudantStore!
     var synchronizer: OTFHealthKitSynchronizer!
 
-    override func setUp() {
-        super.setUp()
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        try XCTSkipUnless(
+            Self.shouldRunHealthKitIntegrationTests,
+            "Set \(Self.integrationEnvironmentKey)=1 to run HealthKit integration tests."
+        )
+
+        healthStore = HKHealthStore()
+        storeName = Self.uniqueStoreName()
+        cloudantStore = try OTFCloudantStore(storeName: storeName)
+        synchronizer = OTFHealthKitSynchronizer(dataStore: cloudantStore, healthStore: healthStore)
+
         let expectat = expectation(description: "Wait for authorization. Need to do manual authorize on first launch.")
-        do {
-            self.cloudantStore = try OTFCloudantStore(storeName: storeName)
-            self.synchronizer = OTFHealthKitSynchronizer(dataStore: self.cloudantStore, healthStore: self.healthStore)
-            self.deleteOldData {
-                expectat.fulfill()
-            }
-        } catch {
-            XCTFail(error.localizedDescription)
+
+        deleteOldData {
+            expectat.fulfill()
         }
 
         waitForExpectations(timeout: 30) { error in
@@ -65,6 +77,24 @@ class OTFCloudantTests: XCTestCase {
         }
     }
 
+    override func tearDownWithError() throws {
+        if let cloudantStore, let storeName {
+            try? cloudantStore.datastoreManager.deleteDatastoreNamed(storeName)
+        }
+        synchronizer = nil
+        cloudantStore = nil
+        healthStore = nil
+        storeName = nil
+        try super.tearDownWithError()
+    }
+
+    private static func uniqueStoreName() -> String {
+        let suffix = UUID().uuidString
+            .lowercased()
+            .replacingOccurrences(of: "-", with: "_")
+        return "healthkit_integration_\(suffix)"
+    }
+
     func deleteOldData(completion: @escaping ( () -> Void)) {
 
         let sampleTypes: [OTFHealthSampleType] = [.quantity, .category, .correlation]
@@ -72,17 +102,17 @@ class OTFCloudantTests: XCTestCase {
 
         for type in sampleTypes {
             group.enter()
-            OTFLog("Deleting Old data for......%{public}@ ", type)
+            OTFLogger.logger().info("Deleting old data for \(String(describing: type), privacy: .public)")
             cloudantStore.collection(healthKitSampleType: type).getSamples { result in
                 switch result {
                 case .success(let samples):
                     self.cloudantStore.deleteSamples(samples: samples)
                     self.healthStore.delete(samples) { _, _ in
-                        OTFLog("Old Data deleted successfully.....", samples)
+                        OTFLogger.logger().info("Old data deleted successfully: \(String(describing: samples), privacy: .public)")
                         group.leave()
                     }
                 case .failure:
-                    OTFError("No data found...", "failure")
+                    OTFLogger.logger().error("No data found")
                     group.leave()
                 }
             }
@@ -111,9 +141,9 @@ extension OTFCloudantTests {
             switch result {
             case .success(let samples):
                 guard let sample = samples.first else {
-                    OTFLog("No data found... %{public}@", uuid.uuidString)
+                    OTFLogger.logger().info("No data found for uuid: \(uuid.uuidString, privacy: .public)")
                     samples.forEach {
-                        OTFLog("uuid... %{public}@", $0.uuid)
+                        OTFLogger.logger().info("Found sample uuid: \($0.uuid.uuidString, privacy: .public)")
                     }
                     completion(nil)
                     return
@@ -129,7 +159,7 @@ extension OTFCloudantTests {
                         completion(categorySample)
                     }
                 default:
-                    OTFLog("No supported OTFHealthSampleType found. returing from line 242", "")
+                    OTFLogger.logger().info("No supported OTFHealthSampleType found")
                     completion(nil)
                 }
             case .failure:
@@ -144,12 +174,12 @@ extension OTFCloudantTests {
             switch result {
             case .success(let samples):
                 for sample in samples {
-                    OTFLog("typeIdentifier:- %{public}@", sample.typeIdentifier)
-                    OTFLog("unit:- %{public}@", sample.unit)
+                    OTFLogger.logger().info("typeIdentifier: \(sample.typeIdentifier, privacy: .public)")
+                    OTFLogger.logger().info("unit: \(sample.unit, privacy: .public)")
                     
                 }
                 if let sample = samples.first, let hkSample = sample.toHKSample(), let quantitySample = hkSample as? HKQuantitySample {
-                    OTFLog("Type - unit - Quantity - %{public}@", sample.typeIdentifier)
+                    OTFLogger.logger().info("Type - unit - quantity: \(sample.typeIdentifier, privacy: .public)")
                     completion?(quantitySample)
                 }
             case .failure:

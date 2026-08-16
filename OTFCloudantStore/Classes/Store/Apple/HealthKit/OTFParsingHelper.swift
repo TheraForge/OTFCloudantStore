@@ -35,6 +35,7 @@ OF SUCH DAMAGE.
 #if HEALTH
 import HealthKit
 
+// swiftlint:disable:next blanket_disable_command
 // swiftlint:disable all
 /*
  OTFParsingHelper provides functionalities to help on mapping entities between OTFCloudantSample and Samples from CareKitStore, HealthKitStore and OTFResearchKit
@@ -402,7 +403,7 @@ public class OTFParsingHelper {
                 case .walkingHeartRateAverage:
                     unit = HKUnit.count().unitDivided(by: .minute())
                 case .walkingSpeed:
-                    unit = HKUnit.meter().unitDivided(by: .minute())
+                    unit = HKUnit.meter().unitDivided(by: HKUnit.second())
                 case .walkingStepLength:
                     unit = .meter()
                 default:
@@ -605,6 +606,26 @@ public class OTFParsingHelper {
         
         if let correlationType = HKCorrelationType.correlationType(forIdentifier: HKCorrelationTypeIdentifier(rawValue: identifier)) {
             return correlationType
+        }
+
+        if identifier == HKObjectType.workoutType().identifier {
+            return HKObjectType.workoutType()
+        }
+
+        if identifier == HKObjectType.audiogramSampleType().identifier {
+            return HKObjectType.audiogramSampleType()
+        }
+
+        if let documentType = HKObjectType.documentType(forIdentifier: HKDocumentTypeIdentifier(rawValue: identifier)) {
+            return documentType
+        }
+
+        if let clinicalType = HKObjectType.clinicalType(forIdentifier: HKClinicalTypeIdentifier(rawValue: identifier)) {
+            return clinicalType
+        }
+
+        if identifier == HKSeriesType.heartbeat().identifier {
+            return HKSeriesType.heartbeat()
         }
         
         return nil

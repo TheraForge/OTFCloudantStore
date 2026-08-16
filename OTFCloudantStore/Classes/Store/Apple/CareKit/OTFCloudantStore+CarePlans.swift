@@ -33,119 +33,170 @@ OF SUCH DAMAGE.
  */
 
 #if CARE && HEALTH
-import Foundation
-import OTFCareKitStore
+  import Foundation
+  import OTFCareKitStore
 
-/**
- Extends OTFCloudantStore to perform actions on the care plans.
- */
-extension OTFCloudantStore {
-    
+  /// Extends OTFCloudantStore to perform actions on the care plans.
+  extension OTFCloudantStore {
+
     /// Determines whether or not this store is intended to handle adding, updating, and deleting a certain care plan.
     /// - Parameter plan: The care plan that is about to be modified.
     /// - Note: `OTFStore` returns true for all care plans.
-    open func shouldHandleCarePlan(_ plan: OCKAnyCarePlan) -> Bool { true }
+    public func shouldHandleCarePlan(_ plan: OCKAnyCarePlan) -> Bool { true }
 
     /// Determines whether or not this store is intended to handle fetching for a certain query.
     /// - Parameter query: The query that will be performed.
     /// - Note: `OTFStore` returns true for all cases.
-    open func shouldHandleCarePlanQuery(query: OCKCarePlanQuery) -> Bool { true }
+    public func shouldHandleCarePlanQuery(query: OCKCarePlanQuery) -> Bool { true }
 
     /**
       Fetches care plans from the store.
-     
+
       - Parameter query: a query that limits which care plan your function returns.
       - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
       - Parameter completion: a callback that fires on a background thread.
      */
-    open func fetchCarePlans(query: OCKCarePlanQuery = OCKCarePlanQuery(),
-                             callbackQueue: DispatchQueue = .main,
-                             completion: @escaping (Result<[OCKCarePlan], OCKStoreError>) -> Void) {
-        let cloudantQuery = OTFCloudantCarePlanQuery(carePlanQuery: query)
-        fetch(cloudantQuery: cloudantQuery, callbackQueue: callbackQueue, completion: { (result: Result<[OCKCarePlan], OCKStoreError>) in
-            switch result {
-            case .success(let careplans):
-                var tempResult = careplans
-                for sortDescriptor in query.sortDescriptors {
-                    switch sortDescriptor {
-                    case .title(let ascending):
-                        tempResult = tempResult.sorted { ascending ? $0.title > $1.title : $0.title < $1.title }
-                    case .effectiveDate(ascending: let asc):
-                        tempResult = tempResult.sorted { asc ? $0.effectiveDate > $1.effectiveDate : $0.effectiveDate < $1.effectiveDate }
-                    }
-                }
-                completion(.success(tempResult))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+    public func fetchCarePlans(
+      query: OCKCarePlanQuery = OCKCarePlanQuery(),
+      callbackQueue: DispatchQueue = .main,
+      completion: @escaping (Result<[OCKCarePlan], OCKStoreError>) -> Void
+    ) {
+      let cloudantQuery = OTFCloudantCarePlanQuery(carePlanQuery: query)
+      let sortsLocally = !query.sortDescriptors.isEmpty
+      if sortsLocally {
+        cloudantQuery.sortDescription = nil
+        cloudantQuery.limit = nil
+        cloudantQuery.offset = 0
+      }
+      fetch(
+        cloudantQuery: cloudantQuery, callbackQueue: callbackQueue,
+        completion: { (result: Result<[OCKCarePlan], OCKStoreError>) in
+          switch result {
+          case .success(let careplans):
+            let tempResult = self.sortCarePlans(careplans, using: query.sortDescriptors)
+            completion(.success(sortsLocally ? self.paginate(tempResult, offset: query.offset, limit: query.limit) : tempResult))
+          case .failure(let error):
+            completion(.failure(error))
+          }
         })
     }
 
     /**
      Adds the care plan asynchronously to the store.
-     
+
      - Parameter plans: the care plan you add to the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func addCarePlans(_ plans: [OCKCarePlan], callbackQueue: DispatchQueue = .main,
-                           completion: ((Result<[OCKCarePlan], OCKStoreError>) -> Void)? = nil) {
-        add(plans, callbackQueue: callbackQueue, completion: { result in
-            switch result {
-            case .success(let plans):
-                self.carePlanDelegate?.carePlanStore(self,
-                                                 didAddCarePlans: plans)
-                completion?(.success(plans))
-            case .failure:
-                completion?(result.mapError{ $0.toOCKStoreError() })
-            }
+    public func addCarePlans(
+      _ plans: [OCKCarePlan],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[OCKCarePlan], OCKStoreError>) -> Void)? = nil
+    ) {
+      add(
+        plans, callbackQueue: callbackQueue,
+        completion: { result in
+          switch result {
+          case .success(let plans):
+            self.carePlanDelegate?.carePlanStore(
+              self,
+              didAddCarePlans: plans)
+            completion?(.success(plans))
+          case .failure:
+            completion?(result.mapError { $0.toOCKStoreError() })
+          }
         })
     }
 
     /**
      Update the care plan asynchronously in the store.
-     
+
      - Parameter plans: the care plan you update in the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func updateCarePlans(_ plans: [OCKCarePlan], callbackQueue: DispatchQueue = .main,
-                              completion: ((Result<[OCKCarePlan], OCKStoreError>) -> Void)? = nil) {
-        update(plans, callbackQueue: callbackQueue) { result in
-            switch result {
-            case .success(let plans):
-                callbackQueue.async {
-                    self.carePlanDelegate?.carePlanStore(self,
-                                                       didUpdateCarePlans: plans)
-                    completion?(.success(plans))
-                }
-            case .failure:
-                completion?(result.mapError{ $0.toOCKStoreError() })
-            }
+    public func updateCarePlans(
+      _ plans: [OCKCarePlan],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[OCKCarePlan], OCKStoreError>) -> Void)? = nil
+    ) {
+      update(plans, callbackQueue: callbackQueue) { result in
+        switch result {
+        case .success(let plans):
+          callbackQueue.async {
+            self.carePlanDelegate?.carePlanStore(
+              self,
+              didUpdateCarePlans: plans)
+            completion?(.success(plans))
+          }
+        case .failure:
+          completion?(result.mapError { $0.toOCKStoreError() })
         }
+      }
     }
 
     /**
      Deletes the care plan asynchronously from the store.
-     
+
      - Parameter plans: the care plan you delete from the store.
      - Parameter callbackQueue: the queue on which your app calls the completion closure. In most cases this will be the main queue.
      - Parameter completion: a callback that fires on a background thread.
      */
-    open func deleteCarePlans(_ plans: [OCKCarePlan], callbackQueue: DispatchQueue = .main,
-                              completion: ((Result<[OCKCarePlan], OCKStoreError>) -> Void)? = nil) {
-        delete(plans, callbackQueue: callbackQueue) { result in
-            switch result {
-            case .success(let plans):
-                callbackQueue.async {
-                    self.carePlanDelegate?.carePlanStore(self, didDeleteCarePlans: plans)
-                    completion?(.success(plans))
-                }
-            case .failure:
-                completion?(result.mapError { $0.toOCKStoreError() })
-            }
+    public func deleteCarePlans(
+      _ plans: [OCKCarePlan],
+      callbackQueue: DispatchQueue = .main,
+      completion: ((Result<[OCKCarePlan], OCKStoreError>) -> Void)? = nil
+    ) {
+      delete(plans, callbackQueue: callbackQueue) { result in
+        switch result {
+        case .success(let plans):
+          callbackQueue.async {
+            self.carePlanDelegate?.carePlanStore(self, didDeleteCarePlans: plans)
+            completion?(.success(plans))
+          }
+        case .failure:
+          completion?(result.mapError { $0.toOCKStoreError() })
         }
+      }
     }
-    
-}
+
+    private func sortCarePlans(
+      _ carePlans: [OCKCarePlan],
+      using sortDescriptors: [OCKCarePlanQuery.SortDescriptor]
+    ) -> [OCKCarePlan] {
+      guard !sortDescriptors.isEmpty else {
+        return carePlans
+      }
+
+      return carePlans.enumerated().sorted { lhs, rhs in
+        for sortDescriptor in sortDescriptors {
+          switch sortDescriptor {
+          case .title(let ascending):
+            if lhs.element.title != rhs.element.title {
+              return ascending
+                ? lhs.element.title < rhs.element.title
+                : lhs.element.title > rhs.element.title
+            }
+          case .effectiveDate(ascending: let ascending):
+            if lhs.element.effectiveDate != rhs.element.effectiveDate {
+              return ascending
+                ? lhs.element.effectiveDate < rhs.element.effectiveDate
+                : lhs.element.effectiveDate > rhs.element.effectiveDate
+            }
+          }
+        }
+        return lhs.offset < rhs.offset
+      }.map { $0.element }
+    }
+
+    private func paginate<Entity>(_ items: [Entity], offset: Int, limit: Int?) -> [Entity] {
+      let startIndex = min(max(offset, 0), items.count)
+      let remainingItems = items.dropFirst(startIndex)
+      guard let limit = limit else {
+        return Array(remainingItems)
+      }
+      return Array(remainingItems.prefix(max(limit, 0)))
+    }
+
+  }
 #endif

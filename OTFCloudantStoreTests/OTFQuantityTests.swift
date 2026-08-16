@@ -33,139 +33,140 @@ OF SUCH DAMAGE.
  */
 
 import Foundation
-import OTFCloudantStore
 import HealthKit
-import XCTest
+import OTFCloudantStore
 import OTFUtilities
+import XCTest
 
 class OTFQuantityTests: OTFCloudantTests {
-    #if HEALTH
+  #if HEALTH
     private let quantityIdentifiers: [HKQuantityTypeIdentifier] = [
-        .bodyMassIndex, .bodyFatPercentage, .leanBodyMass,
-        .waistCircumference, .activeEnergyBurned,
-        .distanceWalkingRunning, .bodyMassIndex, .stepCount,
-        .height, .bodyMass, .distanceCycling, .distanceWheelchair,
-        .basalEnergyBurned, .activeEnergyBurned, .flightsClimbed,
-        .pushCount, .distanceSwimming, .swimmingStrokeCount,
-        .distanceDownhillSnowSports, .walkingSpeed,
-        .walkingDoubleSupportPercentage, .walkingStepLength,
-        .sixMinuteWalkTestDistance, .stairAscentSpeed, .stairDescentSpeed,
-        .heartRate, .bodyTemperature, .basalBodyTemperature, .bloodPressureSystolic,
-        .bloodPressureDiastolic, .respiratoryRate, .restingHeartRate,
-        .heartRateVariabilitySDNN, .oxygenSaturation, .peripheralPerfusionIndex,
-        .numberOfTimesFallen, .electrodermalActivity, .inhalerUsage,
-        .bloodAlcoholContent, .forcedVitalCapacity, .forcedExpiratoryVolume1,
-        .peakExpiratoryFlowRate, .environmentalAudioExposure,
-        .headphoneAudioExposure, .dietaryFatTotal, .dietaryFatPolyunsaturated,
-        .dietaryFatMonounsaturated, .dietaryFatSaturated, .dietaryCholesterol,
-        .dietarySodium, .dietaryCarbohydrates, .dietaryFiber, .dietarySugar,
-        .dietaryEnergyConsumed, .dietaryProtein, .dietaryVitaminA,
-        .dietaryVitaminB6, .dietaryVitaminB12, .dietaryVitaminC, .dietaryVitaminD,
-        .dietaryVitaminE, .dietaryVitaminK, .dietaryCalcium, .dietaryIron,
-        .dietaryThiamin, .dietaryRiboflavin, .dietaryNiacin, .dietaryFolate,
-        .dietaryPantothenicAcid, .dietaryPhosphorus, .dietaryIodine,
-        .dietaryMagnesium, .dietaryZinc, .dietarySelenium, .dietaryCopper,
-        .dietaryManganese, .dietaryChromium, .dietaryMolybdenum, .dietaryChloride,
-        .dietaryPotassium, .dietaryCaffeine, .dietaryWater, .uvExposure]
-
-    override func setUp() {
-        super.setUp()
-    }
+      .bodyMassIndex, .bodyFatPercentage, .leanBodyMass,
+      .waistCircumference, .activeEnergyBurned,
+      .distanceWalkingRunning, .bodyMassIndex, .stepCount,
+      .height, .bodyMass, .distanceCycling, .distanceWheelchair,
+      .basalEnergyBurned, .activeEnergyBurned, .flightsClimbed,
+      .pushCount, .distanceSwimming, .swimmingStrokeCount,
+      .distanceDownhillSnowSports, .walkingSpeed,
+      .walkingDoubleSupportPercentage, .walkingStepLength,
+      .sixMinuteWalkTestDistance, .stairAscentSpeed, .stairDescentSpeed,
+      .heartRate, .bodyTemperature, .basalBodyTemperature, .bloodPressureSystolic,
+      .bloodPressureDiastolic, .respiratoryRate, .restingHeartRate,
+      .heartRateVariabilitySDNN, .oxygenSaturation, .peripheralPerfusionIndex,
+      .numberOfTimesFallen, .electrodermalActivity, .inhalerUsage,
+      .bloodAlcoholContent, .forcedVitalCapacity, .forcedExpiratoryVolume1,
+      .peakExpiratoryFlowRate, .environmentalAudioExposure,
+      .headphoneAudioExposure, .dietaryFatTotal, .dietaryFatPolyunsaturated,
+      .dietaryFatMonounsaturated, .dietaryFatSaturated, .dietaryCholesterol,
+      .dietarySodium, .dietaryCarbohydrates, .dietaryFiber, .dietarySugar,
+      .dietaryEnergyConsumed, .dietaryProtein, .dietaryVitaminA,
+      .dietaryVitaminB6, .dietaryVitaminB12, .dietaryVitaminC, .dietaryVitaminD,
+      .dietaryVitaminE, .dietaryVitaminK, .dietaryCalcium, .dietaryIron,
+      .dietaryThiamin, .dietaryRiboflavin, .dietaryNiacin, .dietaryFolate,
+      .dietaryPantothenicAcid, .dietaryPhosphorus, .dietaryIodine,
+      .dietaryMagnesium, .dietaryZinc, .dietarySelenium, .dietaryCopper,
+      .dietaryManganese, .dietaryChromium, .dietaryMolybdenum, .dietaryChloride,
+      .dietaryPotassium, .dietaryCaffeine, .dietaryWater, .uvExposure
+    ]
 
     func testQuantitySamples() {
-        let semaphor = DispatchSemaphore(value: 0)
+      let semaphor = DispatchSemaphore(value: 0)
 
-        let expect = expectation(description: "Wait until user give permissions.")
+      let expect = expectation(description: "Wait until user give permissions.")
 
-        var readPermissions: Set<HKObjectType> = []
-        var writePermission: Set<HKSampleType> = []
+      var readPermissions: Set<HKObjectType> = []
+      var writePermission: Set<HKSampleType> = []
 
-        for identifier in quantityIdentifiers {
-            guard let quantityType = HKQuantityType.quantityType(forIdentifier: identifier) else {
-                OTFLog("This identifier no longer available in HealthKit: %{public}@", identifier)
-                break
-            }
-            if self.healthStore.authorizationStatus(for: quantityType) != .sharingAuthorized {
-                if let object = HKObjectType.quantityType(forIdentifier: identifier) {
-                    readPermissions.insert(object)
-                    writePermission.insert(object)
-                }
-            }
-        }
-
-        if !readPermissions.isEmpty || !writePermission.isEmpty {
-            self.healthKitAuthrization(read: readPermissions, write: writePermission) { (status, error) in
-                expect.fulfill()
-                if let error = error {
-                    XCTFail(error.localizedDescription)
-                } else if !status {
-                    XCTFail("Unable to get the permission from the user.")
-                }
-            }
-        } else {
-            expect.fulfill()
-        }
-
-        waitForExpectations(timeout: 30) { error in
-            if let error = error {
-                XCTFail(error.localizedDescription)
-            }
-        }
-
-        for identifier in quantityIdentifiers {
-            saveQuantitySamples(identifier: identifier) {
-                semaphor.signal()
-            }
-            semaphor.wait()
-        }
-    }
-
-    func saveQuantitySamples(identifier: HKQuantityTypeIdentifier, completion: @escaping (() -> Void) ) {
-        let expect = expectation(description: "It should wait until saving finishes.")
+      for identifier in quantityIdentifiers {
         guard let quantityType = HKQuantityType.quantityType(forIdentifier: identifier) else {
-            fatalError("\(identifier) is no longer available in HealthKit")
+          OTFLogger.logger().info("Identifier no longer available in HealthKit: \(identifier.rawValue, privacy: .public)")
+          break
         }
+        if self.healthStore.authorizationStatus(for: quantityType) != .sharingAuthorized {
+          if let object = HKObjectType.quantityType(forIdentifier: identifier) {
+            readPermissions.insert(object)
+            writePermission.insert(object)
+          }
+        }
+      }
 
-        guard let unit = OTFParsingHelper.preferredUnit(for: identifier.rawValue) else {
-            XCTFail("Can't find unit for \(identifier.rawValue)")
-            return
+      if !readPermissions.isEmpty || !writePermission.isEmpty {
+        self.healthKitAuthrization(read: readPermissions, write: writePermission) { (status, error) in
+          expect.fulfill()
+          if let error = error {
+            XCTFail(error.localizedDescription)
+          } else if !status {
+            XCTFail("Unable to get the permission from the user.")
+          }
         }
+      } else {
+        expect.fulfill()
+      }
 
-        let quantity = HKQuantity(unit: unit,
-                                           doubleValue: stepCountsValue)
-        let startDate = Date()
-        let endDate = Date().addMinute(10) ?? Date()
-        let quantitySample = HKQuantitySample(type: quantityType,
-                                                    quantity: quantity,
-                                                    start: startDate,
-                                                    end: endDate)
-        healthStore.save(quantitySample) { (_, error) in
-            if let error = error {
-                XCTFail("Error Saving \(identifier) Sample: \(error.localizedDescription)")
-            } else {
-                self.synchronizer.syncWithHealthKit(direction: .fromHKToCloudant, type: quantityType) {
-                    DispatchQueue.main.async {
-                        self.findInCloudant(uuid: quantitySample.uuid, in: .quantity) { sample in
-                            if let qSample = sample as? HKQuantitySample {
-                                OTFLog("Test succeded for - %{public}@", identifier.rawValue)
-                                XCTAssertEqual(qSample.quantity, quantity)
-                            } else {
-                                OTFLog("Nil quantity type - %{public}@", identifier.rawValue)
-                                XCTFail("Can't find \(identifier.rawValue)")
-                            }
-                            expect.fulfill()
-                            completion()
-                        }
-                    }
-                }
-            }
+      waitForExpectations(timeout: 30) { error in
+        if let error = error {
+          XCTFail(error.localizedDescription)
         }
+      }
 
-        waitForExpectations(timeout: 30) { error in
-            if let error = error {
-                XCTFail(error.localizedDescription)
-            }
+      for identifier in quantityIdentifiers {
+        saveQuantitySamples(identifier: identifier) {
+          semaphor.signal()
         }
+        semaphor.wait()
+      }
     }
-    #endif
+
+    func saveQuantitySamples(
+      identifier: HKQuantityTypeIdentifier, completion: @escaping (() -> Void)
+    ) {
+      let expect = expectation(description: "It should wait until saving finishes.")
+      guard let quantityType = HKQuantityType.quantityType(forIdentifier: identifier) else {
+        fatalError("\(identifier) is no longer available in HealthKit")
+      }
+
+      guard let unit = OTFParsingHelper.preferredUnit(for: identifier.rawValue) else {
+        XCTFail("Can't find unit for \(identifier.rawValue)")
+        return
+      }
+
+      let quantity = HKQuantity(
+        unit: unit,
+        doubleValue: stepCountsValue)
+      let startDate = Date()
+      let endDate = Date().addMinute(10) ?? Date()
+      let quantitySample = HKQuantitySample(
+        type: quantityType,
+        quantity: quantity,
+        start: startDate,
+        end: endDate)
+      healthStore.save(quantitySample) { (_, error) in
+        if let error = error {
+          XCTFail("Error Saving \(identifier) Sample: \(error.localizedDescription)")
+        } else {
+          self.synchronizer.syncWithHealthKit(direction: .fromHKToCloudant, type: quantityType) {
+            DispatchQueue.main.async {
+              self.findInCloudant(uuid: quantitySample.uuid, in: .quantity) { sample in
+                if let qSample = sample as? HKQuantitySample {
+                  OTFLogger.logger().info("Test succeeded for \(identifier.rawValue, privacy: .public)")
+                  XCTAssertEqual(qSample.quantity, quantity)
+                } else {
+                  OTFLogger.logger().info("Nil quantity type for \(identifier.rawValue, privacy: .public)")
+                  XCTFail("Can't find \(identifier.rawValue)")
+                }
+                expect.fulfill()
+                completion()
+              }
+            }
+          }
+        }
+      }
+
+      waitForExpectations(timeout: 30) { error in
+        if let error = error {
+          XCTFail(error.localizedDescription)
+        }
+      }
+    }
+  #endif
 }

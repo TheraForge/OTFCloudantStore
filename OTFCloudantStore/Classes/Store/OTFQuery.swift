@@ -64,9 +64,11 @@ extension OTFQueryProtocol {
      - Parameter stringArray: the array values to which query parameter  "$in" is mapped.
      
      - Returns: the resulting mapped value.
-     */
+    */
     func mapArrayToQueryParameter(stringArray: [String]) -> Any? {
-        if stringArray.isEmpty { return nil }
+        if stringArray.isEmpty {
+            return nil
+        }
 
         if stringArray.count > 1 {
             return ["$in": stringArray]
@@ -80,7 +82,7 @@ extension OTFQueryProtocol {
 /**
  Set of property keys.
  */
-struct PropertyKey {
+enum PropertyKey {
 
     /// The unique identifiers that belong to the entities that match the query.
     static let id = "id"
@@ -123,6 +125,15 @@ struct PropertyKey {
 
     /// The patient identifier for entities that match the query.
     static let patientID = "patientID"
+
+    /// The date at which a version becomes active.
+    static let effectiveDate = "effectiveDate"
+
+    /// The stored schedule start date used to bound task queries.
+    static let startDate = "startDate"
+
+    /// The stored schedule end date used to bound task queries.
+    static let endDate = "endDate"
 }
 
 /**
@@ -144,7 +155,7 @@ open class OTFCloudantContactQuery: OTFQueryProtocol {
     /// Creates a new contact query from a specific query.
     init(contactQuery: OCKContactQuery) {
         parameters[PropertyKey.uuid] = mapArrayToQueryParameter(stringArray: contactQuery.uuids.map { $0.uuidString })
-        parameters[PropertyKey.carePlanUUID] = mapArrayToQueryParameter(stringArray: contactQuery.carePlanIDs)
+        parameters[PropertyKey.carePlanUUID] = mapArrayToQueryParameter(stringArray: contactQuery.carePlanUUIDs.map { $0.uuidString })
         parameters[PropertyKey.carePlanRemoteID] = mapArrayToQueryParameter(stringArray: contactQuery.carePlanRemoteIDs)
         parameters[PropertyKey.carePlanID] = mapArrayToQueryParameter(stringArray: contactQuery.carePlanIDs)
         parameters[PropertyKey.remoteID] = mapArrayToQueryParameter(stringArray: contactQuery.remoteIDs.compactMap { $0 })
@@ -184,11 +195,15 @@ open class OTFCloudantOutcomeQuery: OTFQueryProtocol {
         parameters[PropertyKey.tag] = mapArrayToQueryParameter(stringArray: outcomeQuery.tags)
         limit = outcomeQuery.limit
         offset = outcomeQuery.offset
+        sortDescription = []
         for sortDescriptor in outcomeQuery.sortDescriptors {
             switch sortDescriptor {
             case .date(let ascending):
                 sortDescription?.append(["createdDate": ascending ? "asc" : "desc"])
             }
+        }
+        if sortDescription?.isEmpty == true {
+            sortDescription = nil
         }
     }
 }
@@ -240,15 +255,55 @@ open class OTFCloudantTaskQuery: OTFQueryProtocol {
     /// Creates the tasks with a specific query.
     init(taskQuery: OCKTaskQuery) {
         parameters[PropertyKey.uuid] = mapArrayToQueryParameter(stringArray: taskQuery.uuids.map { $0.uuidString })
-        parameters[PropertyKey.groupIdentifier] = mapArrayToQueryParameter(stringArray: taskQuery.groupIdentifiers.compactMap{ $0 })
+        parameters[PropertyKey.groupIdentifier] = mapArrayToQueryParameter(stringArray: taskQuery.groupIdentifiers.compactMap { $0 })
         parameters[PropertyKey.carePlanUUID] = mapArrayToQueryParameter(stringArray: taskQuery.carePlanUUIDs.map { $0.uuidString })
         parameters[PropertyKey.carePlanRemoteID] = mapArrayToQueryParameter(stringArray: taskQuery.carePlanRemoteIDs)
         parameters[PropertyKey.carePlanID] = mapArrayToQueryParameter(stringArray: taskQuery.carePlanIDs)
-        parameters[PropertyKey.remoteID] = mapArrayToQueryParameter(stringArray: taskQuery.remoteIDs.compactMap{ $0 })
+        parameters[PropertyKey.remoteID] = mapArrayToQueryParameter(stringArray: taskQuery.remoteIDs.compactMap { $0 })
         parameters[PropertyKey.id] = mapArrayToQueryParameter(stringArray: taskQuery.ids)
         parameters[PropertyKey.tag] = mapArrayToQueryParameter(stringArray: taskQuery.tags)
         limit = taskQuery.limit
         offset = taskQuery.offset
+        sortDescription = []
+        for sortDescriptor in taskQuery.sortDescriptors {
+            switch sortDescriptor {
+            case .effectiveDate(let ascending):
+                sortDescription?.append([PropertyKey.effectiveDate: ascending ? "asc" : "desc"])
+            case .groupIdentifier(let ascending):
+                sortDescription?.append([PropertyKey.groupIdentifier: ascending ? "asc" : "desc"])
+            case .title(let ascending):
+                sortDescription?.append(["title": ascending ? "asc" : "desc"])
+            }
+        }
+        if sortDescription?.isEmpty == true {
+            sortDescription = nil
+        }
+
+        if let interval = taskQuery.dateInterval {
+            let start = theraForgeISO8601Formatter.string(from: interval.start)
+            let end = theraForgeISO8601Formatter.string(from: interval.end)
+            parameters["$and"] = [
+                [
+                    PropertyKey.startDate: [
+                        OTFCloudantConditionSelector.lessThanOrEqual.rawValue: end
+                    ]
+                ],
+                [
+                    OTFCloudantCombinationSelector.or.rawValue: [
+                        [
+                            PropertyKey.endDate: [
+                                OTFCloudantConditionSelector.exists.rawValue: false
+                            ]
+                        ],
+                        [
+                            PropertyKey.endDate: [
+                                OTFCloudantConditionSelector.greaterThanOrEqual.rawValue: start
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        }
     }
 }
 
@@ -287,7 +342,7 @@ open class OTFCloudantCarePlanQuery: OTFQueryProtocol {
                 case .title(let ascending):
                     sortDescription?.append(["title": ascending ? "asc" : "desc"])
                 case .effectiveDate(ascending: let asc):
-                    sortDescription?.append(["title": asc ? "asc" : "desc"])
+                    sortDescription?.append([PropertyKey.effectiveDate: asc ? "asc" : "desc"])
                 }
             }
         }

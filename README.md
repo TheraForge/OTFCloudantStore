@@ -1,9 +1,20 @@
 # OTFCloudantStore
 
-TheraForge's OTFCloudantStore uses OTFCDTDatastore to store, index and query local JSON data. Synchronization is controlled by the application. OTFCloudantStore manages and resolves conflicts locally on the device or in the remote database.
-OTFCloudantStore is an interface between the OTFCarekit, HealthKit and OTFCDTDatastore frameworks.
+![Coverage](badges/coverage.svg)
+
+TheraForge's OTFCloudantStore is an iOS/watchOS Swift framework that wraps
+`OTFCDTDatastore` with Cloudant-style Codable conversion, local query/index
+support, revision-aware persistence helpers, optional CareKit and HealthKit
+adapters, watch synchronization helpers, and small network utilities.
+
+Application code owns backend replication and app-level conflict policy. This
+library manages local document persistence, CareKit model bridging, HealthKit
+sample conversion, and watch payload application. Backend conflict hooks remain
+application-layer responsibilities and are not implemented as active backend
+conflict resolution in this library.
 
 ## TheraForge Frameworks
+
 * [OTFToolBox](../../../OTFToolBox)
 * [OTFTemplateBox](../../../OTFTemplateBox)
 * [OTFCareKit](../../../OTFCareKit)
@@ -11,338 +22,505 @@ OTFCloudantStore is an interface between the OTFCarekit, HealthKit and OTFCDTDat
 * [OTFCloudClientAPI](../../../OTFCloudClientAPI)
 
 ## Change Log
+
 <details open>
+  <summary>Release 2.1.0</summary>
+  <ul>
+    <li>Added incremental watch synchronization payloads for tasks, outcomes, typed deletions, and legacy deletion compatibility.</li>
+    <li>Added watch delivery outcomes so callers can distinguish immediate delivery from queued delivery.</li>
+    <li>Hardened watch synchronization conflict and deletion handling so newer task and outcome revisions apply while stale, incompatible, or unsafe requests are skipped.</li>
+    <li>Preserved unmentioned documents during legacy watch revision merges.</li>
+    <li>Improved CareKit queries and outcomes with local sorting and pagination, schedule-overlap task intervals, canonical outcome identity, and stale-duplicate cleanup.</li>
+    <li>Added client-side index bootstrap and validation for common CareKit and sorted query paths.</li>
+    <li>Improved HealthKit sample identity and metadata conversion, including local propagation of deleted samples from anchored updates.</li>
+    <li>Hardened networking by reporting non-success and empty responses as errors while redacting sensitive diagnostic output.</li>
+    <li>Updated dependencies to OTFCDTDatastore 2.1.1-tf.3 and OTFCloudClientAPI 2.1.0.</li>
+    <li>Expanded unit test coverage and added a checked-in coverage badge workflow with focused maintenance documentation.</li>
+  </ul>
+</details>
+
+<details>
   <summary>Release 2.0.0</summary>
   <ul>
-    <li>Updated dependencies for TheraForge 2.0.0 release</li>
+    <li>Updated dependencies for TheraForge 2.0.0 release.</li>
   </ul>
 </details>
 
 <details>
   <summary>Release 1.0.5-beta</summary>
   <ul>
-    <li>Improved Readme file</li>
-    <li>Updated company name and copyright date</li>
+    <li>Improved Readme file.</li>
+    <li>Updated company name and copyright date.</li>
   </ul>
 </details>
 
 <details>
   <summary>Release 1.0.4-beta</summary>
   <ul>
-    <li>Added Synchronization</li>
+    <li>Added synchronization.</li>
   </ul>
 </details>
 
 <details>
   <summary>Release 1.0.3-beta</summary>
   <ul>
-    <li>Added WatchOS support</li>
+    <li>Added watchOS support.</li>
   </ul>
 </details>
 
 <details>
-<summary>Release 1.0.1-beta</summary>
-<ul>
-<li>Removed various warnings. Filter outcome result set based on the date interval.</li>
-</ul>
+  <summary>Release 1.0.1-beta</summary>
+  <ul>
+    <li>Removed various warnings. Filter outcome result set based on the date interval.</li>
+  </ul>
 </details>
 
 <details>
-<summary>Release 1.0.0-beta</summary>
-<ul>
-<li>First beta release of the framework</li>
-</ul>
+  <summary>Release 1.0.0-beta</summary>
+  <ul>
+    <li>First beta release of the framework.</li>
+  </ul>
 </details>
 
+## Table of Contents
 
-## Table of contents
-* [Requirements](#Requirements)
-* [Installation](#Installation)
-* [Usage](#Usage)
-* [Overview of the Library](#Overview-of-the-library)
-  * [OTFCloudantRevision](#OTFCloudantRevision)
-  * [OTFCloudantQuery](#OTFCloudantQuery)
-  * [OTFCloudantQueryComponents](#OTFCloudantQueryComponents)
-  * [OTFWatchConnectivityPeer](#OTFWatchConnectivityPeer)
-* [Healthkit Integration](#Healthkit-Integration)
-* [CareKit Integration](#CareKit-Integration)
-* [License](#License)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Subspecs and Compilation Flags](#subspecs-and-compilation-flags)
+* [Store Initialization and Indexes](#store-initialization-and-indexes)
+* [Revision-Aware CRUD](#revision-aware-crud)
+* [Querying](#querying)
+* [Synchronization](#synchronization)
+  * [OTFWatchConnectivityPeer](#otfwatchconnectivitypeer)
+* [CareKit Integration](#carekit-integration)
+* [HealthKit Integration](#healthkit-integration)
+* [Errors](#errors)
+* [Focused Documentation](#focused-documentation)
+* [Testing and Coverage](#testing-and-coverage)
+* [License](#license)
 
+## Requirements
 
-## Requirements <a name="Requirements"></a>
-The OTFCloudantStore framework codebase supports iOS and requires Xcode 12.0 or newer.
+The OTFCloudantStore framework supports iOS and watchOS. The podspec currently
+declares iOS 16.0 and watchOS 9.0 deployment targets. Development requires
+Xcode 16 or later, matching the OTFMagicBox application toolchain requirement.
 
-## Installation <a name="Installation"></a>
-OTFCloudantStore is available through [CocoaPods](http://cocoapods.org).  In your Xcode project folder open the Podfile and write the below line under target.
+## Installation
+
+OTFCloudantStore is available through
+[CocoaPods](https://cocoapods.org). Add the pod to your Podfile:
 
 ```ruby
 pod "OTFCloudantStore"
 ```
-With this pod installation you get CDTDDataStore and OTFCareKit as a dependency.
 
-## Usage <a name="Usage"></a>
+The default subspec is `CloudantOnly`. Choose an explicit subspec when the app
+needs CareKit, HealthKit, or both:
+
+```ruby
+pod "OTFCloudantStore/CloudantOnly"
+pod "OTFCloudantStore/CloudantCare"
+pod "OTFCloudantStore/CloudantHealth"
+pod "OTFCloudantStore/CloudantCareHealth"
+```
+
+The podspec is the source of published dependency declarations.
+
+## Subspecs and Compilation Flags
+
+The podspec uses `SWIFT_ACTIVE_COMPILATION_CONDITIONS` to compile optional
+platform integrations.
+
+| Subspec | Flags | Use when |
+| --- | --- | --- |
+| `CloudantOnly` | `CLOUDANT` | The app needs the base install without CareKit or HealthKit APIs. |
+| `CloudantCare` | `CARE` | The app needs CareKit dependencies and CARE-only code. The CareKit store APIs in this README require `CloudantCareHealth`. |
+| `CloudantHealth` | `HEALTH` | The app needs HealthKit sample and parsing types. `OTFHealthKitSynchronizer` requires `CloudantCareHealth`. |
+| `CloudantCareHealth` | `CARE HEALTH` | The app needs CareKit store APIs, generic CRUD/query conveniences, and `OTFHealthKitSynchronizer`. |
+
+The generic CRUD convenience APIs compile behind `CARE && HEALTH`.
+`OTFCloudantQuery` compiles behind `HEALTH`, and the store collection helpers
+shown below compile behind `CARE && HEALTH`. Use `CloudantCareHealth` for the
+complete CRUD and query examples in this README.
+
+## Store Initialization and Indexes
+
+`OTFCloudantStore` creates or opens a named local CDT datastore under the app's
+documents directory. The public initializer also bootstraps the required
+client-side indexes used by common CareKit and HealthKit query paths.
 
 ```swift
 import OTFCloudantStore
-let store = OTFCloudantStore(storeName: “your store name”)
-```
 
-## Overview of the Library <a name="Overview-of-the-library"></a>
-
-### OTFCloudantRevision <a name="OTFCloudantRevision"></a>
-
-In an application, when distributed databases are used, copies of your data might be stored in multiple locations. The copies of a data might have different updates because of which "Conflicts" occur and IBM Cloud can't determine which copy is the correct one.
-Keeping this data in sync is important that is where  `OTFCloudantRevision`  solves this problem of conflicts. The `OTFCloudantRevision` make sure that every Entity has revision id in order to serve the [MVCC](https://en.wikipedia.org/wiki/Multiversion_concurrency_control).
-
-Use the following add, update, delete, and get data functions to modify your data into the store, your class must conform to the `Codable`, `Identifiable` and `OTFCloudantRevision`.
-
-```swift
-add<Entity: Codable & Identifiable & OTFCloudantRevision>(_ items: [Entity], callbackQueue: DispatchQueue = .main, completion: ((Result<[Entity], OTFCloudantError>) -> Void)?)
-```
-```swift
-get<Entity: Codable & Identifier & OTFCloudantRevision>(callbackQueue: DispatchQueue = .main, completion: @escaping (Result<[Entity], OTFCloudantError>) -> Void)
-``` 
-```swift
-update<Entity: Codable & Identifiable & OTFCloudantRevision>(_ items: [Entity], callbackQueue: DispatchQueue = .main, completion: ((Result<[Entity], OTFCloudantError>) -> Void)?)
-```
-```swift
-delete<Entity: Codable & Identifiable & OTFCloudantRevision>(_ items: [Entity], callbackQueue: DispatchQueue = .main, completion: ((Result<[Entity], OTFCloudantError>) -> Void)?)
-```
-### OTFCloudantQuery <a name="OTFCloudantQuery"></a>
-IBM® [Cloudant®](https://cloudant.com) for IBM Cloud Query is a declarative JSON querying syntax for IBM Cloudant databases. IBM Cloudant Query uses two types of indexes: json and text.
-If you know exactly what data you want to look for, or you want to keep storage and processing requirements to a minimum, you can specify how the index is created by making it of type json.
-But for maximum flexibility when you search for data, you typically create an index of type text. Indexes of type text have a simple mechanism for automatically indexing all the fields in the documents.
-OTFCloudantQuery filters and sorts data. It can be used to order a collection of data by some fields which are indexes, if the field is not index, the result will be empty array.
-
-```swift
-let query = store.collection(className, fields: [String]?) -> OTFCloudantQuery 
-```
-
-```swift
-query.where(propertyName: propertyName, value: theFilter) -> OTFCloudantQuery
-```
-
-#### Sorting
-
-Theraforge OTFCloudantStore provides sorting functionality for the given property. To sort any property ensure that the following are true:
-- At least one of the sort field is included in the selector.
-- An index is already defined, with all the sort fields in the same order.
-- Each object in the sort array has a single key.
-
-```swift
-Ascending: query.sort(ascending: propertyName) -> OTFCloudantQuery
-Descending: query.sort(descending: propertyName) -> OTFCloudantQuery
-```
-```
-Note: the propertyName should be an index, if not, the result will be an empty array.
-```
-
-### OTFCloudantQueryComponents <a name="OTFCloudantQueryComponents"></a>
-
-The OTFCloudantQueryComponents are used to query with single field or combined query with multiple fields to get the compared result from the store. 
- 
-```swift
-Example
-    The query: where the title is equal to “Family Practice Doctor” will be translated into OTFCloudantQueryComponent like:
-    let query = OTFCloudantQueryComponent.simpleComponent(field: “title”, comparisonOperator: .equal, value: “Family Practice Doctor”, )
-    The query: where the age is less than 20 will be translated into OTFCloudantQueryComponent like
-    let query = OTFCloudantQueryComponent.simpleComponent(field: “age”, value: 20, comparisionOperator: .lessThan)
-    The query: where the age is in [15,20,30] will be translated into OTFCloudantQueryComponent like
-    let query = OTFCloudantQueryComponent.simpleComponent(field: “age”, comparisionOperator: .in, value: [15,20,30])
-```
-`field`: the name of the field which is used to query.
-
-`comparisionOperator`:  the operator which is used for condition check.
-
-`value`: the value which is used to filter - type Any.
-
-##### OTFCloudantCombinationQueryComponent
-This query component builds a combined query from two  `OTFCloudantQueryComponents`. 
-
-```swift
-Example
-    The query: where the title is equal to “Family Practice Doctor” and age is in [15,20,30] will be translated to:
-    let leftComponent = OTFCloudantQueryComponent.simpleComponent(field: “title”, comparisionOperator: .equal, value: “Family Practice Doctor”)
-    let rightComponent = OTFCloudantQueryComponent.simpleComponent(field: “age”, comparisionOperator: .in, value: [15,20,30])
-    let combinedQuery = OTFCloudantCombinationQueryComponent.combinedQueryComponent(leftComponent: leftComponent, combinationSelector: .and, rightComponent: rightComponent)
-```
-`leftComponent`: type OTFCloudantQueryComponent, which represents the first condition check.
-
-`rightComponent`: type OTFCloudantQueryComponent, which is presenting for the second condition check.
-
-`combinationSelector`: type OTFCloudantCombinationSelector which is used to combine two queries (and/or).
-
-##### OTFCloudantComplexQueryComponent
-This query component builds a complex query from two  `OTFCloudantCombinationQueryComponents`. 
-
-```swift
-Example
-    The query: where the title is equal to “Family Practice Doctor” and age is in [15,20,30] or title is equal to “Test” and age is less than 30 will be translated to:
-    let leftComponentFirstQuery = OTFCloudantQueryComponent.simpleComponent(field: “title”, comparisionOperator: .equal, value: “Family Practice Doctor”)
-    let rightComponentFirstQuery = OTFCloudantQueryComponent.simpleComponent(field: “age”, comparisionOperator: .in, value: [15,20,30])
-    let firstCombinedQuery = OTFCloudantCombinationQueryComponent.combinedQueryComponent(leftComponent: leftComponentFirstQuery, combinationSelector: .and, rightComponent: rightComponentFirstQuery)
-    let leftComponentSecondQuery = OTFCloudantQueryComponent.simpleComponent(field: “title”, comparisionOperator: .equal, value: “Test”)
-    let rightComponentSecondQuery = OTFCloudantQueryComponent.simpleComponent(field: “age”, comparisionOperator: .lessThan, value: 30)
-    let secondCombinedQuery = OTFCloudantCombinationQueryComponent.combinedQueryComponent(leftComponent: leftComponentSecondQuery, combinationSelector: .or, rightComponent: rightComponentSecondQuery)
-    let complexQuery = OTFCloudantComplexQueryComponent.complexQueryComponent(leftComponent: leftComponentSecondQuery, combinationSelector: .or, rightComponent: rightComponentSecondQuery)
-```
-`leftComponent`: OTFCloudantCombinationQueryComponent which is created by combining 2 OTFCloudantQueryComponents.
-
-`rightComponent`: OTFCloudantCombinationQueryComponent which is created by combining 2 OTFCloudantQueryComponents.
-
-`combinationSelector`: type OTFCloudantCombinationSelector which is used to combine two combined queries, which is or by default.
-
-**Short Query**
-```swift
-Example:
-    dataStore.collection(name: “OCKContact”).where(.simpleComponent(“title”, .equal, “Family Practice Doctor”), .and, .simpleComponent(“effectiveDate”, .greaterThan, “2020-11-27T23:00:00Z”)).get{}
-```
-## OTFWatchConnectivityPeer <a name="OTFCloudantQueryComponents"></a> ##
-Apple's `WatchConnectivity` framework to pair iOS and watchOS devices and enables communication between the two device types.
-Synchronizes daily tasks from iOS to watchOS and updates their outcomes in both stores.
-
-`OTFWatchConnectivityPeer` enables synchronizing two instances of `CloudantStore` where one store is part of an iOS app and the other belongs to the watchOS companion app.
-
-```swift
-- Parameters:
-   - peerMessage: A message received from the peer for which a response will be created.
-   - store: A store from which the reply can be built.
-   - sendReply: A callback that will be invoked with the response when it is ready.
-    
-    public func reply(to peerMessage: [String: Any],
-                      store: OTFCloudantStore,
-                      sendReply: @escaping(_ message: [String: Any]) -> Void) {
-        
-        if let _ = peerMessage[revisionRequestKey] as? String {
-            store.computeRevision(store: store) { result in
-                if let data = result {
-                    sendReply([revisionReplyKey: data])
-                } else {
-                    sendReply([revisionErrorKey: "Revision Error"])
-                }
-            }
-            return
-        }
-        
-        if let _ = peerMessage[revisionPushKey] as? String {
-            pullRevisions() { revision in
-                store.mergeRevision(revision)
-                sendReply([:])
-            } completion: { error in
-                if let error = error {
-                    sendReply([revisionErrorKey: error])
-                }
-            }
-            return
-        }
+do {
+    let store = try OTFCloudantStore(storeName: "local_db")
+    let missingIndexes = store.validateClientSideIndexes()
+    if !missingIndexes.isEmpty {
+        // Log or report missing local index definitions.
     }
-```
-
-## Healthkit Integration <a name="Healthkit-Integration"></a>
-The TheraForge OTFCloudantStore supports saving and distributing most health and fitness data from Apple [HealthKit](https://developer.apple.com/documentation/healthkit).
-The OTFCloudantStore provides `OTFCloudantSample` which will map the data from HealthKit’s entities and also helps on parsing data back to HealthKit’s entities.
-
-The OTFCloudantStore stores following different types of data:
-+ HKCategorySample
-+ HKQuantitySample 
-+ HKCorrelation
-+ HKCDADocumentSample
-+ HKWorkoutRoute
-+ HKWorkout
-
-* Get samples from OTFCloudantStore
-- When will we do it?
-     When we want to sync data from CloudantStore to new devices
-- How do we do it?
- Query samples from OTFCloudantStore based on the sample’s type (OTFHealthSampleType), use built-in query:
- + Use function to create query
-```swift
-public func collection(healthKitSampleType: OTFHealthSampleType, fields: [String]? = nil) -> OTFCloudantQuery
-```
-+ Then query data from the cloudantStore using 
-```swift
-public func getSamples(callbackQueue: DispatchQueue = .main, completion: @escaping (Result<[HKSample], OTFCloudantError>) -> Void)
-```
-+ Call save function of HealthKitStore to add those samples into OTFCloudantStore 
-- Example
-```swift
-Future<[HKSample], Never> { promise in
-    cloudantStore.collection(healthKitSampleType: .quantity).getSamples { result in
-        promise(.success((try? result.get()) ?? []))
-    }
-}
-```
-#### Syncing data bidirectionally
-- When do we use it?
-When we want to sync data from cloudantStore to new devices which may or may not have had samples stored in HealthKitStore already
-- How do we use it?
-We provide OTFHealthKitSynchronizer which is used to sync data between OTFCloudantStore and HealthKitStore
-The init function of OTFHealthKitSynchronizer accept two parameters: instance of OTFCloudantStore and instance of HKHealthStore
-In order to start to sync data between HealthKitStore and CloudantStore, we just need to call function:
-```swift
-public func syncWithHealthKit()
-```
-
-#### OTFCloudantError
-OTFCloudantError can be thrown in CRDU and synchronization when a failure occurs while performing the actions. 
-```swift
-public enum OTFCloudantError: LocalizedError {
-    /// Occurs when a fetch fails.
-    case fetchFailed(reason: String)
-
-    /// Occurs when adding an entity fails.
-    case addFailed(reason: String)
-
-    /// Occurs when an update to an existing entity fails.
-    case updateFailed(reason: String)
-
-    /// Occurs when deleting an existing entity fails.
-    case deleteFailed(reason: String)
-
-    /// Occurs when synchronization with a remote server fails.
-    case remoteSynchronizationFailed(reason: String)
-
-    /// Occurs when an invalid value is provided.
-    case invalidValue(reason: String)
-
-    /// Occurs when an asynchronous action takes too long.
-    /// - Note: This is intended for use by remote databases.
-    case timedOut(reason: String)
+} catch {
+    // Handle local store initialization errors.
 }
 ```
 
-## CareKit Integration <a name="CareKit-Integration"></a>
-The Theraforge OTFCloudantStore supports to save and distribute data from Apple [CareKit](https://developer.apple.com/documentation/carekit).
-The OTFCloudantStore performs Add, update, delete, and fetch data from the store for the various CareKit data models. 
+`ensureClientSideIndexes()` creates missing required indexes and returns any
+definitions that are still missing after bootstrap. `validateClientSideIndexes()`
+does not mutate the datastore; it reports missing definitions for diagnostics.
+See [Querying and Indexes](docs/querying-and-indexes.md) for the index matrix
+and sorted-query rules.
 
-The OTFCloudantStore provides integration support for following set of data models:
-+ OCKTask
-+ OCKContact 
-+ OCKCarePlan
-+ OCKPatient 
-+ OCKOutcome
+## Revision-Aware CRUD
 
+Generic entities stored through the convenience CRUD APIs must conform to
+`Codable`, `Identifiable`, and `OTFCloudantRevision`, with `String` identifiers.
+`id` maps to the Cloudant document ID. `revId` stores the current CDT document
+revision, which is needed for update and delete safety.
 
-## Swift Compilation Flags
-As of Xcode 8, we have the new SWIFT_ACTIVE_COMPILATION_CONDITIONS build setting which allows us to degine our flags without the need to prefix them. Under the hood, each element is passed to 'swiftc' prefixed with -D ! This matches the behaviour we had with Objective-C and Preprocessor.
+These convenience APIs require `CloudantCareHealth`.
 
-In OTFCloudantStore we've provided some custom flags that users can use to decide which frameworks he/she want's to use in their projects. They can decide between below given custom build configurations - 
+```swift
+struct Appointment: Codable, Identifiable, OTFCloudantRevision {
+    var id: String
+    var revId: String?
+    var title: String
+    var updatedDate: String
+}
+```
 
+### Add
 
+`add` creates new CDT documents from encoded entities and returns the saved
+entities with their new `revId` values when decoding succeeds.
 
-**CloudantOnly** - This is the most basic configuration that user can use in their project. It will install only few framework dependencies and they are only allowed to use them through OTFCloudantStore framework. You need to install this cocoapod by defining - `'pod OTFCloudantStore/CloudantOnly'` in their podfile. It will install 'OTFCloudClientAPI', 'OTFCDTDatastore' external dependencies along with OTFCloudantStore.
+```swift
+func addAppointment(to store: OTFCloudantStore) {
+    let appointment = Appointment(
+        id: "appointment-1",
+        revId: nil,
+        title: "Family Practice Doctor",
+        updatedDate: "2026-07-04T00:00:00Z"
+    )
 
-**CloudantCare** - If user want to use the OTFCareKit framework and it's related functions and operations in OTFCloudantStore, User need to use `'pod OTFCloudantStore/CloudantCare'` in their podfile. It will install 'OTFCareKit (without HealthKit support)', 'OTFCDTDatastore', 'OTFResearchKit (without HealthKit support)', 'OTFCloudClientAPI' external dependencies along with OTFCloudantStore.
+    store.add([appointment]) { result in
+        switch result {
+        case .success(let savedAppointments):
+            print(savedAppointments.first?.revId ?? "missing revision")
+        case .failure(let error):
+            print(error.localizedDescription)
+        }
+    }
+}
+```
 
-**CloudantCareHealth** - If user wants to use the OTFCareKit and HealthKit framework and their related functions, operations in OTFCloudantStore, then user need to use `'pod OTFCloudantStore/CloudantCareHealth'` in their podfile. It will install 'OTFCareKit (with HealthKit support)', 'OTFCDTDatastore', 'OTFResearchKit (with HealthKit support)' and 'OTFCloudClientAPI' external dependencies along with OTFCloudantStore.
+### Fetch
 
-**CloudantHealth** - If user wants to use the HealthKit framework and it's related functions and operations only in OTFCloudantStore. Then user need to use `'pod OTFCloudantStore/CloudantHealth'` in their podfile. It will install 'OTFCDTDatastore' and 'OTFCloudClientAPI' external dependencies as well along with OTFCloudantStore.
+Use `get` on an `OTFCloudantQuery` for simple Cloudant-style selectors, or use
+`fetch(cloudantQuery:)` for CareKit query adapter paths.
 
- 
- By using these pods user can have a control over the frameworks that he/she wants to install according to their need. He don't have to specify these flags anywhere as everything is done already in the code. He/she just need to figure out which framework configuration (from the above 4 configurations) best suites to his requirement and simply install it in his project. 
- For example - If user want's to use OTFCareKit framework in his project but he don't wants to use HealthKit as it may cause a rejection on the App Store if he is not actually using any HealthKit related code but still importing HealthKit. So he can use `pod OTFCloudantStore/CloudantCare`. It will not allow app to import HealthKit or use it's code.
- 
- 
- ## License <a name="License"></a>
+```swift
+func fetchAppointments(from store: OTFCloudantStore) {
+    let query = store
+        .collection(className: "Appointment")
+        .where("title", isEqualTo: "Family Practice Doctor")
+        .sort(ascendingBy: "updatedDate")
 
-This project is made available under the terms of a modified BSD license. See the [LICENSE](LICENSE.md) file.
+    query.get { (result: Result<[Appointment], OTFCloudantError>) in
+        switch result {
+        case .success(let appointments):
+            print("Fetched \(appointments.count) appointments")
+        case .failure(let error):
+            print(error.localizedDescription)
+        }
+    }
+}
+```
+
+### Update
+
+`update` writes the encoded entity body using the current document revision.
+When `revId` is nil, the store fetches the current revision for the document ID
+before updating.
+
+```swift
+func updateAppointment(_ appointment: Appointment, in store: OTFCloudantStore) {
+    var edited = appointment
+    edited.title = "Updated Appointment"
+
+    store.update([edited]) { result in
+        if case .failure(let error) = result {
+            print(error.localizedDescription)
+        }
+    }
+}
+```
+
+### Delete
+
+`delete` resolves the current CDT revision for each document ID and deletes that
+revision.
+
+```swift
+func deleteAppointment(_ appointment: Appointment, from store: OTFCloudantStore) {
+    store.delete([appointment]) { result in
+        if case .failure(let error) = result {
+            print(error.localizedDescription)
+        }
+    }
+}
+```
+
+## Querying
+
+`OTFCloudantQuery` builds selector dictionaries for datastore `find` calls. A
+CareKit constructor seeds the selector with `entityType`; HealthKit constructors
+seed `entityType` and sample `type`.
+
+```swift
+let query = store
+    .collection(className: "Appointment")
+    .where("title", isEqualTo: "Family Practice Doctor")
+    .where("updatedDate", isGreeterThanOrEqualTo: "2026-07-01T00:00:00Z")
+    .limit(limit: 20)
+    .skip(skip: 0)
+```
+
+Supported selector helpers include equality, less-than, less-than-or-equal,
+greater-than, greater-than-or-equal, not-equal, `in`, `notIn`, `exists`, `mod`,
+and `size`. `where(field:mode:equal:)` throws `.invalidValue` when the divisor
+is zero.
+
+### Query Components
+
+Use query components when a selector needs to be assembled from reusable pieces.
+
+```swift
+let title = OTFCloudantQueryComponent.simpleComponent(
+    "title",
+    .equal,
+    "Family Practice Doctor"
+)
+
+let date = OTFCloudantQueryComponent.simpleComponent(
+    "updatedDate",
+    .greaterThanOrEqual,
+    "2026-07-01T00:00:00Z"
+)
+
+let combined = OTFCloudantCombinationQueryComponent.combinedQueryComponent(
+    title,
+    .and,
+    date
+)
+
+let query = store
+    .collection(className: "Appointment")
+    .where(query: combined)
+```
+
+For broader selectors, combine two `OTFCloudantCombinationQueryComponent`
+instances with `OTFCloudantComplexQueryComponent.complexQueryComponent`.
+
+```swift
+let urgent = OTFCloudantCombinationQueryComponent.combinedQueryComponent(
+    OTFCloudantQueryComponent.simpleComponent("priority", .equal, "urgent"),
+    .and,
+    OTFCloudantQueryComponent.simpleComponent("status", .notEqualTo, "done")
+)
+
+let routine = OTFCloudantCombinationQueryComponent.combinedQueryComponent(
+    OTFCloudantQueryComponent.simpleComponent("priority", .equal, "routine"),
+    .and,
+    OTFCloudantQueryComponent.simpleComponent("status", .equal, "scheduled")
+)
+
+let complex = OTFCloudantComplexQueryComponent.complexQueryComponent(
+    urgent,
+    .or,
+    routine
+)
+
+let query = store.collection(className: "Appointment").where(query: complex)
+```
+
+### Sorting and Pagination
+
+Use `ordered(by:ascending:)`, `sort(ascendingBy:)`, or `sort(descendingBy:)` for
+sorted results. Mixed sort directions fail with `.fetchFailed`. Sorted fields
+must be indexed; missing sorted-field indexes also complete with `.fetchFailed`
+and do not return a successful empty array.
+
+```swift
+let query = store
+    .collection(className: "Appointment")
+    .where("title", isEqualTo: "Family Practice Doctor")
+    .sort(descendingBy: "updatedDate")
+    .limit(limit: 10)
+```
+
+See [Querying and Indexes](docs/querying-and-indexes.md) for supported selector
+details, required index definitions, CareKit query adapter mapping, and local
+post-processing rules.
+
+## Synchronization
+
+Watch synchronization is explicit and route-based. The store uses the remote
+peer assigned at initialization to route requests.
+
+| Target | Behavior |
+| --- | --- |
+| `.watchOS` | Requests legacy revisions through `pullRevisions`, then merges included task and outcome revisions. |
+| `.mobile` | Notifies the watch with `updatewatchOS()` only. It does not push entity revisions. |
+| `.watchAppUpdate` | Pushes revisions, then notifies the watch. `synchronizeWatchAppUpdate` reports `.delivered`, `.queued`, or a nonqueueable error through `OTFWatchDeliveryOutcome`. |
+
+Legacy revision merges upsert included tasks and outcomes while preserving
+unmentioned local documents. They must not be treated as destructive full
+snapshots.
+
+Incremental synchronization uses `OTFWatchSyncPayload`. Payloads can include
+task data, outcome data, typed `OTFWatchSyncDeletion` requests, and legacy
+deleted document IDs. Receiver replies include apply counters for tasks,
+outcomes, deletions, skipped revisions, and skipped deletions.
+
+Typed task deletions validate that the target document is a task. Typed outcome
+deletions validate logical outcome identity before deleting, using either the
+provided `taskUUID` and `occurrenceIndex` or the canonical document ID form
+`<taskUUID>_<occurrenceIndex>`. Non-deletion skips do not count as delivery
+failure; skipped typed deletions are treated as sender-side failures because the
+receiver could not validate a requested delete safely.
+
+`backfillTaskDateMetadataIfNeeded()` fills missing task `startDate` and
+`endDate` metadata from stored CareKit schedules so older documents remain
+queryable by task date interval.
+
+See [Synchronization](docs/synchronization.md) for the routing, payload,
+conflict, deletion, delivery, and limitation matrices.
+
+### OTFWatchConnectivityPeer
+
+`OTFWatchConnectivityPeer` bridges WatchConnectivity messages for legacy
+revision requests, legacy revision pushes, and incremental revision pushes. It
+uses immediate `sendMessage` delivery when possible and queues valid sessions
+that are not currently reachable with `transferUserInfo`. A queued
+`OTFWatchDeliveryOutcome` means the message was handed to WatchConnectivity; it
+is not a receiver-apply acknowledgement.
+
+## CareKit Integration
+
+The CareKit store APIs documented here currently require the
+`CloudantCareHealth` subspec. `CloudantCare` sets the `CARE` build flag and
+pulls CareKit dependencies, but the `OCKStoreProtocol` extensions are gated by
+both `CARE` and `HEALTH`.
+
+`CloudantCareHealth` compiles store support for:
+
+* `OCKTask`
+* `OCKOutcome`
+* `OCKPatient`
+* `OCKContact`
+* `OCKCarePlan`
+
+CareKit adds, updates, and deletes map encoded CareKit models into CDT
+documents, then notify the matching CareKit delegate. Fetches preserve CareKit
+query semantics with local post-processing when datastore ordering alone is not
+enough. Patients, contacts, care plans, tasks, and outcomes all support local
+sorting and pagination paths.
+
+Task date queries use schedule overlap against stored `startDate` and `endDate`
+metadata. Outcomes are normalized by logical event identity, using
+`taskUUID` plus occurrence index. The canonical outcome document ID is
+`<taskUUID>_<occurrenceIndex>`. `pruneStaleOutcomeDocuments()` migrates the
+newest duplicate logical outcome to the canonical ID and removes stale duplicate
+documents.
+
+See [CareKit Store Contract](docs/carekit-store-contract.md) for CRUD behavior,
+delegate notifications, outcome identity, deletion safety, and failure mapping.
+
+## HealthKit Integration
+
+The `CloudantHealth` and `CloudantCareHealth` subspecs compile HealthKit sample
+and parsing types. `OTFCloudantSample` stores HealthKit sample identity, dates,
+values, type information, source metadata, and selected metadata in compact
+documents.
+
+`OTFHealthKitSynchronizer` currently requires `CloudantCareHealth`. It supports
+three directions:
+
+| Direction | Meaning |
+| --- | --- |
+| `.fromCloudantToHK` | Converts local Cloudant samples to `HKSample` values and saves samples that are not already present in HealthKit. |
+| `.fromHKToCloudant` | Converts fetched HealthKit samples to `OTFCloudantSample` values and adds samples that are not already present in Cloudant. |
+| `.biDirection` | Runs Cloudant-to-HealthKit first, then HealthKit-to-Cloudant using the fetched snapshots from both stores. |
+
+Sample identity prefers `HKMetadataKeyExternalUUID` when present and falls back
+to the HealthKit UUID. When a Cloudant sample is converted back to HealthKit,
+the Cloudant ID is written as `HKMetadataKeyExternalUUID` so duplicate checks can
+match across sync cycles.
+
+Anchored realtime updates add and update local Cloudant samples from HealthKit
+changes. Deleted HealthKit samples are resolved back to matching Cloudant
+documents and deleted locally when a match is found. The two `syncWithHealthKit`
+methods exit early when Health data is unavailable. `observeOnHKStoreRealTimeUpdates()`
+does not perform its own availability guard, so call it only after the app has
+confirmed HealthKit is available for the current device and user flow.
+
+This library does not request HealthKit authorization. The app must configure
+HealthKit capabilities, usage descriptions, and read/write authorization for the
+sample types it fetches, saves, or observes.
+
+See [HealthKit Synchronization](docs/healthkit-synchronization.md) for supported
+sample type groups, identity rules, anchored update behavior, and authorization
+constraints.
+
+## Errors
+
+Public store and query APIs return `OTFCloudantError` for framework-level
+failures:
+
+| Error | Typical cause |
+| --- | --- |
+| `.fetchFailed` | Datastore fetch, decode, or sorted-query validation failure. |
+| `.addFailed` | One or more documents could not be created. |
+| `.updateFailed` | One or more documents could not be updated. |
+| `.deleteFailed` | One or more documents could not be deleted. |
+| `.remoteSynchronizationFailed` | Remote or watch synchronization could not complete. |
+| `.invalidValue` | A caller supplied an invalid value, such as a zero `$mod` divisor. |
+| `.timedOut` | An asynchronous remote operation exceeded its timeout. |
+
+CareKit domain methods map these failures to the corresponding `OCKStoreError`
+when satisfying CareKit store protocols.
+
+## Focused Documentation
+
+The README is the entry point. Use the focused docs for detailed contracts and
+edge-case matrices:
+
+* [Synchronization](docs/synchronization.md)
+* [CareKit Store Contract](docs/carekit-store-contract.md)
+* [Querying and Indexes](docs/querying-and-indexes.md)
+* [HealthKit Synchronization](docs/healthkit-synchronization.md)
+* [Testing](docs/testing.md)
+
+## Testing and Coverage
+
+Run the main XCTest target from the CocoaPods workspace:
+
+```sh
+xcodebuild test -workspace OTFCloudantStore.xcworkspace -scheme OTFCloudantStoreTests -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5'
+```
+
+To update the checked-in coverage badge, run the coverage flow and commit the
+regenerated `badges/coverage.svg` file:
+
+```sh
+xcodebuild test -workspace OTFCloudantStore.xcworkspace -scheme OTFCloudantStoreTests -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.5' -enableCodeCoverage YES -resultBundlePath /tmp/OTFCloudantStore-coverage.xcresult
+xcrun xccov view --report --only-targets /tmp/OTFCloudantStore-coverage.xcresult
+ruby Scripts/generate_coverage_badge.rb /tmp/OTFCloudantStore-coverage.xcresult
+```
+
+For test-suite mapping and docs-only verification commands, see
+[Testing](docs/testing.md).
+
+## License
+
+This project is made available under the terms of a modified BSD license. See
+the [LICENSE](LICENSE.md) file.

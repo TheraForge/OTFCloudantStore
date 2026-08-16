@@ -132,7 +132,7 @@ public struct OTFCloudantHKAudiogramSampleType: OTFHKSampleType {
             let sampleType = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKAudiogramSampleType.self, from: data)
             return sampleType
         } catch {
-            OTFError("Mapping from Cloudant's AudiogramSampleType to HK's AudiogramSampleType failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Mapping from Cloudant's AudiogramSampleType to HK's AudiogramSampleType failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }
@@ -171,7 +171,11 @@ public struct OTFCloudantHKAudiogramSensitivityPoint: Codable {
      - Returns: This function will return an optional HKAudiogramSensitivityPoint object, that could be null also.
      */
     public func toHKAudiogramSensitivityPoint() -> HKAudiogramSensitivityPoint? {
-        let audigram = try? HKAudiogramSensitivityPoint(frequency: frequency?.toHKQuantity() ?? .defaultValue(), leftEarSensitivity: leftEarSensitivity?.toHKQuantity(), rightEarSensitivity: rightEarSensitivity?.toHKQuantity())
+        let audigram = try? HKAudiogramSensitivityPoint(
+            frequency: frequency?.toHKQuantity() ?? .defaultValue(),
+            leftEarSensitivity: leftEarSensitivity?.toHKQuantity(),
+            rightEarSensitivity: rightEarSensitivity?.toHKQuantity()
+        )
         return audigram
     }
 

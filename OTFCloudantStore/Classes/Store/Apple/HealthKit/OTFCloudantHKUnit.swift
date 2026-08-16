@@ -63,6 +63,12 @@ public class OTFCloudantHKUnit: OTFCloudantHKObject {
         unitString = try container.decodeIfPresent(String.self, forKey: .unitString)
     }
 
+    public override func encode(to encoder: Encoder) throws {
+        try super.encode(to: encoder)
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(unitString, forKey: .unitString)
+    }
+
     /**
      - Description: Maps the data from the Cloudant's unit into HK's unit.
      - Returns: This function will return an HKUnit object.

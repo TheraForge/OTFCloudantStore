@@ -34,7 +34,7 @@ OF SUCH DAMAGE.
 
 import Foundation
 #if CARE
-//import OTFResearchKit
+// import OTFResearchKit
 #endif
 
 public struct OTFCloudantORKResult: Codable, OTFCloudantRevision, Identifiable {
@@ -83,6 +83,13 @@ public struct OTFCloudantORKResult: Codable, OTFCloudantRevision, Identifiable {
         try container.encode(startDate, forKey: .startDate)
         try container.encode(endDate, forKey: .endDate)
         if let dict = userInfo, !dict.isEmpty {
+            guard JSONSerialization.isValidJSONObject(dict) else {
+                let context = EncodingError.Context(
+                    codingPath: [CodingKeys.userInfo],
+                    debugDescription: "userInfo must contain only JSON-serializable values."
+                )
+                throw EncodingError.invalidValue(dict, context)
+            }
             let jsonData = try JSONSerialization.data(withJSONObject: dict, options: .fragmentsAllowed)
             try container.encode(jsonData, forKey: .userInfo)
         }

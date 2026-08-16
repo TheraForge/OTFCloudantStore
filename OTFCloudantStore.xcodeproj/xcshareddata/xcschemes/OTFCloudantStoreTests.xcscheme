@@ -45,9 +45,9 @@
       <CodeCoverageTargets>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "14AF8DDA2657744E003513DF"
-            BuildableName = "OTFCloudantStoreTests.xctest"
-            BlueprintName = "OTFCloudantStoreTests"
+            BlueprintIdentifier = "FA23A0182450B1FD008BEDD7"
+            BuildableName = "OTFCloudantStore.framework"
+            BlueprintName = "OTFCloudantStore"
             ReferencedContainer = "container:OTFCloudantStore.xcodeproj">
          </BuildableReference>
       </CodeCoverageTargets>

@@ -66,7 +66,7 @@ public struct OTFCloudantHKSource: Codable {
             let source = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKSource.self, from: data)
             return source
         } catch {
-            OTFError("Mapping from", "")
+            OTFLogger.logger().error("Mapping from Cloudant's source to HK's source failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }

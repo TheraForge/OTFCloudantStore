@@ -45,6 +45,14 @@ import HealthKit
  example: query
  2. Call method which uses OTFCloudantQueryComponent, OTFCloudantCombinationQueryComponent or OTFCloudantComplexQueryComponent. They are used to create combined query which is use multiple fields and multiple query conditon selector and combination selector
  */
+struct OTFCloudantQuerySnapshot {
+    let selector: [String: Any]
+    let sortDescriptors: [[String: String]]?
+    let limit: UInt
+    let skip: UInt
+    let fields: [String]?
+}
+
 public class OTFCloudantQuery {
     private let cloudantStore: OTFCloudantStore
     private var dictionary = [String: Any]()
@@ -74,6 +82,16 @@ public class OTFCloudantQuery {
         dictionary["entityType"] = "OTFCloudantSample"
         dictionary["type"] = healthSampleType.rawValue
         self.fields = fields
+    }
+
+    var snapshot: OTFCloudantQuerySnapshot {
+        OTFCloudantQuerySnapshot(
+            selector: dictionary,
+            sortDescriptors: sortDescriptors,
+            limit: limitNumber,
+            skip: skip,
+            fields: fields
+        )
     }
 
     public func `where`(_ property: String, isEqualTo value: String) -> OTFCloudantQuery {
@@ -132,7 +150,7 @@ public class OTFCloudantQuery {
     }
 
     public func `where`(_ property: String, notEqualTo value: String) -> OTFCloudantQuery {
-        dictionary[property] = ["$neq": value]
+        dictionary[property] = [OTFCloudantConditionSelector.notEqualTo.rawValue: value]
         return self
     }
 
@@ -242,7 +260,7 @@ public class OTFCloudantQuery {
             let orders = sortDescriptors.flatMap { Array($0.values) }
             let sortFields = sortDescriptors.flatMap { Array($0.keys) }
             if let firstValue = orders.first {
-                for order in orders where firstValue == order {
+                for order in orders where firstValue != order {
                     completion(.failure(.fetchFailed(reason: "All the sort fields should be in the same order")))
                     return
                 }
@@ -283,7 +301,6 @@ public class OTFCloudantQuery {
                     completion(.failure(.fetchFailed(reason: firstError.localizedDescription)))
                 }
             } else {
-                NSLog("Returning empty data")
                 completion(.success([]))
             }
         }
@@ -300,7 +317,7 @@ public class OTFCloudantQuery {
             let orders = sortDescriptors.flatMap { Array($0.values) }
             let sortFields = sortDescriptors.flatMap { Array($0.keys) }
             if let firstValue = orders.first {
-                for order in orders where firstValue == order {
+                for order in orders where firstValue != order {
                     completion(.failure(.fetchFailed(reason: "All the sort fields should be in the same order")))
                     return
                 }
@@ -341,7 +358,6 @@ public class OTFCloudantQuery {
                     completion(.failure(.fetchFailed(reason: firstError.localizedDescription)))
                 }
             } else {
-                NSLog("Returning empty data")
                 completion(.success([]))
             }
         }
@@ -353,7 +369,7 @@ public class OTFCloudantQuery {
             let orders = sortDescriptors.flatMap { Array($0.values) }
             let sortFields = sortDescriptors.flatMap { Array($0.keys) }
             if let firstValue = orders.first {
-                for order in orders where firstValue == order {
+                for order in orders where firstValue != order {
                     completion(.failure(.fetchFailed(reason: "All the sort fields should be in the same order")))
                     return
                 }
@@ -394,7 +410,6 @@ public class OTFCloudantQuery {
                     completion(.failure(.fetchFailed(reason: firstError.localizedDescription)))
                 }
             } else {
-                NSLog("Returning empty data")
                 completion(.success([]))
             }
         }

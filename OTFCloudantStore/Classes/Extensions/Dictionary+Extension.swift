@@ -38,7 +38,7 @@ import OTFCDTDatastore
 extension Dictionary where Key == String {
     func toDocumentRevision(revId: String?) -> CDTDocumentRevision {
         guard let docId = self["id"] as? String else {
-            fatalError()
+            fatalError("Cannot create a Cloudant document revision without an id value.")
         }
         let rev: CDTDocumentRevision
         if let revId = revId {

@@ -89,7 +89,7 @@ public struct OTFCloudantHKDocumentSample: OTFCloudantHKSampleProtocol {
             let sample = try NSKeyedUnarchiver.unarchivedObject(ofClass: HKDocumentSample.self, from: data)
             return sample
         } catch {
-            OTFError("Mapping from Cloudant's SeriesSample into HK's SeriesSample failed with error: %{public}@", error.localizedDescription)
+            OTFLogger.logger().error("Mapping from Cloudant's DocumentSample into HK's DocumentSample failed with error: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }

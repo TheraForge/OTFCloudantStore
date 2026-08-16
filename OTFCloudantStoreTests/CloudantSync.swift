@@ -32,6 +32,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
 OF SUCH DAMAGE.
  */
 
+import Foundation
 import OTFCloudantStore
 import OTFCDTDatastore
 import OTFCloudClientAPI
@@ -39,7 +40,7 @@ import OTFUtilities
 
 class CloudantSync: NSObject {
     static let shared = CloudantSync()
-    private override init() {}
+    override private init() {}
 
     enum Environment: String {
         case theraforge
@@ -49,6 +50,21 @@ class CloudantSync: NSObject {
         let targetURL: URL
         let username: String
         let password: String
+        let apiKey: String
+    }
+
+    enum ConfigurationError: LocalizedError {
+        case missingEnvironmentValue(String)
+        case invalidURL(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .missingEnvironmentValue(let name):
+                return "Missing required environment value: \(name)"
+            case .invalidURL(let value):
+                return "Invalid OTFCLOUDANT_SYNC_TARGET_URL: \(value)"
+            }
+        }
     }
 
     enum ReplicationDirection: String {
@@ -62,30 +78,40 @@ class CloudantSync: NSObject {
         case bulkGet
     }
 
-    private func configuration(environment: Environment) -> Configuration {
+    private func configuration(environment: Environment) throws -> Configuration {
         switch environment {
         case .theraforge:
-            let username = "<your-user-name>"
-            let password = "<your-password>"
-            let userID = "<your-user-uuid>"
-            dbName = "theraforge_user_\(userID)"
-            
-            // Must be HTTP and not HTTPS
-            let remote = URL(string: "https://www.theraforge.org/api/v1/db/")!
+            let targetURL = try requiredEnvironmentValue("OTFCLOUDANT_SYNC_TARGET_URL")
+            let username = try requiredEnvironmentValue("OTFCLOUDANT_SYNC_USERNAME")
+            let password = try requiredEnvironmentValue("OTFCLOUDANT_SYNC_PASSWORD")
+            let apiKey = try requiredEnvironmentValue("OTFCLOUDANT_SYNC_API_KEY")
+
+            guard let remote = URL(string: targetURL) else {
+                throw ConfigurationError.invalidURL(targetURL)
+            }
+
             return Configuration(targetURL: remote,
                                  username: username,
-                                 password: password)
+                                 password: password,
+                                 apiKey: apiKey)
         }
-        
+    }
+
+    private func requiredEnvironmentValue(_ name: String) throws -> String {
+        guard let value = ProcessInfo.processInfo.environment[name], !value.isEmpty else {
+            throw ConfigurationError.missingEnvironmentValue(name)
+        }
+
+        return value
     }
 
     func replicate(direction: ReplicationDirection, environment: Environment, completionBlock: ((Error?) -> Void)? = nil) throws {
 
-        let store = try StoreService.shared.currentStore()
+        let store = try StoreService.shared.currentStore(peer: OTFWatchConnectivityPeer())
         let datastoreManager = store.datastoreManager
         let factory = CDTReplicatorFactory(datastoreManager: datastoreManager)
 
-        let configuration = self.configuration(environment: environment)
+        let configuration = try self.configuration(environment: environment)
 
         let replication: CDTAbstractReplication
         switch direction {
@@ -103,13 +129,13 @@ class CloudantSync: NSObject {
 
         switch environment {
         case .theraforge:
-            replication.add(TheraForgeHTTPInterceptor())
+            replication.add(TheraForgeHTTPInterceptor(apiKey: configuration.apiKey))
         default:
             break
         }
 
         let replicator = try factory.oneWay(replication)
-        let dataStore = try datastoreManager.datastoreNamed("test_store")
+        let dataStore = store.dataStore
         
         switch environment {
         case .theraforge:
@@ -123,27 +149,29 @@ class CloudantSync: NSObject {
         case .push:
             dataStore.push(to: configuration.targetURL, replicator: replicator, username: configuration.username, password: configuration.password) { (error: Error?) in
                 if let error = error {
-                    OTFError("Error: %{public}@", error.localizedDescription)
+                    OTFLogger.logger().error("Push failed: \(error.localizedDescription, privacy: .public)")
                     completionBlock?(error)
                 } else {
-                    OTFLog("PUSH SUCCEEDED", "")
+                    OTFLogger.logger().info("Push succeeded")
                     completionBlock?(nil)
                 }
             }
         case .pull:
             dataStore.pull(from: configuration.targetURL, replicator: replicator, username: configuration.username, password: configuration.password) { error in
-                OTFError("Pull Error: %{public}@", error?.localizedDescription ?? "")
+                if let error {
+                    OTFLogger.logger().error("Pull failed: \(error.localizedDescription, privacy: .public)")
+                }
                 completionBlock?(error)
             }
         }
     }
 
     func dbProxy(endPoint: DBEndPoints, direction: ReplicationDirection, environment: Environment, requestBody: [AnyHashable: Any]? = nil, completionHandler: @escaping ((Any?, Error?) -> Void)) throws {
-        let store = try StoreService.shared.currentStore()
+        let store = try StoreService.shared.currentStore(peer: OTFWatchConnectivityPeer())
         let datastoreManager = store.datastoreManager
         let factory = CDTReplicatorFactory(datastoreManager: datastoreManager)
 
-        let configuration = self.configuration(environment: environment)
+        let configuration = try self.configuration(environment: environment)
         let replication: CDTAbstractReplication
         switch direction {
         case .push:
@@ -160,7 +188,7 @@ class CloudantSync: NSObject {
 
         switch environment {
         case .theraforge:
-            replication.add(TheraForgeHTTPInterceptor())
+            replication.add(TheraForgeHTTPInterceptor(apiKey: configuration.apiKey))
         default:
             break
         }
@@ -184,12 +212,18 @@ class CloudantSync: NSObject {
 }
 
 class TheraForgeHTTPInterceptor: NSObject, CDTHTTPInterceptor {
+    private let apiKey: String
+
+    init(apiKey: String) {
+        self.apiKey = apiKey
+        super.init()
+    }
 
     func interceptRequest(in context: CDTHTTPInterceptorContext) -> CDTHTTPInterceptorContext? {
         if let currentAuth = TheraForgeNetwork.shared.currentAuth {
             context.request.setValue("\(TheraForgeNetwork.shared.identifierForVendor)", forHTTPHeaderField: "Client")
-            context.request.setValue("Bearer \(currentAuth.accesstoken)", forHTTPHeaderField: "Authorization")
-            context.request.addValue("\(NetworkingLayer.shared.clientToken)", forHTTPHeaderField: "API-KEY")
+            context.request.setValue("Bearer \(currentAuth.token)", forHTTPHeaderField: "Authorization")
+            context.request.addValue(apiKey, forHTTPHeaderField: "API-KEY")
         }
         return context
     }
